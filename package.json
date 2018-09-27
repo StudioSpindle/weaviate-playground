@@ -1,0 +1,44 @@
+{
+  "name": "weaviate-playground",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "react": "^16.5.2",
+    "react-dom": "^16.5.2",
+    "react-scripts-ts": "2.17.0",
+    "source-map-explorer": "^1.6.0",
+    "standard-version": "^4.4.0"
+  },
+  "scripts": {
+    "precommit": "lint-staged && npm test",
+    "prepush": "npm test",
+    "start": "react-scripts-ts start",
+    "build": "react-scripts-ts build",
+    "analyze": "source-map-explorer build/static/js/main.*",
+    "release": "standard-version && npm run build",
+    "prettier:check": "prettier --list-different './src/**/*.{ts,tsx}'",
+    "prettier:fix": "prettier --write './src/**/*.{ts,tsx}'",
+    "test": "npm run test:types && npm run test:lint && npm run test:unit",
+    "test:lint": "tslint --project ./tsconfig.json",
+    "test:types": "tsc --noEmit",
+    "test:unit": "CI=true react-scripts-ts test --env=jsdom",
+    "test:unit:watch": "react-scripts-ts test --env=jsdom",
+    "eject": "react-scripts-ts eject"
+  },
+  "lint-staged": {
+    "src/**/*.{ts,tsx,json,css}": [
+      "prettier --single-quote --write",
+      "git add"
+    ]
+  },
+  "devDependencies": {
+    "@types/jest": "^23.3.2",
+    "@types/node": "^10.10.3",
+    "@types/react": "^16.4.14",
+    "@types/react-dom": "^16.0.7",
+    "husky": "^1.0.0-rc.15",
+    "lint-staged": "^7.3.0",
+    "prettier": "^1.14.3",
+    "typescript": "^3.0.3"
+  }
+}

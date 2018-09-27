@@ -10,18 +10,23 @@
     "standard-version": "^4.4.0"
   },
   "scripts": {
-    "precommit": "lint-staged",
+    "precommit": "lint-staged && npm test",
+    "prepush": "npm test",
     "start": "react-scripts-ts start",
     "build": "react-scripts-ts build",
     "analyze": "source-map-explorer build/static/js/main.*",
     "release": "standard-version && npm run build",
     "prettier:check": "prettier --list-different './src/**/*.{ts,tsx}'",
     "prettier:fix": "prettier --write './src/**/*.{ts,tsx}'",
-    "test": "react-scripts-ts test --env=jsdom",
+    "test": "npm run test:types && npm run test:lint && npm run test:unit",
+    "test:lint": "tslint --project ./tsconfig.json",
+    "test:types": "tsc --noEmit",
+    "test:unit": "CI=true react-scripts-ts test --env=jsdom",
+    "test:unit:watch": "react-scripts-ts test --env=jsdom",
     "eject": "react-scripts-ts eject"
   },
   "lint-staged": {
-    "src/**/*.{js,jsx,json,css}": [
+    "src/**/*.{ts,tsx,json,css}": [
       "prettier --single-quote --write",
       "git add"
     ]

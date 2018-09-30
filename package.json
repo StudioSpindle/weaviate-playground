@@ -18,7 +18,8 @@
     "react-dom": "^16.5.2",
     "react-scripts-ts": "2.17.0",
     "source-map-explorer": "^1.6.0",
-    "standard-version": "^4.4.0"
+    "standard-version": "^4.4.0",
+    "styled-components": "^3.4.9"
   },
   "scripts": {
     "precommit": "lint-staged && npm test",

@@ -7,6 +7,9 @@ import { withClientState } from 'apollo-link-state';
 import { defaults, resolvers } from 'src/resolvers';
 import typeDefs from 'src/schema';
 
+const urlParams = new URLSearchParams(window.location.search);
+const uri = urlParams.get('weaviateUri') || '';
+
 const cache = new InMemoryCache({
   dataIdFromObject: object => {
     switch (object.__typename) {
@@ -38,7 +41,7 @@ const link = ApolloLink.from([
   }),
   new HttpLink({
     credentials: 'same-origin',
-    uri: 'http://localhost:8081/graphql'
+    uri
   })
 ]);
 

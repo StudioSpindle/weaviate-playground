@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Filters, Introspector, Library, Section } from 'src/components';
 import styled, { injectGlobal } from 'styled-components';
 
 interface IAsideProps {
@@ -60,13 +61,6 @@ const Aside = styled<IAsideProps, any>('aside')`
   margin-top: 50px;
 `;
 
-const Section = styled.section`
-  height: 50px;
-  width: 50px;
-  margin-bottom: 5px;
-  background: #ccc;
-`;
-
 class App extends React.Component {
   public render() {
     return (
@@ -77,8 +71,10 @@ class App extends React.Component {
         </Header>
         <Main>
           <Aside>
-            <Section>Library</Section>
-            <Section>Filters</Section>
+            <Introspector skipFields={['Network', 'GetMeta']}>
+              <Library />
+            </Introspector>
+            <Filters />
           </Aside>
 
           <Graph>

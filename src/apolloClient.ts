@@ -10,9 +10,19 @@ import typeDefs from 'src/schema';
 const urlParams = new URLSearchParams(window.location.search);
 const uri = urlParams.get('weaviateUri') || '';
 
-const cache = new InMemoryCache({
+const cache: InMemoryCache = new InMemoryCache({
+  cacheRedirects: {
+    Query: {
+      // TODO: Add id to schema object for caching purposes
+      __schema: (_, { _id }, { getCacheKey }) => {
+        return getCacheKey({ __typename: '__Schema', id: '__Schema' });
+      }
+    }
+  },
   dataIdFromObject: object => {
     switch (object.__typename) {
+      case '__Schema':
+        return object.__typename;
       default:
         return defaultDataIdFromObject(object);
     }

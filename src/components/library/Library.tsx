@@ -1,11 +1,13 @@
+import gql from 'graphql-tag';
 import * as React from 'react';
+import { Query } from 'react-apollo';
 import { Button, Section, Text } from 'src/components';
 import { ThingIcon } from 'src/components/icons';
 import { sectionPadding } from 'src/components/section/Section';
 import { getColor } from 'src/utils';
 import styled from 'styled-components';
 
-const typenameKey = (key: string) => key !== '__typename';
+export type Location = 'local' | 'network';
 export type NodeType = 'thing' | 'action';
 
 const locations = [
@@ -33,6 +35,15 @@ const nodeTypes = [
     value: 'actions'
   }
 ];
+
+const GET_NODES = gql`
+  {
+    getNodes @client {
+      name
+      nodeType
+    }
+  }
+`;
 
 const NodeContainer = styled.div`
   max-height: 25vh;
@@ -70,7 +81,7 @@ const LibraryNode = ({
     <Container onClick={onClick}>
       <div>
         {nodeType === 'thing' && <ThingIcon width="20px" />}
-        {nodeType === 'action' && <ThingIcon />}
+        {nodeType === 'action' && <ThingIcon width="20px" color="vividPink" />}
         <Text>{name}</Text>
       </div>
       <Text>{isSelected ? 'isSelected' : 'add'}</Text>
@@ -133,39 +144,52 @@ class Library extends React.Component<any, any> {
 
         <NodeContainer>
           <Text>In playground</Text>
-          <SelectedNodes>
-            {Object.keys(this.props.data.Local.Get.Things)
-              .filter(
-                key =>
-                  typenameKey(key) && this.state.selectedNodes.includes(key)
-              )
-              .map(key => (
-                <LibraryNode
-                  key={key}
-                  nodeType="thing"
-                  name={key}
-                  onClick={this.selectNode.bind(null, key)}
-                  isSelected={true}
-                />
-              ))}
-          </SelectedNodes>
+          <Query
+            query={GET_NODES}
+            variables={{ location: 'local', nodeType: 'thing' }}
+          >
+            {nodeQuery => {
+              if (nodeQuery.loading) {
+                return 'Loading...';
+              }
 
-          <ul>
-            {Object.keys(this.props.data.Local.Get.Things)
-              .filter(
-                key =>
-                  typenameKey(key) && !this.state.selectedNodes.includes(key)
-              )
-              .map(key => (
-                <LibraryNode
-                  key={key}
-                  name={key}
-                  nodeType="thing"
-                  onClick={this.selectNode.bind(null, key)}
-                  isSelected={this.state.selectedNodes.includes(key)}
-                />
-              ))}
-          </ul>
+              if (nodeQuery.error) {
+                return `Error! ${nodeQuery.error.message}`;
+              }
+
+              return (
+                <React.Fragment>
+                  <SelectedNodes>
+                    {nodeQuery.data.getNodes
+                      .filter((node: any) => node.isSelected)
+                      .map((node: any, i: string) => (
+                        <LibraryNode
+                          key={i}
+                          nodeType={node.nodeType}
+                          name={node.name}
+                          onClick={this.selectNode.bind(null, node.name)}
+                          isSelected={node.isSelected}
+                        />
+                      ))}
+                  </SelectedNodes>
+
+                  <ul>
+                    {nodeQuery.data.getNodes
+                      .filter((node: any) => !node.isSelected)
+                      .map((node: any, i: string) => (
+                        <LibraryNode
+                          key={i}
+                          nodeType={node.nodeType}
+                          name={node.name}
+                          onClick={this.selectNode.bind(null, node.name)}
+                          isSelected={node.isSelected}
+                        />
+                      ))}
+                  </ul>
+                </React.Fragment>
+              );
+            }}
+          </Query>
         </NodeContainer>
       </Section>
     );

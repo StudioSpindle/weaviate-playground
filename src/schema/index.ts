@@ -1,10 +1,11 @@
 const typeDefs = `
     type Node {
+        nodeType: String
         isSelected: Boolean
     }
 
     type Query {
-        nodes: [Node]
+        getNodes(location: String!, nodeType: String): [Node]
     }
 
     type Mutation {

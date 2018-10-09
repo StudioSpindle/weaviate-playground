@@ -3,6 +3,7 @@ import getColor, { Color } from 'src/utils/getColor';
 import getTextSize from 'src/utils/getTextSize';
 import styled from 'styled-components';
 
+type DefaultProps = Readonly<typeof defaultProps>;
 export type FontStyle = 'normal' | 'italic';
 export type FontWeight = 'regular' | 'bold' | 'light';
 export type TextTransform = 'capitalize' | 'lowercase' | 'uppercase' | 'none';
@@ -27,6 +28,14 @@ export interface IText {
   textTransform?: TextTransform;
   textWrap?: TextWrap;
 }
+
+const defaultProps: IText = {
+  color: 'almostBlack',
+  component: 'span',
+  fontWeight: 'regular',
+  gutter: false,
+  textWrap: 'normal'
+};
 
 export const getTextWrapCss = (textWrap: IText['textWrap']): string => {
   switch (textWrap) {
@@ -53,14 +62,14 @@ export const getTextCss = (props: IText): string => `
   line-height: 1.55;
   ${getTextWrapCss(props.textWrap)}
   ${getTextSize(props.component)}
-  color: ${getColor(props.color as Color)};
+  color: ${getColor(props.color ? props.color : defaultProps.color!)};
   ${props.fontStyle ? `font-style: ${props.fontStyle};` : ''}
   margin: ${props.gutter ? `0 0 1em` : '0'};
   padding: 0;
   ${props.textTransform ? `text-transform: ${props.textTransform};` : ''}
 `;
 
-const Text: React.SFC<IText> = ({
+const Text: React.SFC<IText & DefaultProps> = ({
   component,
   children,
   color,
@@ -75,13 +84,7 @@ const Text: React.SFC<IText> = ({
   return <Component {...rest}>{children}</Component>;
 };
 
-Text.defaultProps = {
-  color: 'almostBlack',
-  component: 'span',
-  fontWeight: 'regular',
-  gutter: false,
-  textWrap: 'normal'
-} as IText;
+Text.defaultProps = defaultProps;
 
 export default styled(Text)`
   ${getTextCss};

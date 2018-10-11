@@ -4,11 +4,18 @@ const typeDefs = `
         isSelected: Boolean
     }
 
+    type NodesFilters {
+        nodeLocation: String
+        nodeType: String
+    }
+
     type Query {
-        getNodes(location: String!, nodeType: String): [Node]
+        nodes(isSelected: Boolean, nodeLocation: String!, nodeType: String): [Node]
+        nodesFilters: NodeFilters
     }
 
     type Mutation {
+        updateNodesFilters(nodeLocation: String, nodeType: String): NodesFilters
         updateSelectedNode(id: ID, isSelected: Boolean): Node
     }
 `;

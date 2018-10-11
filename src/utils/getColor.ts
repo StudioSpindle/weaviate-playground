@@ -146,7 +146,8 @@ const colors = {
   }
 };
 
-export default (color: Color, variant?: string): string =>
-  variant && colors[color][variant]
+export default (color: Color, variant?: string): string => {
+  return variant && colors[color][variant]
     ? colors[color][variant]
     : colors[color].default;
+};

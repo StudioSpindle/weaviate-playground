@@ -88,8 +88,8 @@ const FULL_TYPE_FRAGMENT = gql`
 
 // Queries
 
-const INTROSPECTION_QUERY = gql`
-  {
+export const INTROSPECTION_QUERY = gql`
+  query IntrospectionQuery {
     __schema {
       queryType {
         name
@@ -118,8 +118,8 @@ const INTROSPECTION_QUERY = gql`
   ${FULL_TYPE_FRAGMENT}
 `;
 
-const TYPES_INTROSPECTION_QUERY = gql`
-  {
+export const TYPES_INTROSPECTION_QUERY = gql`
+  query TypesIntrospectionQuery {
     __schema {
       types {
         ...FullType
@@ -129,5 +129,3 @@ const TYPES_INTROSPECTION_QUERY = gql`
   }
   ${FULL_TYPE_FRAGMENT}
 `;
-
-export default { INTROSPECTION_QUERY, TYPES_INTROSPECTION_QUERY };

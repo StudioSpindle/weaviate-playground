@@ -21,6 +21,7 @@ const cache: InMemoryCache = new InMemoryCache({
   },
   dataIdFromObject: object => {
     switch (object.__typename) {
+      case defaults.nodesFilters.__typename:
       case '__Schema':
         return object.__typename;
       default:

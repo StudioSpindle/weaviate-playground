@@ -20,7 +20,7 @@ class ThingIcon extends React.PureComponent<IThingIconProps> {
 
     return (
       <Icon {...rest}>
-        <g stroke={stroke} stroke-width="1" fill={fill} fill-rule="evenodd">
+        <g stroke={stroke} strokeWidth="1" fill={fill} fillRule="evenodd">
           <path d="M1.04166667,6.43733287 L12.5,0 L23.9583333,6.43733287 L12.5,12 L1.04166667,6.43733287 Z M0,20.63939 L0,8 L11.4583333,13.4959911 L11.4583333,27 L0,20.63939 Z M13.5416667,13.4959911 L25,8 L25,20.63939 L13.5416667,27 L13.5416667,13.4959911 Z" />
         </g>
       </Icon>

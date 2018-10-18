@@ -1,22 +1,30 @@
 const typeDefs = `
-    type Node {
-        nodeType: String
-        isSelected: Boolean
+    type __Type {
+        isSelected: Boolean!
+    }
+
+    type Canvas {
+        selectedNodes: [String]
+        selectedNode: String
+        zoom: Int
     }
 
     type NodesFilters {
         nodeLocation: String
         nodeType: String
+        queryString: String
     }
 
     type Query {
-        nodes(isSelected: Boolean, nodeLocation: String!, nodeType: String): [Node]
+        toggleLibraryNodeSelection(typename: String!, isSelected: Boolean!): Node
         nodesFilters: NodeFilters
+        canvas: Canvas
+        __type(name: String!): __Type
     }
 
     type Mutation {
-        updateNodesFilters(nodeLocation: String, nodeType: String): NodesFilters
-        updateSelectedNode(id: ID, isSelected: Boolean): Node
+        updateNodesFilters(nodeLocation: String, nodeType: String, queryString: String): NodesFilters
+        updateNodeSelection(typename: String!): Canvas
     }
 `;
 

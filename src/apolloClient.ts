@@ -6,24 +6,55 @@ import { HttpLink } from 'apollo-link-http'; // Use apollo-link-batch-http for p
 import { withClientState } from 'apollo-link-state';
 import { defaults, resolvers } from 'src/resolvers';
 import typeDefs from 'src/schema';
+// import introspectionQuery from 'src/utils/introspectionQuery';
 
 const urlParams = new URLSearchParams(window.location.search);
 const uri = urlParams.get('weaviateUri') || '';
 
+// const introspectionQueryResultData = introspectionQuery(uri);
+// // tslint:disable-next-line:no-console
+// console.log(introspectionQueryResultData);
+
+const getName = (object: any) => object.name;
+
 const cache: InMemoryCache = new InMemoryCache({
   cacheRedirects: {
     Query: {
-      // TODO: Add id to schema object for caching purposes
-      __schema: (_, { _id }, { getCacheKey }) => {
-        return getCacheKey({ __typename: '__Schema', id: '__Schema' });
+      __field: (_, object, { getCacheKey }) => {
+        const name = getName(object);
+        return getCacheKey({ __typename: 'Field', id: name });
+      },
+      __schema: (_, { _id }, { getCacheKey }) =>
+        getCacheKey({ __typename: '__Schema', id: '__Schema' }),
+      __type: (_, object, { getCacheKey }) => {
+        const name = getName(object);
+        const cacheKey = getCacheKey({
+          __typename: 'Type',
+          id: name
+        });
+
+        return cacheKey;
       }
     }
   },
-  dataIdFromObject: object => {
+  dataIdFromObject: (object: any) => {
     switch (object.__typename) {
+      case defaults.canvas.__typename:
       case defaults.nodesFilters.__typename:
       case '__Schema':
         return object.__typename;
+      case '__Field':
+        const name = getName(object);
+        if (name) {
+          return `Field:${name}`;
+        }
+        return null;
+      case '__Type':
+        const namex = getName(object);
+        if (name) {
+          return `Type:${namex}`;
+        }
+        return null;
       default:
         return defaultDataIdFromObject(object);
     }

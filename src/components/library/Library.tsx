@@ -1,126 +1,95 @@
 import * as React from 'react';
-import { Mutation, Query } from 'react-apollo';
-import { Button, LibraryNodes, Section, Text } from 'src/components';
+import {
+  LibraryFilters,
+  LibraryNodes,
+  LibraryNodeSelection,
+  LibraryTextSearch,
+  Section
+} from 'src/components';
 import {
   GET_NODES_FILTERS,
-  UPDATE_NODES_FILTERS
+  GET_SELECTED_NODES,
+  GetNodesFiltersQuery,
+  GetSelectedNodesQuery
 } from 'src/components/library/queries';
-import { sectionPadding } from 'src/components/section/Section';
 import styled from 'styled-components';
 
-const nodeLocations = [
-  {
-    title: 'Local',
-    value: 'local'
-  },
-  {
-    title: 'Network',
-    value: 'network'
-  }
-];
-
-const nodeTypes = [
-  {
-    title: 'All',
-    value: 'all'
-  },
-  {
-    title: 'Things',
-    value: 'thing'
-  },
-  {
-    title: 'Actions',
-    value: 'action'
-  }
-];
-
+/**
+ * Styled components
+ */
 const NodeContainer = styled.div`
   max-height: 25vh;
-  padding: ${sectionPadding};
   overflow: scroll;
 `;
 
-class Library extends React.Component<any, any> {
-  public render() {
-    return (
-      <Section title="Library">
-        <Query query={GET_NODES_FILTERS}>
-          {nodesFiltersQuery => {
-            if (nodesFiltersQuery.loading) {
-              return 'Loading...';
-            }
+/**
+ * Library component: renders node selection with filter options
+ */
+const Library = () => (
+  <Section title="Library">
+    <GetNodesFiltersQuery query={GET_NODES_FILTERS}>
+      {nodesFiltersQuery => {
+        if (nodesFiltersQuery.loading) {
+          return 'Loading...';
+        }
 
-            if (nodesFiltersQuery.error) {
-              return `Error! ${nodesFiltersQuery.error.message}`;
-            }
+        if (nodesFiltersQuery.error) {
+          return `Error! ${nodesFiltersQuery.error.message}`;
+        }
 
-            const selectedNodeLocation =
-              nodesFiltersQuery.data.nodesFilters.nodeLocation;
-            const selectedNodeType =
-              nodesFiltersQuery.data.nodesFilters.nodeType;
+        if (!nodesFiltersQuery.data) {
+          // TODO: Replace with proper message
+          return null;
+        }
 
-            return (
-              <React.Fragment>
-                <Text>Searchbar</Text>
-                <div>
-                  {nodeLocations.map((nodeLocation, i) => (
-                    <Mutation
-                      key={i}
-                      mutation={UPDATE_NODES_FILTERS}
-                      variables={{ nodeLocation: nodeLocation.value }}
-                    >
-                      {updateNodesFilters => (
-                        <Button
-                          title={nodeLocation.title}
-                          isSelected={
-                            nodeLocation.value === selectedNodeLocation
-                          }
-                          onClick={updateNodesFilters}
-                          value={nodeLocation.value}
-                        />
-                      )}
-                    </Mutation>
-                  ))}
+        const selectedNodeLocation =
+          nodesFiltersQuery.data.nodesFilters.nodeLocation;
+        const selectedNodeType = nodesFiltersQuery.data.nodesFilters.nodeType;
+        const queryString = nodesFiltersQuery.data.nodesFilters.queryString;
 
-                  {nodeTypes.map((nodeType, i) => (
-                    <Mutation
-                      key={i}
-                      mutation={UPDATE_NODES_FILTERS}
-                      variables={{ nodeType: nodeType.value }}
-                    >
-                      {updateNodesFilters => (
-                        <Button
-                          key={i}
-                          title={nodeType.title}
-                          isSelected={nodeType.value === selectedNodeType}
-                          onClick={updateNodesFilters}
-                          value={nodeType.value}
-                        />
-                      )}
-                    </Mutation>
-                  ))}
-                </div>
+        return (
+          <React.Fragment>
+            <LibraryTextSearch />
+            <LibraryFilters
+              selectedNodeLocation={selectedNodeLocation}
+              selectedNodeType={selectedNodeType}
+            />
 
-                <NodeContainer>
-                  <Text>In playground</Text>
-                  <LibraryNodes
-                    isSelected={true}
-                    nodeLocation={selectedNodeLocation}
-                    nodeType={selectedNodeType}
-                  />
-                  <LibraryNodes
-                    isSelected={false}
-                    nodeLocation={selectedNodeLocation}
-                    nodeType={selectedNodeType}
-                  />
-                </NodeContainer>
-              </React.Fragment>
-            );
-          }}
-        </Query>
-      </Section>
-    );
-  }
-}
+            <GetSelectedNodesQuery query={GET_SELECTED_NODES}>
+              {selectedNodesQuery => {
+                if (selectedNodesQuery.loading) {
+                  return 'Loading...';
+                }
+
+                if (selectedNodesQuery.error) {
+                  return `Error! ${selectedNodesQuery.error.message}`;
+                }
+
+                if (!selectedNodesQuery.data) {
+                  // TODO: Replace with proper message
+                  return null;
+                }
+                const selectedNodes =
+                  selectedNodesQuery.data.canvas.selectedNodes;
+                return (
+                  <NodeContainer>
+                    <LibraryNodeSelection selectedNodes={selectedNodes} />
+                    <LibraryNodes
+                      isSelected={false}
+                      nodeLocation={selectedNodeLocation}
+                      nodeType={selectedNodeType}
+                      queryString={queryString}
+                      selectedNodes={selectedNodes}
+                    />
+                  </NodeContainer>
+                );
+              }}
+            </GetSelectedNodesQuery>
+          </React.Fragment>
+        );
+      }}
+    </GetNodesFiltersQuery>
+  </Section>
+);
 
 export default Library;

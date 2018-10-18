@@ -1,59 +1,184 @@
 import React from 'react';
-import { Query } from 'react-apollo';
 import { LibraryNodeButton } from 'src/components';
-import { GET_NODES } from 'src/components/libraryNodes/queries';
-import { INodesQueryVariables } from 'src/types';
-import { getColor } from 'src/utils';
-import styled from 'styled-components';
+import {
+  nodeLocations,
+  nodeTypes
+} from 'src/components/libraryFilters/LibraryFilters';
+import {
+  GET_LOCAL_NODES,
+  GET_NETWORK_NODES,
+  GetLocalNodesQuery
+} from 'src/components/libraryNodes/queries';
+import { INodesQueryVariables, NodeType } from 'src/types';
+import { GetNetworkNodesQuery } from './queries/GetNetworkNodes';
 
-export type ILibraryNodesProps = INodesQueryVariables;
+/**
+ * Types
+ */
+export interface ILibraryRenderNodesProps {
+  nodeType: NodeType;
+  nodes: ILibraryNode[];
+  queryString: string;
+  selectedNodes: string[];
+}
 
-const SelectedNodes = styled.ul`
-  list-style: none;
-  padding: 0.25em;
-  border: 2px dashed ${getColor('gray', 'gray5')};
-`;
+export interface ILibraryNodesProps extends INodesQueryVariables {
+  isSelected: boolean;
+  nodeType: NodeType;
+  queryString: string;
+  selectedNodes: string[];
+}
 
-const LibraryNodes: React.SFC<ILibraryNodesProps> = ({
-  isSelected,
-  nodeLocation,
-  nodeType
+export interface ILibraryNode {
+  instance: string;
+  name: string;
+  nodeType: NodeType;
+  parentTypename: string;
+  typename: string;
+}
+
+/**
+ * Styled components
+ */
+const filterNodeType = (node: ILibraryNode, nodeType: NodeType) =>
+  nodeTypes.all === nodeType || node.nodeType === nodeType;
+
+const filterText = (node: ILibraryNode, text: string) =>
+  node.name.toLowerCase().includes(text.toLowerCase());
+
+const isSelected = (node: ILibraryNode, selectedNodes: string[]) =>
+  selectedNodes.includes(node.name);
+
+const RenderNodes: React.SFC<ILibraryRenderNodesProps> = ({
+  nodeType,
+  nodes,
+  queryString,
+  selectedNodes
 }) => (
-  <Query
-    query={GET_NODES}
-    variables={{
-      isSelected,
-      nodeLocation,
-      nodeType
-    }}
-  >
-    {nodesQuery => {
-      if (nodesQuery.loading) {
-        return 'Loading...';
-      }
-
-      if (nodesQuery.error) {
-        return `Error! ${nodesQuery.error.message}`;
-      }
-
-      const nodes = nodesQuery.data.nodes.map((node: any, i: string) => (
+  <ul>
+    {nodes
+      .filter(
+        node =>
+          filterNodeType(node, nodeType) &&
+          filterText(node, queryString) &&
+          !isSelected(node, selectedNodes)
+      )
+      .map((node, i) => (
         <LibraryNodeButton
           key={i}
-          nodeType={node.nodeType}
+          instance={node.instance}
           name={node.name}
-          // tslint:disable-next-line:no-console
-          onClick={console.log}
-          isSelected={node.isSelected}
+          nodeType={node.nodeType}
+          parentTypename={node.parentTypename}
+          typename={node.typename}
         />
-      ));
-
-      if (isSelected) {
-        return <SelectedNodes>{nodes}</SelectedNodes>;
-      } else {
-        return <ul>{nodes}</ul>;
-      }
-    }}
-  </Query>
+      ))}
+  </ul>
 );
+
+/**
+ * LibraryNodes: fetches nodes for selection made in Library
+ */
+const LibraryNodes: React.SFC<ILibraryNodesProps> = ({
+  nodeLocation,
+  nodeType,
+  queryString,
+  selectedNodes
+}) => {
+  if (nodeLocation === nodeLocations.network) {
+    return (
+      <GetNetworkNodesQuery
+        query={GET_NETWORK_NODES}
+        variables={{ typename: 'WeaviateNetworkGetObj' }}
+      >
+        {networkNodes => {
+          if (networkNodes.loading) {
+            return null;
+          }
+          if (networkNodes.error) {
+            return null;
+          }
+
+          if (!networkNodes.data) {
+            return null;
+          }
+
+          const nodes: ILibraryNode[] = [];
+
+          networkNodes.data.__type.fields.forEach(networkGetINSTANCEObj => {
+            const instance = networkGetINSTANCEObj.name;
+            networkGetINSTANCEObj.type.fields.forEach(
+              networkGetINSTANCENODETYPEObj => {
+                const nodeNodeType = networkGetINSTANCENODETYPEObj.name;
+                networkGetINSTANCENODETYPEObj.type.fields.forEach(node => {
+                  nodes.push({
+                    instance,
+                    name: node.name,
+                    nodeType: nodeNodeType,
+                    parentTypename: networkGetINSTANCENODETYPEObj.type.name,
+                    typename: node.type.ofType.name
+                  });
+                });
+              }
+            );
+          });
+
+          return (
+            <RenderNodes
+              nodeType={nodeType}
+              nodes={nodes}
+              queryString={queryString}
+              selectedNodes={selectedNodes}
+            />
+          );
+        }}
+      </GetNetworkNodesQuery>
+    );
+  }
+
+  return (
+    <GetLocalNodesQuery
+      query={GET_LOCAL_NODES}
+      variables={{ typename: 'WeaviateLocalGetObj' }}
+    >
+      {localNodes => {
+        if (localNodes.loading) {
+          return null;
+        }
+        if (localNodes.error) {
+          return null;
+        }
+
+        if (!localNodes.data) {
+          return null;
+        }
+
+        const nodes: ILibraryNode[] = [];
+
+        localNodes.data.__type.fields.forEach(localGetNODETYPEObj => {
+          const nodeNodeType = localGetNODETYPEObj.name;
+          localGetNODETYPEObj.type.fields.forEach(node => {
+            nodes.push({
+              instance: 'local',
+              name: node.name,
+              nodeType: nodeNodeType,
+              parentTypename: localGetNODETYPEObj.type.name,
+              typename: node.type.ofType.name
+            });
+          });
+        });
+
+        return (
+          <RenderNodes
+            nodeType={nodeType}
+            nodes={nodes}
+            queryString={queryString}
+            selectedNodes={selectedNodes}
+          />
+        );
+      }}
+    </GetLocalNodesQuery>
+  );
+};
 
 export default LibraryNodes;

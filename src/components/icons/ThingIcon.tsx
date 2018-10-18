@@ -2,11 +2,17 @@ import * as React from 'react';
 import Icon, { IconProps } from 'src/components/icons/Icon';
 import getColor, { Color } from 'src/utils/getColor';
 
+/**
+ * Types
+ */
 export interface IThingIconProps extends IconProps {
   color?: Color;
   isFilled?: boolean;
 }
 
+/**
+ * ThingIcon: renders icon
+ */
 class ThingIcon extends React.PureComponent<IThingIconProps> {
   public static defaultProps = {
     color: 'almostBlack',

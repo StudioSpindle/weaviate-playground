@@ -2,11 +2,17 @@ import * as React from 'react';
 import Icon, { IconProps } from 'src/components/icons/Icon';
 import getColor, { Color } from 'src/utils/getColor';
 
+/**
+ * Types
+ */
 export interface IActionIconProps extends IconProps {
   color?: Color;
   isFilled?: boolean;
 }
 
+/**
+ * ActionIcon: renders icon
+ */
 class ActionIcon extends React.PureComponent<IActionIconProps> {
   public static defaultProps = {
     color: 'almostBlack',

@@ -2,10 +2,9 @@ import * as React from 'react';
 import getColor, { Color } from 'src/utils/getColor';
 import styled from 'styled-components';
 
-/*
- * TYPES
+/**
+ * Types
  */
-
 export interface IconProps {
   className?: string;
   color?: Color;
@@ -15,10 +14,9 @@ export interface IconProps {
   style?: React.CSSProperties;
 }
 
-/*
- * COMPONENT
+/**
+ * Icon component: wrapper component for icons
  */
-
 export class Icon extends React.Component<IconProps> {
   public render() {
     const { children, className, style, title } = this.props;
@@ -38,6 +36,9 @@ export class Icon extends React.Component<IconProps> {
   }
 }
 
+/**
+ * Style component
+ */
 export default styled(Icon)`
   display: inline-block;
   color: ${p => (p.color ? getColor(p.color) : 'inherit')};

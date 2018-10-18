@@ -3,6 +3,9 @@ import getColor, { Color } from 'src/utils/getColor';
 import getTextSize from 'src/utils/getTextSize';
 import styled from 'styled-components';
 
+/**
+ * Types
+ */
 type DefaultProps = Readonly<typeof defaultProps>;
 export type FontStyle = 'normal' | 'italic';
 export type FontWeight = 'regular' | 'bold' | 'light';
@@ -75,6 +78,9 @@ export const getTextCss = (props: IText): string => `
   ${props.textTransform ? `text-transform: ${props.textTransform};` : ''}
 `;
 
+/**
+ * Text component
+ */
 const Text: React.SFC<IText & DefaultProps> = ({
   component,
   children,

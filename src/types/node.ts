@@ -1,2 +1,2 @@
-export type NodeLocation = 'local' | 'network';
-export type NodeType = 'thing' | 'action';
+export type NodeLocation = 'Local' | 'Network';
+export type NodeType = 'All' | 'Things' | 'Actions';

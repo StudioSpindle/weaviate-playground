@@ -36,12 +36,12 @@ export const textSizes: ITextSizes = {
     tablet: '1.25rem'
   },
   p: {
-    mobile: '1.15rem',
-    tablet: '1.25rem'
+    mobile: '1rem',
+    tablet: '1rem'
   },
   span: {
-    mobile: '1.15rem',
-    tablet: '1.25rem'
+    mobile: '1rem',
+    tablet: '1rem'
   }
 };
 

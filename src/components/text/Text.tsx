@@ -21,12 +21,14 @@ export type TextComponent =
 export interface IText {
   className?: string;
   color?: Color;
+  colorVariant?: string;
   component?: TextComponent;
   fontStyle?: FontStyle;
   fontWeight?: FontWeight;
   gutter?: boolean;
   textTransform?: TextTransform;
   textWrap?: TextWrap;
+  size?: string;
 }
 
 const defaultProps: IText = {
@@ -61,9 +63,13 @@ export const getTextCss = (props: IText): string => `
   font-variant-ligatures: common-ligatures;
   line-height: 1.55;
   ${getTextWrapCss(props.textWrap)}
-  ${getTextSize(props.component)}
-  color: ${getColor(props.color ? props.color : defaultProps.color!)};
+  ${props.size ? `font-size: ${props.size}` : getTextSize(props.component)}
+  color: ${getColor(
+    props.color ? props.color : defaultProps.color!,
+    props.colorVariant
+  )};
   ${props.fontStyle ? `font-style: ${props.fontStyle};` : ''}
+  ${props.fontWeight ? `font-weight: ${props.fontWeight}` : ''}
   margin: ${props.gutter ? `0 0 1em` : '0'};
   padding: 0;
   ${props.textTransform ? `text-transform: ${props.textTransform};` : ''}

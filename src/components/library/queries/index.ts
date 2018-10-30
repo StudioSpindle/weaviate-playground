@@ -1,3 +1,3 @@
-export * from './GetNodeFilters';
-export * from './GetSelectedNodes';
-export * from './UpdateNodesFilters';
+export * from './GetClassesFilters';
+export * from './GetSelectedClasses';
+export * from './UpdateClassesFilters';

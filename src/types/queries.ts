@@ -1,5 +1,7 @@
-export interface INodesQueryVariables {
-  isSelected?: boolean;
-  nodeLocation: string;
-  nodeType?: string;
+import { ClassLocation, ClassType } from 'src/types';
+
+export interface IClassesQueryVariables {
+  classLocation: ClassLocation;
+  classType?: ClassType;
+  queryString: string;
 }

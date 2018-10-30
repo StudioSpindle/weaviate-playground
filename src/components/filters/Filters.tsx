@@ -2,43 +2,43 @@ import * as React from 'react';
 import { Filter, Section } from 'src/components';
 import {
   GET_META_TYPE,
-  GET_SELECTED_NODE,
+  GET_SELECTED_CLASS,
   GetMetaTypeQuery,
-  GetSelectedNodeQuery
+  GetSelectedClassQuery
 } from 'src/components/filters/queries';
 
 /**
- * Dynamically fetches filters for a specific Node
+ * Dynamically fetches filters for a specific Class
  */
 const Filters = () => (
-  <GetSelectedNodeQuery query={GET_SELECTED_NODE}>
-    {selectedNodeQuery => {
+  <GetSelectedClassQuery query={GET_SELECTED_CLASS}>
+    {selectedClassQuery => {
       /**
-       * Get the Node that is selected on canvas
+       * Get the Class that is selected on canvas
        */
-      if (selectedNodeQuery.loading) {
+      if (selectedClassQuery.loading) {
         return 'Loading...';
       }
 
-      if (selectedNodeQuery.error) {
-        return selectedNodeQuery.error.message;
+      if (selectedClassQuery.error) {
+        return selectedClassQuery.error.message;
       }
 
-      if (!selectedNodeQuery.data) {
+      if (!selectedClassQuery.data) {
         // TODO: Replace with proper message
         return null;
       }
 
-      const selectedNode = selectedNodeQuery.data.canvas.selectedNode;
+      const selectedClass = selectedClassQuery.data.canvas.selectedClass;
 
       /**
-       * Get the meta information for the selected Node
+       * Get the meta information for the selected Class
        */
       return (
-        <Section title={`Filters for ${selectedNode}`}>
+        <Section title={`Filters for ${selectedClass}`}>
           <GetMetaTypeQuery
             query={GET_META_TYPE}
-            variables={{ typename: `Meta${selectedNode}` }}
+            variables={{ typename: `Meta${selectedClass}` }}
           >
             {metaTypeQuery => {
               if (metaTypeQuery.loading) {
@@ -73,7 +73,7 @@ const Filters = () => (
         </Section>
       );
     }}
-  </GetSelectedNodeQuery>
+  </GetSelectedClassQuery>
 );
 
 export default Filters;

@@ -1,5 +1,11 @@
 import * as React from 'react';
-import { Filters, Header, Library, Section } from 'src/components';
+import {
+  ClassIntrospector,
+  Filters,
+  Header,
+  Library,
+  Section
+} from 'src/components';
 import styled, { injectGlobal } from 'styled-components';
 
 /**
@@ -94,19 +100,21 @@ class App extends React.Component {
       <React.Fragment>
         <Header />
         <Main>
-          <Aside>
-            <Library />
-            <Filters />
-          </Aside>
+          <ClassIntrospector>
+            <Aside>
+              <Library />
+              <Filters />
+            </Aside>
 
-          <Graph>
-            Weaviate Playground
-            <Zoom>Zoom</Zoom>
-          </Graph>
+            <Graph>
+              Weaviate Playground
+              {false && <Zoom>Zoom</Zoom>}
+            </Graph>
 
-          <Aside alignRight={true}>
-            <Section title="Results">Results</Section>
-          </Aside>
+            <Aside alignRight={true}>
+              <Section title="Results">Results</Section>
+            </Aside>
+          </ClassIntrospector>
         </Main>
         <Footer>Support bar</Footer>
       </React.Fragment>

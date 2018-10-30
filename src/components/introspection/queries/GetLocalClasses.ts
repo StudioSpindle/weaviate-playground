@@ -1,15 +1,15 @@
 import gql from 'graphql-tag';
 import { Query } from 'react-apollo';
-import { NodeType } from 'src/types';
+import { ClassType } from 'src/types';
 
 /**
  * Types
  */
-interface IGetLocalNodesData {
+interface IGetLocalClassesData {
   __type: {
     name: string;
     fields: Array<{
-      name: NodeType;
+      name: ClassType;
       type: {
         name: string;
         ofType: {
@@ -28,23 +28,23 @@ interface IGetLocalNodesData {
   };
 }
 
-interface IGetLocalNodesVariables {
+interface IGetLocalClassesVariables {
   typename: 'WeaviateLocalGetObj';
 }
 
 /**
  * Query component
  */
-export class GetLocalNodesQuery extends Query<
-  IGetLocalNodesData,
-  IGetLocalNodesVariables
+export class GetLocalClassesQuery extends Query<
+  IGetLocalClassesData,
+  IGetLocalClassesVariables
 > {}
 
 /**
  * GQL query string
  */
-export const GET_LOCAL_NODES = gql`
-  query GetLocalNodes($typename: String!) {
+export const GET_LOCAL_CLASSES = gql`
+  query GetLocalClasses($typename: String!) {
     __type(name: $typename) {
       name
       fields {

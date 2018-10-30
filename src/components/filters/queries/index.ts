@@ -1,2 +1,2 @@
 export * from './GetMetaType';
-export * from './GetSelectedNode';
+export * from './GetSelectedClass';

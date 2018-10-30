@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {
-  UPDATE_NODES_FILTERS,
-  UpdateNodesFiltersMutation
+  UPDATE_CLASSES_FILTERS,
+  UpdateClassesFiltersMutation
 } from 'src/components/library/queries';
 import { getColor } from 'src/utils';
 import styled from 'styled-components';
@@ -16,21 +16,23 @@ const Container = styled.input`
   border-bottom: solid 2px ${getColor('vividPink')};
 `;
 
-const updateQueryString = (updateNodesFilters: (value: any) => void, e: any) =>
-  updateNodesFilters({ variables: { queryString: e.target.value } });
+const updateQueryString = (
+  updateClassesFilters: (value: any) => void,
+  e: any
+) => updateClassesFilters({ variables: { queryString: e.target.value } });
 
 /**
  * LibraryTextSearch: renders text search component for Library
  */
 const LibraryTextSearch = () => (
-  <UpdateNodesFiltersMutation mutation={UPDATE_NODES_FILTERS}>
-    {updateNodesFilters => (
+  <UpdateClassesFiltersMutation mutation={UPDATE_CLASSES_FILTERS}>
+    {updateClassesFilters => (
       <Container
-        onChange={updateQueryString.bind(null, updateNodesFilters)}
+        onChange={updateQueryString.bind(null, updateClassesFilters)}
         placeholder="Type to search for classes..."
       />
     )}
-  </UpdateNodesFiltersMutation>
+  </UpdateClassesFiltersMutation>
 );
 
 export default LibraryTextSearch;

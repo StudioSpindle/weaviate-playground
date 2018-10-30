@@ -1,52 +1,118 @@
 import gql from 'graphql-tag';
-import { IUpdateNodesFiltersVariables } from 'src/components/library/queries';
+import { IUpdateClassesFiltersVariables } from 'src/components/library/queries';
 
 export const defaults = {
-  __type: {
-    __typename: '__Type',
-    isSelected: true
-  },
   canvas: {
     __typename: 'Canvas',
-    selectedNode: 'City',
-    selectedNodes: [],
+    classIds: [],
+    selectedClass: 'City',
+    selectedClasses: [],
     zoom: 1
   },
-  nodesFilters: {
-    __typename: 'nodesFilters',
-    nodeLocation: 'Local',
-    nodeType: 'All',
+  class: {
+    __typename: 'Class',
+    classLocation: 'Local',
+    classType: 'Things',
+    id: null,
+    instance: 'Local',
+    isSelected: false,
+    name: ''
+  },
+  classes: [],
+  classesFilters: {
+    __typename: 'classesFilters',
+    classLocation: 'Local',
+    classType: 'All',
     queryString: ''
   }
 };
 
 export const resolvers = {
   Mutation: {
-    toggleLibraryNodeSelection: (
+    toggleClassSelectionLibrary: (
       _: any,
-      variables: { typename: string; isSelected: boolean },
+      variables: { id: string },
       { cache, getCacheKey }: { cache: any; getCacheKey: any }
     ) => {
       const id = getCacheKey({
-        __typename: '__Type',
-        name: variables.typename
+        __typename: defaults.class.__typename,
+        id: variables.id
       });
-      const data = { isSelected: variables.isSelected };
+
+      const classQuery = cache.readQuery({
+        query: gql`
+          query classSelected($id: String!) {
+            class(id: $id) {
+              isSelected
+            }
+          }
+        `,
+        variables: {
+          id: variables.id
+        }
+      });
+
+      const data = { isSelected: !classQuery.class.isSelected };
       cache.writeData({ id, data });
       return null;
     },
-    updateNodesFilters: (
+    updateClass: (
       _: any,
-      variables: IUpdateNodesFiltersVariables,
+      variables: any,
       { cache, getCacheKey }: { cache: any; getCacheKey: any }
     ) => {
-      const id = getCacheKey({ __typename: defaults.nodesFilters.__typename });
-      let data = {};
-      if (variables.nodeLocation) {
-        data = { ...data, nodeLocation: variables.nodeLocation };
+      /**
+       * Store class on client
+       */
+      const id = `${defaults.class.__typename}:${variables.id}`;
+      cache.writeData({
+        data: {
+          classLocation: variables.classLocation,
+          classType: variables.classType,
+          id: variables.id,
+          instance: variables.instance,
+          isSelected: variables.isSelected || false,
+          name: variables.name
+        },
+        id
+      });
+
+      /**
+       * Update list with classes
+       */
+      const canvasId = getCacheKey({ __typename: defaults.canvas.__typename });
+
+      const data = cache.readQuery({
+        query: gql`
+          query classIds {
+            canvas @client {
+              classIds
+            }
+          }
+        `
+      });
+
+      if (!data.canvas.classIds.includes(id)) {
+        data.canvas.classIds.push(variables.id);
       }
-      if (variables.nodeType) {
-        data = { ...data, nodeType: variables.nodeType };
+
+      cache.writeData({ id: canvasId, data });
+      return null;
+    },
+    updateClassesFilters: (
+      _: any,
+      variables: IUpdateClassesFiltersVariables,
+      { cache, getCacheKey }: { cache: any; getCacheKey: any }
+    ) => {
+      const id = getCacheKey({
+        __typename: defaults.classesFilters.__typename
+      });
+      let data = {};
+      if (variables.classLocation) {
+        data = { ...data, classLocation: variables.classLocation };
+      }
+      if (variables.classType) {
+        data = { ...data, classType: variables.classType };
       }
       if (typeof variables.queryString !== 'undefined') {
         data = { ...data, queryString: variables.queryString };
@@ -55,43 +121,40 @@ export const resolvers = {
       cache.writeData({ id, data });
       return null;
     },
-    updateSelectedNodes: (
+    updateSelectedClasses: (
       _: any,
-      variables: { typename: string },
+      variables: { id: string },
       { cache, getCacheKey }: { cache: any; getCacheKey: any }
     ) => {
       const id = getCacheKey({ __typename: defaults.canvas.__typename });
       const query = cache.readQuery({
         query: gql`
-          query selectedNodes {
+          query selectedClasses {
             canvas {
-              selectedNodes
+              selectedClasses
             }
           }
         `
       });
 
-      const selectedNodes = query.canvas.selectedNodes;
+      const selectedClasses = query.canvas.selectedClasses;
       let data = {};
 
-      if (selectedNodes.includes(variables.typename)) {
+      if (selectedClasses.includes(variables.id)) {
         data = {
-          selectedNodes: selectedNodes.filter(
-            (typename: string) => typename !== variables.typename
+          selectedClasses: selectedClasses.filter(
+            (classId: string) => classId !== variables.id
           )
         };
       } else {
         data = {
-          selectedNodes: [...selectedNodes, variables.typename]
+          selectedClasses: [...selectedClasses, variables.id]
         };
       }
 
       cache.writeData({ id, data });
+
       return null;
     }
-  },
-  __Type: {
-    isSelected: () => false,
-    nodeType: () => 'adfsf'
   }
 };

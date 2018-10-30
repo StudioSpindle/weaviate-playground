@@ -7,10 +7,10 @@ import {
   ThingIcon
 } from 'src/components/icons';
 import {
-  UPDATE_NODES_FILTERS,
-  UpdateNodesFiltersMutation
+  UPDATE_CLASSES_FILTERS,
+  UpdateClassesFiltersMutation
 } from 'src/components/library/queries';
-import { NodeLocation, NodeType } from 'src/types';
+import { ClassLocation, ClassType } from 'src/types';
 import { Color } from 'src/utils/getColor';
 import styled from 'styled-components';
 
@@ -18,30 +18,30 @@ import styled from 'styled-components';
  * Types
  */
 export interface ILibraryFiltersProps {
-  selectedNodeLocation: NodeLocation;
-  selectedNodeType: NodeType;
+  selectedClassLocation: ClassLocation;
+  selectedClassType: ClassType;
 }
 
-interface INodeLocations {
-  local: NodeLocation;
-  network: NodeLocation;
+interface IClassLocations {
+  local: ClassLocation;
+  network: ClassLocation;
 }
 
-interface INodeTypes {
-  all: NodeType;
-  things: NodeType;
-  actions: NodeType;
+interface IClassTypes {
+  all: ClassType;
+  things: ClassType;
+  actions: ClassType;
 }
 
 /**
  * Statics
  */
-export const nodeLocations: INodeLocations = {
+export const classLocations: IClassLocations = {
   local: 'Local',
   network: 'Network'
 };
 
-export const nodeTypes: INodeTypes = {
+export const classTypes: IClassTypes = {
   all: 'All',
   things: 'Things',
   // tslint:disable-next-line:object-literal-sort-keys
@@ -60,7 +60,7 @@ const LibraryFilterSection = styled.div`
   display: flex;
 `;
 
-const getIcon = (value: NodeLocation | NodeType, isSelected: boolean) => {
+const getIcon = (value: ClassLocation | ClassType, isSelected: boolean) => {
   const iconSize = 15;
   const props = {
     color: isSelected ? 'white' : ('almostBlack' as Color),
@@ -69,13 +69,13 @@ const getIcon = (value: NodeLocation | NodeType, isSelected: boolean) => {
     width: iconSize + 'px'
   };
   switch (value) {
-    case nodeLocations.local:
+    case classLocations.local:
       return <LocalIcon {...props} />;
-    case nodeLocations.network:
+    case classLocations.network:
       return <NetworkIcon {...props} />;
-    case nodeTypes.actions:
+    case classTypes.actions:
       return <ActionIcon {...props} />;
-    case nodeTypes.things:
+    case classTypes.things:
       return <ThingIcon {...props} />;
     default:
       return undefined;
@@ -86,54 +86,54 @@ const getIcon = (value: NodeLocation | NodeType, isSelected: boolean) => {
  * Library filters component: renders filters for seaching classes in the Library
  */
 const LibraryFilters: React.SFC<ILibraryFiltersProps> = ({
-  selectedNodeLocation,
-  selectedNodeType
+  selectedClassLocation,
+  selectedClassType
 }) => (
   <Container>
     <LibraryFilterSection>
-      {Object.keys(nodeLocations).map((nodeLocationKey, i) => {
-        const nodeLocation: NodeLocation = nodeLocations[nodeLocationKey];
-        const isSelected = nodeLocation === selectedNodeLocation;
+      {Object.keys(classLocations).map((classLocationKey, i) => {
+        const classLocation: ClassLocation = classLocations[classLocationKey];
+        const isSelected = classLocation === selectedClassLocation;
         return (
-          <UpdateNodesFiltersMutation
+          <UpdateClassesFiltersMutation
             key={i}
-            mutation={UPDATE_NODES_FILTERS}
-            variables={{ nodeLocation }}
+            mutation={UPDATE_CLASSES_FILTERS}
+            variables={{ classLocation }}
           >
-            {updateNodesFilters => (
+            {updateClassesFilters => (
               <Button
-                title={nodeLocation}
-                icon={getIcon(nodeLocation, isSelected)}
+                title={classLocation}
+                icon={getIcon(classLocation, isSelected)}
                 isSelected={isSelected}
-                onClick={updateNodesFilters}
-                value={nodeLocation}
+                onClick={updateClassesFilters}
+                value={classLocation}
               />
             )}
-          </UpdateNodesFiltersMutation>
+          </UpdateClassesFiltersMutation>
         );
       })}
     </LibraryFilterSection>
     <LibraryFilterSection>
-      {Object.keys(nodeTypes).map((nodeTypeKey, i) => {
-        const nodeType: NodeType = nodeTypes[nodeTypeKey];
-        const isSelected = nodeType === selectedNodeType;
+      {Object.keys(classTypes).map((classTypeKey, i) => {
+        const classType: ClassType = classTypes[classTypeKey];
+        const isSelected = classType === selectedClassType;
         return (
-          <UpdateNodesFiltersMutation
+          <UpdateClassesFiltersMutation
             key={i}
-            mutation={UPDATE_NODES_FILTERS}
-            variables={{ nodeType }}
+            mutation={UPDATE_CLASSES_FILTERS}
+            variables={{ classType }}
           >
-            {updateNodesFilters => (
+            {updateClassesFilters => (
               <Button
                 key={i}
-                title={nodeType}
-                icon={getIcon(nodeType, isSelected)}
+                title={classType}
+                icon={getIcon(classType, isSelected)}
                 isSelected={isSelected}
-                onClick={updateNodesFilters}
-                value={nodeType}
+                onClick={updateClassesFilters}
+                value={classType}
               />
             )}
-          </UpdateNodesFiltersMutation>
+          </UpdateClassesFiltersMutation>
         );
       })}
     </LibraryFilterSection>

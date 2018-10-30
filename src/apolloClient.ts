@@ -22,39 +22,29 @@ const cache: InMemoryCache = new InMemoryCache({
     Query: {
       __field: (_, object, { getCacheKey }) => {
         const name = getName(object);
-        return getCacheKey({ __typename: 'Field', id: name });
+        return getCacheKey({ __typename: '__Field', id: name });
       },
       __schema: (_, { _id }, { getCacheKey }) =>
         getCacheKey({ __typename: '__Schema', id: '__Schema' }),
-      __type: (_, object, { getCacheKey }) => {
-        const name = getName(object);
-        const cacheKey = getCacheKey({
-          __typename: 'Type',
-          id: name
-        });
-
-        return cacheKey;
-      }
+      class: (_, object, { getCacheKey }) =>
+        getCacheKey({
+          __typename: defaults.class.__typename,
+          id: object.id
+        })
     }
   },
   dataIdFromObject: (object: any) => {
+    const name = getName(object);
     switch (object.__typename) {
       case defaults.canvas.__typename:
-      case defaults.nodesFilters.__typename:
+      case defaults.classesFilters.__typename:
       case '__Schema':
         return object.__typename;
       case '__Field':
-        const name = getName(object);
         if (name) {
-          return `Field:${name}`;
+          return `__Field:${name}`;
         }
-        return null;
-      case '__Type':
-        const namex = getName(object);
-        if (name) {
-          return `Type:${namex}`;
-        }
-        return null;
+        return `__Field:${object.id}`;
       default:
         return defaultDataIdFromObject(object);
     }

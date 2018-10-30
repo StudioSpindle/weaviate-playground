@@ -1,11 +1,11 @@
 import gql from 'graphql-tag';
 import { Query } from 'react-apollo';
-import { NodeType } from 'src/types';
+import { ClassType } from 'src/types';
 
 /**
  * Types
  */
-interface IGetNetworkNodesData {
+interface IGetNetworkClassesData {
   __type: {
     name: string;
     fields: Array<{
@@ -16,7 +16,7 @@ interface IGetNetworkNodesData {
           name: string;
         };
         fields: Array<{
-          name: NodeType;
+          name: ClassType;
           type: {
             name: string;
             ofType: {
@@ -37,23 +37,23 @@ interface IGetNetworkNodesData {
   };
 }
 
-interface IGetNodesVariables {
+interface IGetClassesVariables {
   typename: 'WeaviateNetworkGetObj';
 }
 
 /**
  * Query component
  */
-export class GetNetworkNodesQuery extends Query<
-  IGetNetworkNodesData,
-  IGetNodesVariables
+export class GetNetworkClassesQuery extends Query<
+  IGetNetworkClassesData,
+  IGetClassesVariables
 > {}
 
 /**
  * GQL query string
  */
-export const GET_NETWORK_NODES = gql`
-  query GetLocalNodes($typename: String!) {
+export const GET_NETWORK_CLASSES = gql`
+  query GetNetworkClasses($typename: String!) {
     __type(name: $typename) {
       name
       fields {

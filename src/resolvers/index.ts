@@ -1,23 +1,24 @@
 import gql from 'graphql-tag';
 import { IUpdateClassesFiltersVariables } from 'src/components/library/queries';
+const defaultClass = {
+  __typename: 'Class',
+  classLocation: 'Local',
+  classType: 'Things',
+  id: null,
+  instance: 'Local',
+  isSelected: false,
+  name: 'City'
+};
 
 export const defaults = {
   canvas: {
     __typename: 'Canvas',
     classIds: [],
-    selectedClass: 'City',
+    selectedClass: defaultClass,
     selectedClasses: [],
     zoom: 1
   },
-  class: {
-    __typename: 'Class',
-    classLocation: 'Local',
-    classType: 'Things',
-    id: null,
-    instance: 'Local',
-    isSelected: false,
-    name: ''
-  },
+  class: defaultClass,
   classes: [],
   classesFilters: {
     __typename: 'classesFilters',
@@ -97,6 +98,41 @@ export const resolvers = {
       }
 
       cache.writeData({ id: canvasId, data });
+      return null;
+    },
+    updateClassSelectionCanvas: (
+      _: any,
+      variables: { id: string },
+      { cache, getCacheKey }: { cache: any; getCacheKey: any }
+    ) => {
+      const __typename = defaults.canvas.__typename;
+      const id = getCacheKey({ __typename });
+
+      const classQuery = cache.readQuery({
+        query: gql`
+          query SelectedClass($id: String!) {
+            class(id: $id) {
+              id
+              instance
+              name
+              classLocation
+              classType
+            }
+          }
+        `,
+        variables: {
+          id: variables.id
+        }
+      });
+
+      const data = {
+        canvas: {
+          __typename,
+          selectedClass: classQuery.class
+        }
+      };
+
+      cache.writeData({ id, data });
       return null;
     },
     updateClassesFilters: (

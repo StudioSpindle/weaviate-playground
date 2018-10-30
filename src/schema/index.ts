@@ -11,7 +11,7 @@ const typeDefs = `
     type Canvas {
         classIds: [String]
         selectedClasses: [String]
-        selectedClass: String
+        selectedClass: Class
         zoom: Int
     }
 
@@ -31,6 +31,7 @@ const typeDefs = `
     type Mutation {
         toggleClassSelectionLibrary(id: String!): Class
         updateClass(id: String!, instance: String!, name: String!, classLocation: String!, classType: String!)
+        updateClassSelectionCanvas(id: String!): Canvas
         updateClassesFilters(classLocation: String, classType: String, queryString: String): ClassesFilters
         updateClassSelection(typename: String!): Canvas
     }

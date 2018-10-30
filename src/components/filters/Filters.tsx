@@ -29,16 +29,17 @@ const Filters = () => (
         return null;
       }
 
-      const selectedClass = selectedClassQuery.data.canvas.selectedClass;
+      const selectedClassName =
+        selectedClassQuery.data.canvas.selectedClass.name;
 
       /**
        * Get the meta information for the selected Class
        */
       return (
-        <Section title={`Filters for ${selectedClass}`}>
+        <Section title={`Filters for ${selectedClassName}`}>
           <GetMetaTypeQuery
             query={GET_META_TYPE}
-            variables={{ typename: `Meta${selectedClass}` }}
+            variables={{ typename: `Meta${selectedClassName}` }}
           >
             {metaTypeQuery => {
               if (metaTypeQuery.loading) {

@@ -1,4 +1,6 @@
+import gql from 'graphql-tag';
 import * as React from 'react';
+import { Mutation, Query } from 'react-apollo';
 import {
   ClassIntrospector,
   Filters,
@@ -108,6 +110,48 @@ class App extends React.Component {
 
             <Graph>
               Weaviate Playground
+              <Query
+                query={gql`
+                  query selectedClasses {
+                    canvas @client {
+                      selectedClasses
+                    }
+                  }
+                `}
+              >
+                {(selectedClassesQuery: any) => {
+                  if (selectedClassesQuery.data.canvas) {
+                    return (
+                      selectedClassesQuery.data.canvas &&
+                      selectedClassesQuery.data.canvas.selectedClasses.map(
+                        (classId: any, i: number) => (
+                          <Mutation
+                            key={i}
+                            mutation={gql`
+                              mutation updateClassSelectionCanvas(
+                                $id: String!
+                              ) {
+                                updateClassSelectionCanvas(id: $id) @client
+                              }
+                            `}
+                            variables={{ id: classId }}
+                          >
+                            {(updateClassSelectionCanvas: any) => {
+                              return (
+                                <button onClick={updateClassSelectionCanvas}>
+                                  {classId}
+                                </button>
+                              );
+                            }}
+                          </Mutation>
+                        )
+                      )
+                    );
+                  }
+
+                  return null;
+                }}
+              </Query>
               {false && <Zoom>Zoom</Zoom>}
             </Graph>
 

@@ -1,11 +1,18 @@
 import * as React from 'react';
-import { Filter, Section } from 'src/components';
+import { Filter, Section, Text } from 'src/components';
 import {
   GET_META_TYPE,
   GET_SELECTED_CLASS,
   GetMetaTypeQuery,
   GetSelectedClassQuery
 } from 'src/components/filters/queries';
+import styled from 'styled-components';
+
+const TextContainer = styled.div`
+  padding: 2em;
+`;
+
+const defaultErrorMessage = 'An error has occured';
 
 /**
  * Dynamically fetches filters for a specific Class
@@ -20,39 +27,61 @@ const Filters = () => (
         return 'Loading...';
       }
 
-      if (selectedClassQuery.error) {
-        return selectedClassQuery.error.message;
+      if (selectedClassQuery.error || !selectedClassQuery.data) {
+        return (
+          <Section title={`Filters`}>
+            <TextContainer>
+              <Text color="gray" colorvariant="gray4">
+                {(selectedClassQuery.error &&
+                  selectedClassQuery.error.message) ||
+                  defaultErrorMessage}
+              </Text>
+            </TextContainer>
+          </Section>
+        );
       }
 
-      if (!selectedClassQuery.data) {
-        // TODO: Replace with proper message
-        return null;
-      }
+      const { name } = selectedClassQuery.data.canvas.selectedClass;
 
-      const selectedClassName =
-        selectedClassQuery.data.canvas.selectedClass.name;
+      if (name === '') {
+        return (
+          <Section title={`Filters`}>
+            <TextContainer>
+              <Text color="gray" colorvariant="gray4">
+                Please select a class from the canvas to display filters
+              </Text>
+            </TextContainer>
+          </Section>
+        );
+      }
 
       /**
        * Get the meta information for the selected Class
        */
       return (
-        <Section title={`Filters for ${selectedClassName}`}>
+        <Section title={`Filters for ${name}`}>
           <GetMetaTypeQuery
             query={GET_META_TYPE}
-            variables={{ typename: `Meta${selectedClassName}` }}
+            variables={{ typename: `Meta${name}` }}
           >
             {metaTypeQuery => {
               if (metaTypeQuery.loading) {
                 return 'Loading...';
               }
 
-              if (metaTypeQuery.error) {
-                return metaTypeQuery.error.message;
-              }
-
-              if (!metaTypeQuery.data) {
-                // TODO: Replace with proper message
-                return null;
+              if (
+                metaTypeQuery.error ||
+                !metaTypeQuery.data ||
+                !metaTypeQuery.data.__type
+              ) {
+                return (
+                  <TextContainer>
+                    <Text color="gray" colorvariant="gray4">
+                      {(metaTypeQuery.error && metaTypeQuery.error.message) ||
+                        defaultErrorMessage}
+                    </Text>
+                  </TextContainer>
+                );
               }
 
               const filters = metaTypeQuery.data.__type.fields;

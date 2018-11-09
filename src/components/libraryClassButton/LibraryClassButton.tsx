@@ -1,6 +1,6 @@
 import React from 'react';
 import { Query } from 'react-apollo';
-import { Text } from 'src/components';
+import { Tag, Text } from 'src/components';
 import {
   ActionIcon,
   AddIcon,
@@ -92,6 +92,7 @@ const LibraryClassButton: React.SFC<ILibraryClassProps> = ({
       }
 
       const {
+        instance,
         isSelected,
         name,
         classLocation,
@@ -130,7 +131,9 @@ const LibraryClassButton: React.SFC<ILibraryClassProps> = ({
                     {classType === 'Things' && <ThingIcon {...iconProps} />}
                     {classType === 'Actions' && <ActionIcon {...iconProps} />}
                   </IconContainer>
-                  <Text fontWeight="bold">{name}</Text>
+                  <Text fontWeight="bold">
+                    {name} <Tag>{instance}</Tag>
+                  </Text>
                 </IconNameContainer>
 
                 <IconContainer>

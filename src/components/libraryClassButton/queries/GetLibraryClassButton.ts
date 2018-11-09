@@ -9,6 +9,7 @@ export const GET_LIBRARY_CLASS_BUTTON_QUERY = gql`
   query GetLibraryClassButton($id: String!) {
     class(id: $id) @client {
       id
+      instance
       isSelected
       name
       classLocation

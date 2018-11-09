@@ -24,7 +24,7 @@ export type TextComponent =
 export interface IText {
   className?: string;
   color?: Color;
-  colorVariant?: string;
+  colorvariant?: string;
   component?: TextComponent;
   fontStyle?: FontStyle;
   fontWeight?: FontWeight;
@@ -69,7 +69,7 @@ export const getTextCss = (props: IText): string => `
   ${props.size ? `font-size: ${props.size}` : getTextSize(props.component)}
   color: ${getColor(
     props.color ? props.color : defaultProps.color!,
-    props.colorVariant
+    props.colorvariant
   )};
   ${props.fontStyle ? `font-style: ${props.fontStyle};` : ''}
   ${props.fontWeight ? `font-weight: ${props.fontWeight}` : ''}

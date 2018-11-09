@@ -10,7 +10,6 @@ import styled from 'styled-components';
  * Styled components
  */
 const Container = styled.input`
-  width: 100%;
   padding: 1em;
   border: none;
   border-bottom: solid 2px ${getColor('vividPink')};

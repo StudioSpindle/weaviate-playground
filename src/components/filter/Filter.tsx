@@ -1,24 +1,45 @@
 import gql from 'graphql-tag';
 import * as React from 'react';
 import { Query } from 'react-apollo';
-import { Text } from 'src/components';
+import {
+  FilterTextSearch,
+  RangeSlider,
+  Text,
+  ToggleSwitch
+} from 'src/components';
 import {
   GET_META_TYPE,
   GetMetaTypeQuery
 } from 'src/components/filters/queries';
+import {
+  TOGGLE_SWITCH_MUTATION,
+  ToggleSwitchMutation
+} from 'src/components/filterToggleSwitch/queries';
 import { unCamelCase } from 'src/utils';
 import styled from 'styled-components';
+import {
+  GET_SELECTED_CLASS_FOR_FILTER,
+  GetSelectedClassForFilterQuery
+} from './queries';
 
 /**
  * Types
  */
 export interface IFilterProps {
+  classNameAlt?: string;
   name: string;
   typename: string;
 }
 
 export interface IFilterState {
   isOpen: boolean;
+}
+
+export interface IDefaultFilterProps {
+  classId: string;
+  filterName: string;
+  filterType: string;
+  filterValue: string | boolean | object;
 }
 
 /**
@@ -52,8 +73,12 @@ const getTypename = (parentTypename: string, fieldName: string) =>
 const createQueryString = (parentTypename: string, fields: any) =>
   fields
     .map((field: any) => {
-      if (field.type.name) {
+      if (field.type.name || field.name === 'pointingTo') {
         return `${field.name}`;
+      }
+
+      if (field.name === 'topOccurrences') {
+        return `${field.name} { value, occurs }`;
       }
 
       // tslint:disable-next-line:no-console
@@ -79,7 +104,7 @@ class Filter extends React.Component<IFilterProps, IFilterState> {
   };
 
   public render() {
-    const { name, typename } = this.props;
+    const { classNameAlt, name, typename } = this.props;
     const { isOpen } = this.state;
 
     return (
@@ -102,64 +127,188 @@ class Filter extends React.Component<IFilterProps, IFilterState> {
                   return metaTypeQuery.error.message;
                 }
 
-                if (!metaTypeQuery.data) {
-                  // TODO: Replace with proper message
-                  return null;
-                }
-
-                /**
-                 * Create a query string from meta type
-                 */
-                const queryString = createQueryString(
-                  typename,
-                  metaTypeQuery.data.__type.fields
-                );
-
-                const qs = `
-                query MetaDataForFilter {
-                Local {
-                  GetMeta {
-                    Things {
-                      City {
-                        ${name} {
-                          ${queryString}
-                        }
-    
-                      }
-                    }
-                  }
-                }
-              }`;
-                const query = gql(qs);
-
-                // tslint:disable-next-line:no-console
-                console.log(qs);
-
                 return (
-                  <Query query={query}>
-                    {filterMetaQuery => {
-                      /**
-                       * Get meta data for filter
-                       */
-                      if (filterMetaQuery.loading) {
+                  <GetSelectedClassForFilterQuery
+                    query={GET_SELECTED_CLASS_FOR_FILTER}
+                  >
+                    {selectedClassQuery => {
+                      if (selectedClassQuery.loading) {
                         return 'Loading...';
                       }
 
-                      if (filterMetaQuery.error) {
-                        return filterMetaQuery.error.message;
+                      if (selectedClassQuery.error) {
+                        return selectedClassQuery.error.message;
                       }
 
-                      if (!filterMetaQuery.data) {
+                      if (!selectedClassQuery.data || !metaTypeQuery.data) {
                         // TODO: Replace with proper message
                         return null;
                       }
 
-                      // tslint:disable-next-line:no-console
-                      console.log(filterMetaQuery);
+                      /**
+                       * Create a query string from meta type
+                       */
+                      const {
+                        id,
+                        classLocation,
+                        classType
+                      } = selectedClassQuery.data.canvas.selectedClass;
+                      const className =
+                        classNameAlt ||
+                        selectedClassQuery.data.canvas.selectedClass.name;
 
-                      return <p>Filter</p>;
+                      const queryString = createQueryString(
+                        typename,
+                        metaTypeQuery.data.__type.fields
+                      );
+
+                      const qs = `
+                        query MetaDataForFilter {
+                          ${classLocation} {
+                            GetMeta {
+                              ${classType} {
+                                ${className} {
+                                  ${name} {
+                                    ${queryString}
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      `;
+
+                      const query = gql(qs);
+
+                      return (
+                        <Query query={query} variables={{ id }}>
+                          {filterMetaQuery => {
+                            /**
+                             * Get meta data for filter
+                             */
+                            if (filterMetaQuery.loading) {
+                              return 'Loading...';
+                            }
+
+                            if (filterMetaQuery.error) {
+                              return filterMetaQuery.error.message;
+                            }
+
+                            if (!filterMetaQuery.data) {
+                              // TODO: Replace with proper message
+                              return null;
+                            }
+
+                            const metaData =
+                              filterMetaQuery.data[classLocation].GetMeta[
+                                classType
+                              ][className][name];
+
+                            const queryX = gql`
+                              query ClassFilters {
+                                class(id: $id) @client {
+                                  id
+                                  filters
+                                }
+                              }
+                            `;
+
+                            return (
+                              <Query query={queryX} variables={{ id }}>
+                                {classFiltersQuery => {
+                                  /**
+                                   * Get meta data for filter
+                                   */
+                                  if (classFiltersQuery.loading) {
+                                    return 'Loading...';
+                                  }
+
+                                  if (classFiltersQuery.error) {
+                                    return classFiltersQuery.error.message;
+                                  }
+
+                                  if (!classFiltersQuery.data) {
+                                    // TODO: Replace with proper message
+                                    return null;
+                                  }
+
+                                  if (!metaData) {
+                                    return 'An error has occured';
+                                  }
+
+                                  const filters = JSON.parse(
+                                    classFiltersQuery.data.class.filters
+                                  );
+                                  const filterValue = filters[name];
+
+                                  const defaultFilterProps = {
+                                    classId: id,
+                                    filterName: name,
+                                    filterType: metaData.type,
+                                    filterValue
+                                  };
+                                  return (
+                                    <ToggleSwitchMutation
+                                      mutation={TOGGLE_SWITCH_MUTATION}
+                                      variables={{
+                                        classId: id,
+                                        filterName: name,
+                                        filterType: metaData.type
+                                      }}
+                                    >
+                                      {filterMutation => {
+                                        switch (metaData.type) {
+                                          case 'string':
+                                            return (
+                                              <FilterTextSearch
+                                                {...defaultFilterProps}
+                                                items={metaData.topOccurrences}
+                                                name={name}
+                                              />
+                                            );
+                                          case 'number':
+                                            return (
+                                              <RangeSlider
+                                                filterMutation={filterMutation}
+                                                filterValue={filterValue}
+                                                min={metaData.lowest}
+                                                max={metaData.highest}
+                                              />
+                                            );
+
+                                          case 'boolean':
+                                            return (
+                                              <ToggleSwitch
+                                                {...defaultFilterProps}
+                                                label={name}
+                                              />
+                                            );
+                                          case 'cref':
+                                            return (
+                                              <Filter
+                                                classNameAlt={
+                                                  metaData.pointingTo[0]
+                                                }
+                                                name={'name'}
+                                                typename={`Meta${
+                                                  metaData.pointingTo[0]
+                                                }nameObj`}
+                                              />
+                                            );
+                                          default:
+                                            return 'Unknown filter type';
+                                        }
+                                      }}
+                                    </ToggleSwitchMutation>
+                                  );
+                                }}
+                              </Query>
+                            );
+                          }}
+                        </Query>
+                      );
                     }}
-                  </Query>
+                  </GetSelectedClassForFilterQuery>
                 );
               }}
             </GetMetaTypeQuery>

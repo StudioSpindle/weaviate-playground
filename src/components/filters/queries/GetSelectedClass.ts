@@ -8,6 +8,7 @@ interface IGetSelectedClassData {
   canvas: {
     selectedClass: {
       name: string;
+      filters: object;
     };
   };
 }
@@ -25,6 +26,7 @@ export const GET_SELECTED_CLASS = gql`
     canvas @client {
       selectedClass {
         name
+        filters
       }
     }
   }

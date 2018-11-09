@@ -55,6 +55,7 @@ const ClassIntrospector: React.SFC = ({ children }) => (
                     variables: {
                       classLocation: 'Local',
                       classType,
+                      filters: '{}',
                       id: `local-${classType}-${CLASS.name}`,
                       instance: 'Local',
                       name: CLASS.name
@@ -98,6 +99,7 @@ const ClassIntrospector: React.SFC = ({ children }) => (
                                   classLocation:
                                     instance === 'Local' ? instance : 'Network',
                                   classType,
+                                  filters: '{}',
                                   id: `${instance}-${classType}-${CLASS.name}`,
                                   instance,
                                   name: CLASS.name

@@ -6,6 +6,7 @@ import gql from 'graphql-tag';
 export const UPDATE_CLASS_MUTATION = gql`
   mutation updateClass(
     $id: String!
+    $filters: String!
     $instance: String!
     $name: String!
     $classLocation: String!
@@ -13,6 +14,7 @@ export const UPDATE_CLASS_MUTATION = gql`
   ) {
     updateClass(
       id: $id
+      filters: $filters
       instance: $instance
       name: $name
       classLocation: $classLocation

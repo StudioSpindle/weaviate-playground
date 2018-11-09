@@ -4,7 +4,17 @@ export {
   default as ClassIntrospector
 } from './introspection/ClassIntrospector';
 export { default as Filter } from 'src/components/filter/Filter';
+export { default as RangeSlider } from './filterRangeSlider/FilterRangeSlider';
 export { default as Filters } from 'src/components/filters/Filters';
+export {
+  default as FilterTextSearch
+} from './filterTextSearch/FilterTextSearch';
+export {
+  default as FilterTextSearchButton
+} from 'src/components/filterTextSearchButton/FilterTextSearchButton';
+export {
+  default as ToggleSwitch
+} from './filterToggleSwitch/FilterToggleSwitch';
 export { default as Header } from 'src/components/header/Header';
 export { default as Library } from 'src/components/library/Library';
 export {

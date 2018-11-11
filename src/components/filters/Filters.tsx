@@ -1,6 +1,109 @@
 import * as React from 'react';
-import { Section } from 'src/components';
+import { Filter, Section, Text } from 'src/components';
+import {
+  GET_META_TYPE,
+  GET_SELECTED_CLASS,
+  GetMetaTypeQuery,
+  GetSelectedClassQuery
+} from 'src/components/filters/queries';
+import styled from 'styled-components';
 
-const Filters = (props: any) => <Section title="Filters">Filters</Section>;
+const TextContainer = styled.div`
+  padding: 2em;
+`;
+
+const defaultErrorMessage = 'An error has occured';
+
+/**
+ * Dynamically fetches filters for a specific Class
+ */
+const Filters = () => (
+  <GetSelectedClassQuery query={GET_SELECTED_CLASS}>
+    {selectedClassQuery => {
+      /**
+       * Get the Class that is selected on canvas
+       */
+      if (selectedClassQuery.loading) {
+        return 'Loading...';
+      }
+
+      if (selectedClassQuery.error || !selectedClassQuery.data) {
+        return (
+          <Section title={`Filters`}>
+            <TextContainer>
+              <Text color="gray" colorvariant="gray4">
+                {(selectedClassQuery.error &&
+                  selectedClassQuery.error.message) ||
+                  defaultErrorMessage}
+              </Text>
+            </TextContainer>
+          </Section>
+        );
+      }
+
+      const { name } = selectedClassQuery.data.canvas.selectedClass;
+
+      if (name === '') {
+        return (
+          <Section title={`Filters`}>
+            <TextContainer>
+              <Text color="gray" colorvariant="gray4">
+                Please select a class from the canvas to display filters
+              </Text>
+            </TextContainer>
+          </Section>
+        );
+      }
+
+      /**
+       * Get the meta information for the selected Class
+       */
+      return (
+        <Section title={`Filters for ${name}`}>
+          <GetMetaTypeQuery
+            query={GET_META_TYPE}
+            variables={{ typename: `Meta${name}` }}
+          >
+            {metaTypeQuery => {
+              if (metaTypeQuery.loading) {
+                return 'Loading...';
+              }
+
+              if (
+                metaTypeQuery.error ||
+                !metaTypeQuery.data ||
+                !metaTypeQuery.data.__type
+              ) {
+                return (
+                  <TextContainer>
+                    <Text color="gray" colorvariant="gray4">
+                      {(metaTypeQuery.error && metaTypeQuery.error.message) ||
+                        defaultErrorMessage}
+                    </Text>
+                  </TextContainer>
+                );
+              }
+
+              const filters = metaTypeQuery.data.__type.fields;
+
+              /**
+               * Render a filter component for each meta field
+               */
+              return filters
+                .filter(filter => filter.name !== 'meta')
+                .map((filter, i) => (
+                  <Filter
+                    key={i}
+                    name={filter.name}
+                    typename={filter.type.name}
+                  />
+                ));
+            }}
+          </GetMetaTypeQuery>
+        </Section>
+      );
+    }}
+  </GetSelectedClassQuery>
+);
 
 export default Filters;

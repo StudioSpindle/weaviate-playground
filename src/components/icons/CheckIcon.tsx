@@ -23,7 +23,7 @@ class CheckIcon extends React.PureComponent<ICheckIconProps> {
 
     return (
       <Icon {...rest}>
-        <g fill={stroke} fill-rule="nonzero">
+        <g fill={stroke} fillRule="nonzero">
           <path d="M9.5 15.48l8.82-8.84 1.18 1.18-10 10-4.64-4.64L6.02 12z" />
         </g>
       </Icon>

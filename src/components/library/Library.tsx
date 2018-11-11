@@ -1,94 +1,88 @@
 import * as React from 'react';
 import {
+  LibraryClasses,
+  LibraryClassSelection,
   LibraryFilters,
-  LibraryNodes,
-  LibraryNodeSelection,
   LibraryTextSearch,
   Section
 } from 'src/components';
 import {
-  GET_NODES_FILTERS,
-  GET_SELECTED_NODES,
-  GetNodesFiltersQuery,
-  GetSelectedNodesQuery
+  GET_CLASSES_FILTERS,
+  GET_SELECTED_CLASSES,
+  GetClassesFiltersQuery,
+  GetSelectedClassesQuery
 } from 'src/components/library/queries';
 import styled from 'styled-components';
 
 /**
  * Styled components
  */
-const NodeContainer = styled.div`
+const ClassContainer = styled.div`
   max-height: 25vh;
   overflow: scroll;
 `;
 
 /**
- * Library component: renders node selection with filter options
+ * Library component: renders class selection with filter options
  */
 const Library = () => (
   <Section title="Library">
-    <GetNodesFiltersQuery query={GET_NODES_FILTERS}>
-      {nodesFiltersQuery => {
-        if (nodesFiltersQuery.loading) {
+    <GetClassesFiltersQuery query={GET_CLASSES_FILTERS}>
+      {classesFiltersQuery => {
+        if (classesFiltersQuery.loading) {
           return 'Loading...';
         }
 
-        if (nodesFiltersQuery.error) {
-          return `Error! ${nodesFiltersQuery.error.message}`;
+        if (classesFiltersQuery.error) {
+          return `Error! ${classesFiltersQuery.error.message}`;
         }
 
-        if (!nodesFiltersQuery.data) {
+        if (!classesFiltersQuery.data) {
           // TODO: Replace with proper message
           return null;
         }
 
-        const selectedNodeLocation =
-          nodesFiltersQuery.data.nodesFilters.nodeLocation;
-        const selectedNodeType = nodesFiltersQuery.data.nodesFilters.nodeType;
-        const queryString = nodesFiltersQuery.data.nodesFilters.queryString;
+        const selectedClassLocation =
+          classesFiltersQuery.data.classesFilters.classLocation;
+        const selectedClassType =
+          classesFiltersQuery.data.classesFilters.classType;
 
         return (
           <React.Fragment>
             <LibraryTextSearch />
             <LibraryFilters
-              selectedNodeLocation={selectedNodeLocation}
-              selectedNodeType={selectedNodeType}
+              selectedClassLocation={selectedClassLocation}
+              selectedClassType={selectedClassType}
             />
 
-            <GetSelectedNodesQuery query={GET_SELECTED_NODES}>
-              {selectedNodesQuery => {
-                if (selectedNodesQuery.loading) {
+            <GetSelectedClassesQuery query={GET_SELECTED_CLASSES}>
+              {selectedClassesQuery => {
+                if (selectedClassesQuery.loading) {
                   return 'Loading...';
                 }
 
-                if (selectedNodesQuery.error) {
-                  return `Error! ${selectedNodesQuery.error.message}`;
+                if (selectedClassesQuery.error) {
+                  return `Error! ${selectedClassesQuery.error.message}`;
                 }
 
-                if (!selectedNodesQuery.data) {
+                if (!selectedClassesQuery.data) {
                   // TODO: Replace with proper message
                   return null;
                 }
-                const selectedNodes =
-                  selectedNodesQuery.data.canvas.selectedNodes;
+                const selectedClasses =
+                  selectedClassesQuery.data.canvas.selectedClasses;
                 return (
-                  <NodeContainer>
-                    <LibraryNodeSelection selectedNodes={selectedNodes} />
-                    <LibraryNodes
-                      isSelected={false}
-                      nodeLocation={selectedNodeLocation}
-                      nodeType={selectedNodeType}
-                      queryString={queryString}
-                      selectedNodes={selectedNodes}
-                    />
-                  </NodeContainer>
+                  <ClassContainer>
+                    <LibraryClassSelection selectedClasses={selectedClasses} />
+                    <LibraryClasses />
+                  </ClassContainer>
                 );
               }}
-            </GetSelectedNodesQuery>
+            </GetSelectedClassesQuery>
           </React.Fragment>
         );
       }}
-    </GetNodesFiltersQuery>
+    </GetClassesFiltersQuery>
   </Section>
 );
 

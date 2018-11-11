@@ -1,12 +1,14 @@
 # Weaviate Playground
+
 Weaviate Playground is a Javascript web app that allows users to explore [Weaviate instances](https://github.com/creativesoftwarefdn/weaviate).
 
-* **Dynamic:** any Weaviate instance can be easily plugged via route params. Playground will sync it's UI with the instance's [ontologies](https://github.com/creativesoftwarefdn/weaviate#ontology) through introspection.
-* **Client-side only:** Playground runs client-side only. This makes the app very portable and easily distributable. It can be easily run from a static file server or locally from a device with a desktop browser.
+- **Dynamic:** any Weaviate instance can be easily plugged via route params. Playground will sync it's UI with the instance's [ontologies](https://github.com/creativesoftwarefdn/weaviate#ontology) through introspection.
+- **Client-side only:** Playground runs client-side only. This makes the app very portable and easily distributable. It can be easily run from a static file server or locally from a device with a desktop browser.
 
 ## Usage
 
 ## Roadmap
+
 - [ ] **Initial project setup**
   - [ ] Determine browser support
   - [ ] Typescript setup
@@ -27,24 +29,24 @@ Weaviate Playground is a Javascript web app that allows users to explore [Weavia
 - [ ] **Component library (more details will follow)**
 - [ ] **Library section**
   - [ ] Create library container
-  - [ ] Implement node text search
+  - [ ] Implement class text search
   - [ ] Implement local/network toggle filter
   - [ ] Implement all/things/actions selection filter
   - [ ] Create selection container
-  - [ ] Create node checkbox button
+  - [ ] Create class checkbox button
   - [ ] Populate container checkbox buttons
 - [ ] **Filter section**
   - [ ] Create filter container
   - [ ] Create checkbox filter
   - [ ] Create slider filter
   - [ ] Create other filters?
-  - [ ] Implement node text search
+  - [ ] Implement class text search
   - [ ] Populate container with filters
 - [ ] **Graph section**
   - [ ] Create graph container
-  - [ ] Create node with pie menu and badge
+  - [ ] Create class with pie menu and badge
   - [ ] Create edge
-  - [ ] Populate container with nodes and edges
+  - [ ] Populate container with classes and edges
   - [ ] Implement zoom functionality
   - [ ] Implement 'Relate' interaction
   - [ ] Implement 'Expand' interaction

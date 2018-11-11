@@ -1,20 +1,34 @@
 export { default as App } from 'src/components/app/App';
 export { default as Button } from 'src/components/button/Button';
+export {
+  default as ClassIntrospector
+} from './introspection/ClassIntrospector';
+export { default as Filter } from 'src/components/filter/Filter';
+export { default as RangeSlider } from './filterRangeSlider/FilterRangeSlider';
 export { default as Filters } from 'src/components/filters/Filters';
+export {
+  default as FilterTextSearch
+} from './filterTextSearch/FilterTextSearch';
+export {
+  default as FilterTextSearchButton
+} from 'src/components/filterTextSearchButton/FilterTextSearchButton';
+export {
+  default as ToggleSwitch
+} from './filterToggleSwitch/FilterToggleSwitch';
 export { default as Header } from 'src/components/header/Header';
 export { default as Library } from 'src/components/library/Library';
 export {
   default as LibraryFilters
 } from 'src/components/libraryFilters/LibraryFilters';
 export {
-  default as LibraryNodeButton
-} from 'src/components/libraryNodeButton/LibraryNodeButton';
+  default as LibraryClassButton
+} from 'src/components/libraryClassButton/LibraryClassButton';
 export {
-  default as LibraryNodes
-} from 'src/components/libraryNodes/LibraryNodes';
+  default as LibraryClasses
+} from 'src/components/libraryClasses/LibraryClasses';
 export {
-  default as LibraryNodeSelection
-} from 'src/components/libraryNodeSelection/LibraryNodeSelection';
+  default as LibraryClassSelection
+} from 'src/components/libraryClassSelection/LibraryClassSelection';
 export {
   default as LibraryTextSearch
 } from 'src/components/libraryTextSearch/LibraryTextSearch';

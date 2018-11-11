@@ -1,5 +1,13 @@
+import gql from 'graphql-tag';
 import * as React from 'react';
-import { Filters, Header, Library, Section } from 'src/components';
+import { Mutation, Query } from 'react-apollo';
+import {
+  ClassIntrospector,
+  Filters,
+  Header,
+  Library,
+  Section
+} from 'src/components';
 import styled, { injectGlobal } from 'styled-components';
 
 /**
@@ -94,19 +102,63 @@ class App extends React.Component {
       <React.Fragment>
         <Header />
         <Main>
-          <Aside>
-            <Library />
-            <Filters />
-          </Aside>
+          <ClassIntrospector>
+            <Aside>
+              <Library />
+              <Filters />
+            </Aside>
 
-          <Graph>
-            Weaviate Playground
-            <Zoom>Zoom</Zoom>
-          </Graph>
+            <Graph>
+              Weaviate Playground
+              <Query
+                query={gql`
+                  query selectedClasses {
+                    canvas @client {
+                      selectedClasses
+                    }
+                  }
+                `}
+              >
+                {(selectedClassesQuery: any) => {
+                  if (selectedClassesQuery.data.canvas) {
+                    return (
+                      selectedClassesQuery.data.canvas &&
+                      selectedClassesQuery.data.canvas.selectedClasses.map(
+                        (classId: any, i: number) => (
+                          <Mutation
+                            key={i}
+                            mutation={gql`
+                              mutation updateClassSelectionCanvas(
+                                $id: String!
+                              ) {
+                                updateClassSelectionCanvas(id: $id) @client
+                              }
+                            `}
+                            variables={{ id: classId }}
+                          >
+                            {(updateClassSelectionCanvas: any) => {
+                              return (
+                                <button onClick={updateClassSelectionCanvas}>
+                                  {classId}
+                                </button>
+                              );
+                            }}
+                          </Mutation>
+                        )
+                      )
+                    );
+                  }
 
-          <Aside alignRight={true}>
-            <Section title="Results">Results</Section>
-          </Aside>
+                  return null;
+                }}
+              </Query>
+              {false && <Zoom>Zoom</Zoom>}
+            </Graph>
+
+            <Aside alignRight={true}>
+              <Section title="Results">Results</Section>
+            </Aside>
+          </ClassIntrospector>
         </Main>
         <Footer>Support bar</Footer>
       </React.Fragment>

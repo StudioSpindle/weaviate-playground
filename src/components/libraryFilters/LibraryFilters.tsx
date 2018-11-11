@@ -1,5 +1,10 @@
+import { createStyles, WithStyles } from '@material-ui/core';
+import { withStyles } from '@material-ui/core/styles';
+import { Theme } from '@material-ui/core/styles/createMuiTheme';
+import Typography from '@material-ui/core/Typography';
+import ToggleButton from '@material-ui/lab/ToggleButton';
+import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
 import * as React from 'react';
-import { Button } from 'src/components';
 import {
   ActionIcon,
   LocalIcon,
@@ -7,41 +12,41 @@ import {
   ThingIcon
 } from 'src/components/icons';
 import {
-  UPDATE_NODES_FILTERS,
-  UpdateNodesFiltersMutation
+  UPDATE_CLASSES_FILTERS,
+  UpdateClassesFiltersMutation
 } from 'src/components/library/queries';
-import { NodeLocation, NodeType } from 'src/types';
+import { ClassLocation, ClassType } from 'src/types';
 import { Color } from 'src/utils/getColor';
 import styled from 'styled-components';
 
 /**
  * Types
  */
-export interface ILibraryFiltersProps {
-  selectedNodeLocation: NodeLocation;
-  selectedNodeType: NodeType;
+export interface ILibraryFiltersProps extends WithStyles<typeof styles> {
+  selectedClassLocation: ClassLocation;
+  selectedClassType: ClassType;
 }
 
-interface INodeLocations {
-  local: NodeLocation;
-  network: NodeLocation;
+interface IClassLocations {
+  local: ClassLocation;
+  network: ClassLocation;
 }
 
-interface INodeTypes {
-  all: NodeType;
-  things: NodeType;
-  actions: NodeType;
+interface IClassTypes {
+  all: ClassType;
+  things: ClassType;
+  actions: ClassType;
 }
 
 /**
  * Statics
  */
-export const nodeLocations: INodeLocations = {
+export const classLocations: IClassLocations = {
   local: 'Local',
   network: 'Network'
 };
 
-export const nodeTypes: INodeTypes = {
+export const classTypes: IClassTypes = {
   all: 'All',
   things: 'Things',
   // tslint:disable-next-line:object-literal-sort-keys
@@ -49,18 +54,27 @@ export const nodeTypes: INodeTypes = {
 };
 
 /**
+ * Styles
+ */
+
+const styles = (theme: Theme) =>
+  createStyles({
+    selected: {
+      backgroundColor: theme.palette.primary.main,
+      color: 'transparent'
+    }
+  });
+
+/**
  * Styled components
  */
 const Container = styled.div`
   display: flex;
   justify-content: space-between;
+  margin-top: 1em;
 `;
 
-const LibraryFilterSection = styled.div`
-  display: flex;
-`;
-
-const getIcon = (value: NodeLocation | NodeType, isSelected: boolean) => {
+const getIcon = (value: ClassLocation | ClassType, isSelected: boolean) => {
   const iconSize = 15;
   const props = {
     color: isSelected ? 'white' : ('almostBlack' as Color),
@@ -69,75 +83,100 @@ const getIcon = (value: NodeLocation | NodeType, isSelected: boolean) => {
     width: iconSize + 'px'
   };
   switch (value) {
-    case nodeLocations.local:
+    case classLocations.local:
       return <LocalIcon {...props} />;
-    case nodeLocations.network:
+    case classLocations.network:
       return <NetworkIcon {...props} />;
-    case nodeTypes.actions:
+    case classTypes.actions:
       return <ActionIcon {...props} />;
-    case nodeTypes.things:
+    case classTypes.things:
       return <ThingIcon {...props} />;
     default:
       return undefined;
   }
 };
 
+const updateClassesFiltersLocation = (
+  updateClassesFilters: (value: any) => void,
+  e: any,
+  value: string
+) => {
+  updateClassesFilters({ variables: { classLocation: value } });
+};
+
+const updateClassesFiltersType = (
+  updateClassesFilters: (value: any) => void,
+  e: any,
+  value: string
+) => {
+  updateClassesFilters({ variables: { classType: value } });
+};
+
 /**
  * Library filters component: renders filters for seaching classes in the Library
  */
 const LibraryFilters: React.SFC<ILibraryFiltersProps> = ({
-  selectedNodeLocation,
-  selectedNodeType
+  classes,
+  selectedClassLocation,
+  selectedClassType
 }) => (
   <Container>
-    <LibraryFilterSection>
-      {Object.keys(nodeLocations).map((nodeLocationKey, i) => {
-        const nodeLocation: NodeLocation = nodeLocations[nodeLocationKey];
-        const isSelected = nodeLocation === selectedNodeLocation;
-        return (
-          <UpdateNodesFiltersMutation
-            key={i}
-            mutation={UPDATE_NODES_FILTERS}
-            variables={{ nodeLocation }}
-          >
-            {updateNodesFilters => (
-              <Button
-                title={nodeLocation}
-                icon={getIcon(nodeLocation, isSelected)}
-                isSelected={isSelected}
-                onClick={updateNodesFilters}
-                value={nodeLocation}
-              />
-            )}
-          </UpdateNodesFiltersMutation>
-        );
-      })}
-    </LibraryFilterSection>
-    <LibraryFilterSection>
-      {Object.keys(nodeTypes).map((nodeTypeKey, i) => {
-        const nodeType: NodeType = nodeTypes[nodeTypeKey];
-        const isSelected = nodeType === selectedNodeType;
-        return (
-          <UpdateNodesFiltersMutation
-            key={i}
-            mutation={UPDATE_NODES_FILTERS}
-            variables={{ nodeType }}
-          >
-            {updateNodesFilters => (
-              <Button
+    <UpdateClassesFiltersMutation mutation={UPDATE_CLASSES_FILTERS}>
+      {updateClassesFilters => (
+        <ToggleButtonGroup
+          value={selectedClassLocation}
+          exclusive={true}
+          onChange={updateClassesFiltersLocation.bind(
+            null,
+            updateClassesFilters
+          )}
+        >
+          {Object.keys(classLocations).map((classLocationKey, i) => {
+            const classLocation: ClassLocation =
+              classLocations[classLocationKey];
+            const isSelected = classLocation === selectedClassLocation;
+            return (
+              <ToggleButton
                 key={i}
-                title={nodeType}
-                icon={getIcon(nodeType, isSelected)}
-                isSelected={isSelected}
-                onClick={updateNodesFilters}
-                value={nodeType}
-              />
-            )}
-          </UpdateNodesFiltersMutation>
-        );
-      })}
-    </LibraryFilterSection>
+                value={classLocation}
+                selected={isSelected}
+                classes={{ selected: classes.selected }}
+              >
+                {getIcon(classLocation, isSelected)}{' '}
+                <Typography>{classLocation}</Typography>
+              </ToggleButton>
+            );
+          })}
+        </ToggleButtonGroup>
+      )}
+    </UpdateClassesFiltersMutation>
+
+    <UpdateClassesFiltersMutation mutation={UPDATE_CLASSES_FILTERS}>
+      {updateClassesFilters => (
+        <ToggleButtonGroup
+          value={selectedClassType}
+          exclusive={true}
+          onChange={updateClassesFiltersType.bind(null, updateClassesFilters)}
+        >
+          {Object.keys(classTypes).map((classTypeKey, i) => {
+            const classType: ClassType = classTypes[classTypeKey];
+            const isSelected = classType === selectedClassType;
+            return (
+              <ToggleButton
+                key={i}
+                value={classType}
+                selected={isSelected}
+                classes={{ selected: classes.selected }}
+              >
+                {getIcon(classType, isSelected)}{' '}
+                <Typography>{classType}</Typography>
+              </ToggleButton>
+            );
+          })}
+        </ToggleButtonGroup>
+      )}
+    </UpdateClassesFiltersMutation>
   </Container>
 );
 
-export default LibraryFilters;
+export default withStyles(styles)(LibraryFilters);

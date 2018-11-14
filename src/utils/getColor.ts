@@ -6,7 +6,8 @@ export type Color =
   | 'olive'
   | 'almostBlack'
   | 'gray'
-  | 'mark';
+  | 'mark'
+  | 'inherit';
 
 const colors = {
   almostBlack: {

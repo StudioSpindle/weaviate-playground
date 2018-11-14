@@ -7,6 +7,9 @@ import * as React from 'react';
 import { FilterTextSearchButton } from 'src/components';
 import { IDefaultFilterProps } from 'src/components/filter/Filter';
 
+/**
+ * Types
+ */
 export interface IFilterTextSearchProps
   extends WithStyles<typeof styles>,
     IDefaultFilterProps {
@@ -19,10 +22,23 @@ export interface IFilterTextSearchState {
   value: string;
 }
 
+/**
+ * Styles
+ */
 const styles = (theme: Theme) =>
   createStyles({
+    container: {
+      width: '100%'
+    },
     focused: {
       color: theme.palette.secondary.main
+    },
+    input: {
+      fontSize: '1rem',
+      padding: '0.5rem'
+    },
+    root: {
+      marginTop: 0
     },
     textField: {
       width: '100%'
@@ -30,10 +46,16 @@ const styles = (theme: Theme) =>
     underline: {
       '&:after': {
         borderBottomColor: theme.palette.primary.main
+      },
+      '&:before': {
+        borderBottomColor: theme.palette.primary.main
       }
     }
   });
 
+/**
+ * Component
+ */
 class FilterTextSearch extends React.Component<
   IFilterTextSearchProps,
   IFilterTextSearchState
@@ -62,12 +84,15 @@ class FilterTextSearch extends React.Component<
     const { value } = this.state;
 
     return (
-      <div>
+      <div className={classes.container}>
         <TextField
           // InputLabelProps={{ classes: { focused: classes.focused } }}
-          InputProps={{ classes: { underline: classes.underline } }}
+          classes={{ root: classes.root }}
+          InputProps={{
+            classes: { root: classes.input, underline: classes.underline }
+          }}
           className={classes.textField}
-          label={`Filter by ${name}`}
+          placeholder={`Filter by ${name}`}
           value={this.state.value}
           onChange={this.handleChange}
           margin="normal"

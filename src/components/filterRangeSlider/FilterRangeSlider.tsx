@@ -1,15 +1,20 @@
+import { createStyles, WithStyles } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
-import { withTheme } from '@material-ui/core/styles';
+import { withStyles, withTheme } from '@material-ui/core/styles';
 import { Theme } from '@material-ui/core/styles/createMuiTheme';
 import Typography from '@material-ui/core/Typography';
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
 import React from 'react';
+import { compose } from 'react-apollo';
 
 const createSliderWithTooltip = Slider.createSliderWithTooltip;
 const Range = createSliderWithTooltip(Slider.Range);
 
-export interface IRangeSliderProps {
+/**
+ * Types
+ */
+export interface IRangeSliderProps extends WithStyles<typeof styles> {
   allowCross?: boolean;
   filterMutation: (data: any) => void;
   filterValue?: {
@@ -21,6 +26,19 @@ export interface IRangeSliderProps {
   theme: Theme;
 }
 
+/**
+ * Styles
+ */
+const styles = (theme: Theme) =>
+  createStyles({
+    container: {
+      margin: '0 1em'
+    }
+  });
+
+/**
+ * Range slider component
+ */
 class RangeSlider extends React.Component<IRangeSliderProps> {
   public handleChange = (value: any) => {
     const { filterMutation } = this.props;
@@ -28,10 +46,18 @@ class RangeSlider extends React.Component<IRangeSliderProps> {
   };
 
   public render() {
-    const { allowCross = false, filterValue, min, max, theme } = this.props;
+    const {
+      allowCross = false,
+      classes,
+      filterValue,
+      min,
+      max,
+      theme
+    } = this.props;
 
     return (
       <Grid
+        className={classes.container}
         container={true}
         spacing={24}
         alignItems="center"
@@ -63,4 +89,7 @@ class RangeSlider extends React.Component<IRangeSliderProps> {
   }
 }
 
-export default withTheme()(RangeSlider);
+export default compose(
+  withTheme(),
+  withStyles(styles)
+)(RangeSlider);

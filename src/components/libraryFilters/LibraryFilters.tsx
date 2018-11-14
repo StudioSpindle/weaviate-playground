@@ -17,7 +17,6 @@ import {
 } from 'src/components/library/queries';
 import { ClassLocation, ClassType } from 'src/types';
 import { Color } from 'src/utils/getColor';
-import styled from 'styled-components';
 
 /**
  * Types
@@ -56,23 +55,32 @@ export const classTypes: IClassTypes = {
 /**
  * Styles
  */
-
 const styles = (theme: Theme) =>
   createStyles({
+    button: {
+      border: `1px solid ${theme.palette.grey[900]}`,
+      borderRadius: 0,
+      marginLeft: '0.125em',
+      marginRight: '0.125em'
+    },
+    container: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      margin: '1em 0.25em 0.25em 0.25em'
+    },
+    root: {
+      borderRadius: 0,
+      boxShadow: 'none'
+    },
     selected: {
       backgroundColor: theme.palette.primary.main,
-      color: 'transparent'
+      borderColor: theme.palette.primary.main,
+      color: theme.palette.common.white
+    },
+    typography: {
+      color: 'inherit'
     }
   });
-
-/**
- * Styled components
- */
-const Container = styled.div`
-  display: flex;
-  justify-content: space-between;
-  margin-top: 1em;
-`;
 
 const getIcon = (value: ClassLocation | ClassType, isSelected: boolean) => {
   const iconSize = 15;
@@ -120,10 +128,11 @@ const LibraryFilters: React.SFC<ILibraryFiltersProps> = ({
   selectedClassLocation,
   selectedClassType
 }) => (
-  <Container>
+  <div className={classes.container}>
     <UpdateClassesFiltersMutation mutation={UPDATE_CLASSES_FILTERS}>
       {updateClassesFilters => (
         <ToggleButtonGroup
+          classes={{ root: classes.root }}
           value={selectedClassLocation}
           exclusive={true}
           onChange={updateClassesFiltersLocation.bind(
@@ -140,10 +149,12 @@ const LibraryFilters: React.SFC<ILibraryFiltersProps> = ({
                 key={i}
                 value={classLocation}
                 selected={isSelected}
-                classes={{ selected: classes.selected }}
+                classes={{ root: classes.button, selected: classes.selected }}
               >
                 {getIcon(classLocation, isSelected)}{' '}
-                <Typography>{classLocation}</Typography>
+                <Typography classes={{ root: classes.typography }}>
+                  {classLocation}
+                </Typography>
               </ToggleButton>
             );
           })}
@@ -154,6 +165,7 @@ const LibraryFilters: React.SFC<ILibraryFiltersProps> = ({
     <UpdateClassesFiltersMutation mutation={UPDATE_CLASSES_FILTERS}>
       {updateClassesFilters => (
         <ToggleButtonGroup
+          classes={{ root: classes.root }}
           value={selectedClassType}
           exclusive={true}
           onChange={updateClassesFiltersType.bind(null, updateClassesFilters)}
@@ -166,17 +178,22 @@ const LibraryFilters: React.SFC<ILibraryFiltersProps> = ({
                 key={i}
                 value={classType}
                 selected={isSelected}
-                classes={{ selected: classes.selected }}
+                classes={{
+                  root: classes.button,
+                  selected: classes.selected
+                }}
               >
                 {getIcon(classType, isSelected)}{' '}
-                <Typography>{classType}</Typography>
+                <Typography classes={{ root: classes.typography }}>
+                  {classType}
+                </Typography>
               </ToggleButton>
             );
           })}
         </ToggleButtonGroup>
       )}
     </UpdateClassesFiltersMutation>
-  </Container>
+  </div>
 );
 
 export default withStyles(styles)(LibraryFilters);

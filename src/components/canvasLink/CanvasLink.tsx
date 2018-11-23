@@ -12,8 +12,7 @@ export interface ILinkProps extends WithStyles<typeof styles> {
 const styles = (theme: Theme) =>
   createStyles({
     root: {
-      stroke: '#999',
-      strokeOpacity: 1
+      stroke: theme.palette.secondary.main
     }
   });
 

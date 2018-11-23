@@ -5,6 +5,7 @@ import gql from 'graphql-tag';
 import * as React from 'react';
 import { Query } from 'react-apollo';
 import { Canvas } from 'src/components';
+import { ID3Node } from 'src/types';
 
 // import data from './data';
 
@@ -71,8 +72,24 @@ class CanvasContainer extends React.Component<
               (classId: string) => ({ id: classId, group: 8 })
             );
 
+            let demoLinks =
+              newNodes.length > 1
+                ? newNodes.map((node: ID3Node, i: number) => {
+                    if (newNodes.length - 1 !== i) {
+                      return {
+                        source: node.id,
+                        target: newNodes[i + 1].id,
+                        value: 1
+                      };
+                    }
+                    return null;
+                  })
+                : [];
+
+            demoLinks = demoLinks.filter(Boolean);
+
             const newData = {
-              links: [],
+              links: demoLinks,
               nodes: [...newNodes]
             };
             return (

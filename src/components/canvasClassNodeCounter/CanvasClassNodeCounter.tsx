@@ -109,7 +109,7 @@ const CanvasClassNodeCounter: React.SFC<ICanvasClassNodeCounterProps> = ({
   classes,
   classId
 }) => {
-  const Circle = ({ count }: { count?: number }) => (
+  const Circle = ({ count }: { count?: number | string }) => (
     <g>
       <circle className={classes.circle} cx="45" cy="-45" r={15} />
       <text x="45" y="-42.5" className={classes.text}>
@@ -144,8 +144,6 @@ const CanvasClassNodeCounter: React.SFC<ICanvasClassNodeCounterProps> = ({
         const isNetwork = classLocation !== instance;
         const path = [classType, name];
         const where = createFilters(path, JSON.parse(filters));
-        // tslint:disable-next-line:no-console
-        console.log(where);
 
         const queryString = `
           query CanvasClassNodeCounterQuery($where: WeaviateLocalGetMetaWhereInpObj) {
@@ -173,7 +171,8 @@ const CanvasClassNodeCounter: React.SFC<ICanvasClassNodeCounterProps> = ({
               }
 
               if (canvasClassNodeCounterQuery.error) {
-                return canvasClassNodeCounterQuery.error.message;
+                return <Circle count="?" />;
+                // canvasClassNodeCounterQuery.error.message;
               }
 
               if (!canvasClassNodeCounterQuery.data) {

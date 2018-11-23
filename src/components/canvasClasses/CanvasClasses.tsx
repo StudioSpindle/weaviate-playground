@@ -3,12 +3,25 @@ import * as React from 'react';
 import { CanvasClass } from 'src/components';
 import { ID3Node } from 'src/types';
 
-class CanvasClasses extends React.Component<
-  { nodes: ID3Node[]; simulation: any },
-  {}
-> {
+interface ICanvasClassesProps {
+  nodes: ID3Node[];
+  simulation: any;
+}
+
+class CanvasClasses extends React.Component<ICanvasClassesProps> {
   public componentDidMount() {
-    const simulation = this.props.simulation;
+    this.addDrag();
+  }
+
+  public componentDidUpdate(prevProps: ICanvasClassesProps) {
+    const { nodes } = this.props;
+    if (nodes !== prevProps.nodes) {
+      this.addDrag();
+    }
+  }
+
+  public addDrag() {
+    const { simulation } = this.props;
     d3.selectAll('.node').call(
       d3
         .drag()

@@ -114,7 +114,7 @@ class CanvasClass extends React.Component<ICanvasClassProps> {
                           selectClassMutation
                         )}
                       />
-                      <text className={classes.text} x="0" y="5">
+                      <text className={classes.text} x="0" y="2.5">
                         {canvasClassQuery.data.class.name}
                       </text>
                       <CanvasClassNodeCounter classId={classId} />

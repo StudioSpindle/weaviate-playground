@@ -35,7 +35,7 @@ const styles = (theme: Theme) =>
       color: theme.palette.grey[800]
     },
     gutters: {
-      padding: '0 16px'
+      padding: '0 24px'
     },
     text: {
       fontSize: '1rem'

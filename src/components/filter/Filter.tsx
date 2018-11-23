@@ -23,6 +23,7 @@ import {
   TOGGLE_SWITCH_MUTATION,
   ToggleSwitchMutation
 } from 'src/components/filterToggleSwitch/queries';
+import translations from 'src/translations/en';
 import { unCamelCase } from 'src/utils';
 import {
   GET_SELECTED_CLASS_FOR_FILTER,
@@ -59,7 +60,8 @@ const styles = (theme: Theme) =>
     text: {
       '&:first-letter': {
         textTransform: 'uppercase'
-      }
+      },
+      fontSize: '1rem'
     }
   });
 
@@ -106,7 +108,11 @@ class Filter extends React.Component<IFilterProps> {
               }
 
               if (metaTypeQuery.error) {
-                return metaTypeQuery.error.message;
+                return (
+                  <Typography color="error">
+                    {metaTypeQuery.error.message}
+                  </Typography>
+                );
               }
 
               return (
@@ -119,12 +125,19 @@ class Filter extends React.Component<IFilterProps> {
                     }
 
                     if (selectedClassQuery.error) {
-                      return selectedClassQuery.error.message;
+                      return (
+                        <Typography color="error">
+                          {selectedClassQuery.error.message}
+                        </Typography>
+                      );
                     }
 
                     if (!selectedClassQuery.data || !metaTypeQuery.data) {
-                      // TODO: Replace with proper message
-                      return null;
+                      return (
+                        <Typography color="error">
+                          {translations.defaultError}
+                        </Typography>
+                      );
                     }
 
                     /**
@@ -160,6 +173,9 @@ class Filter extends React.Component<IFilterProps> {
                         }
                       `;
 
+                    // tslint:disable-next-line:no-console
+                    console.log(qs, id);
+
                     const query = gql(qs);
 
                     return (
@@ -173,12 +189,19 @@ class Filter extends React.Component<IFilterProps> {
                           }
 
                           if (filterMetaQuery.error) {
-                            return filterMetaQuery.error.message;
+                            return (
+                              <Typography color="error">
+                                {filterMetaQuery.error.message}
+                              </Typography>
+                            );
                           }
 
                           if (!filterMetaQuery.data) {
-                            // TODO: Replace with proper message
-                            return null;
+                            return (
+                              <Typography color="error">
+                                {translations.defaultError}
+                              </Typography>
+                            );
                           }
 
                           const metaData =
@@ -206,16 +229,19 @@ class Filter extends React.Component<IFilterProps> {
                                 }
 
                                 if (classFiltersQuery.error) {
-                                  return classFiltersQuery.error.message;
+                                  return (
+                                    <Typography color="error">
+                                      {classFiltersQuery.error.message}
+                                    </Typography>
+                                  );
                                 }
 
-                                if (!classFiltersQuery.data) {
-                                  // TODO: Replace with proper message
-                                  return null;
-                                }
-
-                                if (!metaData) {
-                                  return 'An error has occured';
+                                if (!classFiltersQuery.data || !metaData) {
+                                  return (
+                                    <Typography color="error">
+                                      {translations.defaultError}
+                                    </Typography>
+                                  );
                                 }
 
                                 const filters = JSON.parse(
@@ -249,6 +275,8 @@ class Filter extends React.Component<IFilterProps> {
                                             />
                                           );
                                         case 'number':
+                                          // tslint:disable-next-line:no-console
+                                          console.log(metaData);
                                           return (
                                             <RangeSlider
                                               filterMutation={filterMutation}

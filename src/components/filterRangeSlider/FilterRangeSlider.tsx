@@ -7,6 +7,7 @@ import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
 import React from 'react';
 import { compose } from 'react-apollo';
+import translations from 'src/translations/en';
 
 const createSliderWithTooltip = Slider.createSliderWithTooltip;
 const Range = createSliderWithTooltip(Slider.Range);
@@ -54,6 +55,14 @@ class RangeSlider extends React.Component<IRangeSliderProps> {
       max,
       theme
     } = this.props;
+
+    if (!max || !min) {
+      return (
+        <Typography color="error">
+          {translations.filterRangeSliderNoMinMax}
+        </Typography>
+      );
+    }
 
     return (
       <Grid

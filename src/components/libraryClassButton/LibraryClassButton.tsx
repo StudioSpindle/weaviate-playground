@@ -44,7 +44,7 @@ const IconNameContainer = styled.div`
 
 const IconContainer = styled.div`
   display: flex;
-  margin-left: 1em;
+  margin-left: 24px;
   margin-right: 1em;
 `;
 

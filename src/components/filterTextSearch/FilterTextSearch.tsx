@@ -35,7 +35,7 @@ const styles = (theme: Theme) =>
     },
     input: {
       fontSize: '1rem',
-      padding: '0.5rem'
+      padding: '8px 24px'
     },
     root: {
       marginTop: 0

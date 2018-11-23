@@ -22,8 +22,6 @@ export interface ISectionState {
 /**
  * Styles
  */
-export const sectionPadding = '0.5em';
-
 const styles = (theme: Theme) =>
   createStyles({
     details: {
@@ -31,7 +29,13 @@ const styles = (theme: Theme) =>
       padding: '0px'
     },
     heading: {
-      color: theme.palette.primary.contrastText
+      color: theme.palette.primary.contrastText,
+      fontSize: '1rem',
+      fontWeight: 'bold',
+      textTransform: 'uppercase'
+    },
+    icon: {
+      color: theme.palette.common.white
     },
     root: {
       width: '500px'
@@ -70,7 +74,7 @@ class Section extends React.Component<ISectionProps, ISectionState> {
         classes={{ root: classes.root }}
       >
         <ExpansionPanelSummary
-          expandIcon={<ExpandMoreIcon color="primary" />}
+          expandIcon={<ExpandMoreIcon classes={{ root: classes.icon }} />}
           classes={{ root: classes.summary }}
         >
           <Typography className={classes.heading}>{title}</Typography>

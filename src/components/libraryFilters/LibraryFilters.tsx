@@ -68,6 +68,9 @@ const styles = (theme: Theme) =>
       justifyContent: 'space-between',
       margin: '1em 0.25em 0.25em 0.25em'
     },
+    label: {
+      color: theme.palette.common.black
+    },
     root: {
       borderRadius: 0,
       boxShadow: 'none'
@@ -78,7 +81,10 @@ const styles = (theme: Theme) =>
       color: theme.palette.common.white
     },
     typography: {
-      color: 'inherit'
+      color: 'inherit',
+      fontWeight: 'bold',
+      marginLeft: '0.25rem',
+      marginTop: '0.125rem'
     }
   });
 
@@ -149,10 +155,17 @@ const LibraryFilters: React.SFC<ILibraryFiltersProps> = ({
                 key={i}
                 value={classLocation}
                 selected={isSelected}
-                classes={{ root: classes.button, selected: classes.selected }}
+                classes={{
+                  label: classes.label,
+                  root: classes.button,
+                  selected: classes.selected
+                }}
               >
                 {getIcon(classLocation, isSelected)}{' '}
-                <Typography classes={{ root: classes.typography }}>
+                <Typography
+                  classes={{ root: classes.typography }}
+                  style={{ color: isSelected ? 'white' : 'black' }}
+                >
                   {classLocation}
                 </Typography>
               </ToggleButton>
@@ -184,7 +197,10 @@ const LibraryFilters: React.SFC<ILibraryFiltersProps> = ({
                 }}
               >
                 {getIcon(classType, isSelected)}{' '}
-                <Typography classes={{ root: classes.typography }}>
+                <Typography
+                  classes={{ root: classes.typography }}
+                  style={{ color: isSelected ? 'white' : 'black' }}
+                >
                   {classType}
                 </Typography>
               </ToggleButton>

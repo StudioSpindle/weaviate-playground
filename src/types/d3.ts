@@ -1,6 +1,7 @@
 export interface ID3Node {
   id: string;
   group: number;
+  highlighted?: boolean;
 }
 
 export interface ID3Link {

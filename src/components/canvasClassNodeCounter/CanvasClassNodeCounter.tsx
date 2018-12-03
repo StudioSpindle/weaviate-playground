@@ -1,4 +1,7 @@
-import { createStyles, Theme, withStyles, WithStyles } from '@material-ui/core';
+import { Theme } from '@material-ui/core/styles/createMuiTheme';
+import createStyles from '@material-ui/core/styles/createStyles';
+import withStyles, { WithStyles } from '@material-ui/core/styles/withStyles';
+import Typography from '@material-ui/core/Typography';
 import gql from 'graphql-tag';
 import * as React from 'react';
 import { Query } from 'react-apollo';
@@ -8,6 +11,7 @@ import { Query } from 'react-apollo';
  */
 export interface ICanvasClassNodeCounterProps
   extends WithStyles<typeof styles> {
+  borderColor: string;
   classId: string;
   theme?: Theme;
 }
@@ -18,16 +22,23 @@ export interface ICanvasClassNodeCounterProps
 const styles = (theme: Theme) =>
   createStyles({
     circle: {
-      fill: theme.palette.common.white,
-      stroke: theme.palette.secondary.main,
-      strokeWidth: 2
+      alignItems: 'center',
+      backgroundColor: theme.palette.common.white,
+      borderRadius: '50%',
+      borderStyle: 'solid',
+      borderWidth: '2px',
+      display: 'flex',
+      height: '26px',
+      justifyContent: 'center',
+      position: 'absolute',
+      right: 0,
+      top: 0,
+      width: '26px'
     },
     text: {
       fill: theme.palette.grey[800],
-      fontFamily: theme.typography.fontFamily,
       fontSize: '16px',
-      fontWeight: 'bold',
-      textAnchor: 'middle'
+      fontWeight: 'bold'
     }
   });
 
@@ -106,16 +117,14 @@ const createFilters = (path: string[], filters: any) => {
  * CanvasClassNodeCounte component
  */
 const CanvasClassNodeCounter: React.SFC<ICanvasClassNodeCounterProps> = ({
+  borderColor,
   classes,
   classId
 }) => {
   const Circle = ({ count }: { count?: number | string }) => (
-    <g>
-      <circle className={classes.circle} cx="45" cy="-45" r={15} />
-      <text x="45" y="-42.5" className={classes.text}>
-        {count || '...'}
-      </text>
-    </g>
+    <div className={classes.circle} style={{ borderColor }}>
+      <Typography className={classes.text}>{count || '?'}</Typography>
+    </div>
   );
 
   return (
@@ -167,11 +176,11 @@ const CanvasClassNodeCounter: React.SFC<ICanvasClassNodeCounterProps> = ({
           <Query query={gql(queryString)} variables={{ where }}>
             {canvasClassNodeCounterQuery => {
               if (canvasClassNodeCounterQuery.loading) {
-                return <Circle />;
+                return <Circle count="..." />;
               }
 
               if (canvasClassNodeCounterQuery.error) {
-                return <Circle count="?" />;
+                return <Circle count="!" />;
                 // canvasClassNodeCounterQuery.error.message;
               }
 
@@ -186,7 +195,7 @@ const CanvasClassNodeCounter: React.SFC<ICanvasClassNodeCounterProps> = ({
                 : canvasClassNodeCounterQuery.data[classLocation].GetMeta[
                     classType
                   ][name].meta.count;
-              return <Circle count={count as number} />;
+              return <Circle count={count} />;
             }}
           </Query>
         );

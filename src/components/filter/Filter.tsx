@@ -158,23 +158,20 @@ class Filter extends React.Component<IFilterProps> {
                     );
 
                     const qs = `
-                        query MetaDataForFilter {
-                          ${classLocation} {
-                            GetMeta {
-                              ${classType} {
-                                ${className} {
-                                  ${name} {
-                                    ${queryString}
-                                  }
+                      query MetaDataForFilter {
+                        ${classLocation} {
+                          GetMeta {
+                            ${classType} {
+                              ${className} {
+                                ${name} {
+                                  ${queryString}
                                 }
                               }
                             }
                           }
                         }
-                      `;
-
-                    // tslint:disable-next-line:no-console
-                    console.log(qs, id);
+                      }
+                    `;
 
                     const query = gql(qs);
 
@@ -275,8 +272,6 @@ class Filter extends React.Component<IFilterProps> {
                                             />
                                           );
                                         case 'number':
-                                          // tslint:disable-next-line:no-console
-                                          console.log(metaData);
                                           return (
                                             <RangeSlider
                                               filterMutation={filterMutation}

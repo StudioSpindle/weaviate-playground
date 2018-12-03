@@ -21,7 +21,7 @@ class CanvasLink extends React.Component<ILinkProps> {
 
   public componentDidMount() {
     const { link } = this.props;
-    d3.select(this.ref).data([link]);
+    d3.select(this.ref).data([link], () => `${link.source}-${link.target}`);
   }
 
   public render() {

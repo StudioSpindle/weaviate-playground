@@ -1,12 +1,21 @@
-import { createStyles, WithStyles } from '@material-ui/core';
-import { withStyles, withTheme } from '@material-ui/core/styles';
+import {
+  createStyles,
+  withStyles,
+  WithStyles,
+  withTheme
+} from '@material-ui/core/styles';
 import { Theme } from '@material-ui/core/styles/createMuiTheme';
-import * as d3 from 'd3';
+import Typography from '@material-ui/core/Typography';
 import gql from 'graphql-tag';
 import * as React from 'react';
 import { compose, Mutation, Query } from 'react-apollo';
 import { CanvasClassNodeCounter } from 'src/components';
 import { ID3Node } from 'src/types';
+import { ActionIcon, ThingIcon } from '../icons';
+import {
+  UPDATE_SELECTED_CLASSES,
+  UpdateSelectedClassesMutation
+} from '../libraryClassButton/queries';
 
 export interface ICanvasClassProps extends WithStyles<typeof styles> {
   classId: string;
@@ -17,34 +26,31 @@ export interface ICanvasClassProps extends WithStyles<typeof styles> {
 const styles = (theme: Theme) =>
   createStyles({
     circle: {
-      stroke: theme.palette.secondary.main,
-      strokeWidth: 2
+      alignItems: 'center',
+      borderRadius: '50%',
+      borderStyle: 'solid',
+      borderWidth: '2px',
+      display: 'flex',
+      flexDirection: 'column',
+      height: '116px',
+      justifyContent: 'center',
+      width: '116px'
     },
     text: {
       fill: theme.palette.grey[800],
-      fontFamily: theme.typography.fontFamily,
       fontSize: '16px',
-      fontWeight: 'bold',
-      textAnchor: 'middle'
+      fontWeight: 'bold'
     }
   });
 
+const iconSize = 27;
+const iconProps = {
+  height: iconSize + 'px',
+  isFilled: true,
+  width: iconSize + 'px'
+};
+
 class CanvasClass extends React.Component<ICanvasClassProps> {
-  public ref: SVGCircleElement;
-
-  public componentDidMount() {
-    this.selectD3Class();
-  }
-
-  public componentDidUpdate() {
-    // this.selectClass();
-  }
-
-  public selectD3Class() {
-    const { node } = this.props;
-    d3.select(this.ref).data([node]);
-  }
-
   public selectClass = (selectClassMutation: any) => {
     selectClassMutation();
   };
@@ -53,79 +59,157 @@ class CanvasClass extends React.Component<ICanvasClassProps> {
     const { classes, classId, theme } = this.props;
 
     return (
-      <g className="node" ref={(ref: SVGCircleElement) => (this.ref = ref)}>
-        <Query
-          query={gql`
-            query classSelected($id: String!) {
-              class(id: $id) @client {
-                isSelected
-                instance
-                name
-              }
-              canvas @client {
-                selectedClass
-              }
+      <Query
+        query={gql`
+          query classSelected($id: String!) {
+            class(id: $id) @client {
+              classType
+              isSelected
+              name
             }
-          `}
-          variables={{ id: classId }}
-        >
-          {(canvasClassQuery: any) => {
-            if (canvasClassQuery.loading) {
-              return <p>Loading local classes</p>;
+            canvas @client {
+              selectedClass
             }
+          }
+        `}
+        variables={{ id: classId }}
+      >
+        {(canvasClassQuery: any) => {
+          if (canvasClassQuery.loading) {
+            return <p>Loading local classes</p>;
+          }
 
-            if (canvasClassQuery.error) {
-              return null;
-            }
+          if (canvasClassQuery.error) {
+            return null;
+          }
 
-            if (!canvasClassQuery.data) {
-              return null;
-            }
+          if (!canvasClassQuery.data) {
+            return null;
+          }
 
-            return (
-              <Mutation
-                mutation={gql`
-                  mutation updateClassSelectionCanvas($id: String!) {
-                    updateClassSelectionCanvas(id: $id) @client
-                  }
-                `}
-                variables={{ id: classId }}
-              >
-                {selectClassMutation => {
-                  const selectedClassId = canvasClassQuery.data.canvas.selectedClass.id.replace(
-                    '__ClientData:',
-                    ''
-                  );
-                  const isSelected = selectedClassId === classId;
-                  const fill = isSelected
-                    ? theme.palette.secondary.light
-                    : theme.palette.common.white;
+          return (
+            <Mutation
+              mutation={gql`
+                mutation updateClassSelectionCanvas($id: String!) {
+                  updateClassSelectionCanvas(id: $id) @client
+                }
+              `}
+              variables={{ id: classId }}
+            >
+              {selectClassMutation => {
+                const { selectedClass } = canvasClassQuery.data.canvas;
+                const { classType, name } = canvasClassQuery.data.class;
 
-                  return (
-                    <React.Fragment>
-                      <circle
-                        className={classes.circle}
-                        r={60}
-                        cx="0"
-                        cy="0"
-                        fill={fill}
-                        onClick={this.selectClass.bind(
-                          null,
-                          selectClassMutation
-                        )}
+                const selectedClassId = selectedClass.id.replace(
+                  '__ClientData:',
+                  ''
+                );
+                const isSelected = selectedClassId === classId;
+                const backgroundColor = isSelected
+                  ? theme.palette.secondary.light
+                  : theme.palette.common.white;
+
+                const borderColor =
+                  isSelected || this.props.node.highlighted
+                    ? theme.palette.secondary.main
+                    : theme.palette.common.black;
+
+                return (
+                  <React.Fragment>
+                    <div
+                      style={{ backgroundColor, borderColor }}
+                      className={classes.circle}
+                      onClick={this.selectClass.bind(null, selectClassMutation)}
+                    >
+                      {classType === 'Things' && <ThingIcon {...iconProps} />}
+                      {classType === 'Actions' && <ActionIcon {...iconProps} />}
+                      <Typography className={classes.text}>{name}</Typography>
+                      <CanvasClassNodeCounter
+                        borderColor={borderColor}
+                        classId={classId}
                       />
-                      <text className={classes.text} x="0" y="2.5">
-                        {canvasClassQuery.data.class.name}
-                      </text>
-                      <CanvasClassNodeCounter classId={classId} />
-                    </React.Fragment>
-                  );
-                }}
-              </Mutation>
-            );
-          }}
-        </Query>
-      </g>
+                    </div>
+                    {isSelected && (
+                      <React.Fragment>
+                        <button
+                          style={{
+                            background: theme.palette.common.white,
+                            border: `1px solid ${theme.palette.common.black}`,
+                            borderRadius: '90px 0 0 0',
+                            height: '100px',
+                            left: '-46px',
+                            position: 'absolute',
+                            top: '-46px',
+                            width: '100px',
+                            zIndex: -1
+                          }}
+                        >
+                          <Typography>Relate</Typography>
+                        </button>
+                        <button
+                          style={{
+                            background: theme.palette.common.white,
+                            border: `1px solid ${theme.palette.common.black}`,
+                            borderRadius: '0 90px 0 0',
+                            height: '100px',
+                            position: 'absolute',
+                            right: '-46px',
+                            top: '-46px',
+                            width: '100px',
+                            zIndex: -1
+                          }}
+                        >
+                          <Typography>Expand</Typography>
+                        </button>
+                        <UpdateSelectedClassesMutation
+                          mutation={UPDATE_SELECTED_CLASSES}
+                          variables={{ id: classId }}
+                        >
+                          {(updateSelectedClasses: any) => (
+                            <button
+                              style={{
+                                background: theme.palette.common.white,
+                                border: `1px solid ${
+                                  theme.palette.common.black
+                                }`,
+                                borderRadius: '0 0 0 90px',
+                                bottom: '-46px',
+                                height: '100px',
+                                left: '-46px',
+                                position: 'absolute',
+                                width: '100px',
+                                zIndex: -1
+                              }}
+                              onClick={updateSelectedClasses}
+                            >
+                              <Typography>Hide</Typography>
+                            </button>
+                          )}
+                        </UpdateSelectedClassesMutation>
+                        <button
+                          style={{
+                            background: theme.palette.common.white,
+                            border: `1px solid ${theme.palette.common.black}`,
+                            borderRadius: '0 0 90px 0',
+                            bottom: '-46px',
+                            height: '100px',
+                            position: 'absolute',
+                            right: '-46px',
+                            width: '100px',
+                            zIndex: -1
+                          }}
+                        >
+                          <Typography>Pin</Typography>
+                        </button>
+                      </React.Fragment>
+                    )}
+                  </React.Fragment>
+                );
+              }}
+            </Mutation>
+          );
+        }}
+      </Query>
     );
   }
 }

@@ -5,10 +5,10 @@ import gql from 'graphql-tag';
 import * as React from 'react';
 import { Query } from 'react-apollo';
 import { Canvas } from 'src/components';
-import { ID3Node } from 'src/types';
 
-// import data from './data';
-
+/**
+ * Types
+ */
 export interface ICanvasContainerProps extends WithStyles<typeof styles> {}
 
 export interface ICanvasContainerState {
@@ -16,6 +16,9 @@ export interface ICanvasContainerState {
   width: number;
 }
 
+/**
+ * Styles
+ */
 const styles = (theme: Theme) =>
   createStyles({
     root: {
@@ -67,39 +70,30 @@ class CanvasContainer extends React.Component<
         `}
       >
         {(selectedClassesQuery: any) => {
-          if (selectedClassesQuery.data.canvas) {
-            const newNodes = selectedClassesQuery.data.canvas.selectedClasses.map(
-              (classId: string) => ({ id: classId, group: 8 })
-            );
-
-            let demoLinks =
-              newNodes.length > 1
-                ? newNodes.map((node: ID3Node, i: number) => {
-                    if (newNodes.length - 1 !== i) {
-                      return {
-                        source: node.id,
-                        target: newNodes[i + 1].id,
-                        value: 1
-                      };
-                    }
-                    return null;
-                  })
-                : [];
-
-            demoLinks = demoLinks.filter(Boolean);
-
-            const newData = {
-              links: demoLinks,
-              nodes: [...newNodes]
-            };
-            return (
-              <div className={classes.root}>
-                <Canvas graph={newData} height={height} width={width} />
-              </div>
-            );
+          if (selectedClassesQuery.loading) {
+            return <p>Loading....</p>;
           }
 
-          return null;
+          if (selectedClassesQuery.error) {
+            return null;
+          }
+
+          if (!selectedClassesQuery.data || !selectedClassesQuery.data.canvas) {
+            return null;
+          }
+
+          const selectedClasses =
+            selectedClassesQuery.data.canvas.selectedClasses;
+
+          return (
+            <div className={classes.root}>
+              <Canvas
+                selectedClasses={selectedClasses}
+                height={height}
+                width={width}
+              />
+            </div>
+          );
         }}
       </Query>
     );

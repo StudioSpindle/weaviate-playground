@@ -1,7 +1,11 @@
+import CircularProgress from '@material-ui/core/CircularProgress';
+import Grid from '@material-ui/core/Grid';
+import Typography from '@material-ui/core/Typography';
 import gql from 'graphql-tag';
 import React from 'react';
 import { Query } from 'react-apollo';
 import apolloClient from 'src/apolloClient';
+import translations from 'src/translations/en';
 import {
   GET_LOCAL_CLASSES,
   GET_NETWORK_CLASSES,
@@ -9,6 +13,28 @@ import {
   GetNetworkClassesQuery,
   UPDATE_CLASS_MUTATION
 } from './queries';
+
+const StateMessage = ({
+  message,
+  state
+}: {
+  message?: string;
+  state: 'error' | 'loading';
+}) => (
+  <Grid
+    container={true}
+    direction="column"
+    justify="center"
+    alignItems="center"
+  >
+    {state === 'loading' && <CircularProgress />}
+    {message && (
+      <Typography color={state === 'error' ? state : undefined}>
+        {message}
+      </Typography>
+    )}
+  </Grid>
+);
 
 /**
  * ClassIntrospector: introspects and stores classes to client
@@ -32,15 +58,30 @@ const ClassIntrospector: React.SFC = ({ children }) => (
         >
           {localClassesQuery => {
             if (localClassesQuery.loading) {
-              return <p>Loading local classes</p>;
+              return (
+                <StateMessage
+                  state="loading"
+                  message={translations.loadingLocalClasses}
+                />
+              );
             }
 
             if (localClassesQuery.error) {
-              return null;
+              return (
+                <StateMessage
+                  state="error"
+                  message={localClassesQuery.error.message}
+                />
+              );
             }
 
             if (!localClassesQuery.data) {
-              return null;
+              return (
+                <StateMessage
+                  state="error"
+                  message={translations.defaultError}
+                />
+              );
             }
 
             localClassesQuery.data.__type.fields.forEach(
@@ -72,14 +113,29 @@ const ClassIntrospector: React.SFC = ({ children }) => (
               >
                 {networkClassesQuery => {
                   if (networkClassesQuery.loading) {
-                    return <p>Loading network classes</p>;
+                    return (
+                      <StateMessage
+                        state="loading"
+                        message={translations.loadingNetworkClasses}
+                      />
+                    );
                   }
                   if (networkClassesQuery.error) {
-                    return null;
+                    return (
+                      <StateMessage
+                        state="error"
+                        message={translations.defaultError}
+                      />
+                    );
                   }
 
                   if (!networkClassesQuery.data) {
-                    return null;
+                    return (
+                      <StateMessage
+                        state="error"
+                        message={translations.defaultError}
+                      />
+                    );
                   }
 
                   networkClassesQuery.data.__type.fields.forEach(

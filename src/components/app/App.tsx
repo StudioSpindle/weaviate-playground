@@ -1,7 +1,6 @@
-import gql from 'graphql-tag';
 import * as React from 'react';
-import { Mutation, Query } from 'react-apollo';
 import {
+  CanvasContainer,
   ClassIntrospector,
   Filters,
   Header,
@@ -71,21 +70,14 @@ const Main = styled.main`
   flex: 1;
 `;
 
-const Graph = styled.div`
-  display: flex;
-  flex: 1;
-  align-items: center;
-  justify-content: center;
-`;
-
-const Zoom = styled.div`
-  position: absolute;
-  left: 50px;
-  bottom: 100px;
-  height: 100px;
-  width: 50px;
-  background: #ccc;
-`;
+// const Zoom = styled.div`
+//   position: absolute;
+//   left: 50px;
+//   bottom: 100px;
+//   height: 100px;
+//   width: 50px;
+//   background: #ccc;
+// `;
 
 const Aside = styled<IAsideProps, 'aside'>('aside')`
   position: absolute;
@@ -108,52 +100,7 @@ class App extends React.Component {
               <Filters />
             </Aside>
 
-            <Graph>
-              Weaviate Playground
-              <Query
-                query={gql`
-                  query selectedClasses {
-                    canvas @client {
-                      selectedClasses
-                    }
-                  }
-                `}
-              >
-                {(selectedClassesQuery: any) => {
-                  if (selectedClassesQuery.data.canvas) {
-                    return (
-                      selectedClassesQuery.data.canvas &&
-                      selectedClassesQuery.data.canvas.selectedClasses.map(
-                        (classId: any, i: number) => (
-                          <Mutation
-                            key={i}
-                            mutation={gql`
-                              mutation updateClassSelectionCanvas(
-                                $id: String!
-                              ) {
-                                updateClassSelectionCanvas(id: $id) @client
-                              }
-                            `}
-                            variables={{ id: classId }}
-                          >
-                            {(updateClassSelectionCanvas: any) => {
-                              return (
-                                <button onClick={updateClassSelectionCanvas}>
-                                  {classId}
-                                </button>
-                              );
-                            }}
-                          </Mutation>
-                        )
-                      )
-                    );
-                  }
-
-                  return null;
-                }}
-              </Query>
-              {false && <Zoom>Zoom</Zoom>}
-            </Graph>
+            <CanvasContainer />
 
             <Aside alignRight={true}>
               <Section title="Results">Results</Section>

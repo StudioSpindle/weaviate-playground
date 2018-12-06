@@ -20,23 +20,30 @@ export interface ISectionState {
 }
 
 /**
- * Styled components
+ * Styles
  */
-export const sectionPadding = '0.5em';
-
 const styles = (theme: Theme) =>
   createStyles({
     details: {
-      flexDirection: 'column'
+      flexDirection: 'column',
+      padding: '0px'
     },
     heading: {
-      color: theme.palette.primary.contrastText
+      color: theme.palette.primary.contrastText,
+      fontSize: '1rem',
+      fontWeight: 'bold',
+      textTransform: 'uppercase'
+    },
+    icon: {
+      color: theme.palette.common.white
     },
     root: {
       width: '500px'
     },
     summary: {
-      backgroundColor: theme.palette.grey[800]
+      backgroundColor: theme.palette.grey[800],
+      maxHeight: '48px !important',
+      minHeight: '48px !important'
     }
   });
 
@@ -64,15 +71,15 @@ class Section extends React.Component<ISectionProps, ISectionState> {
         expanded={isOpen}
         elevation={1}
         onChange={this.toggleSection}
-        className={classes.root}
+        classes={{ root: classes.root }}
       >
         <ExpansionPanelSummary
-          expandIcon={<ExpandMoreIcon color="primary" />}
-          className={classes.summary}
+          expandIcon={<ExpandMoreIcon classes={{ root: classes.icon }} />}
+          classes={{ root: classes.summary }}
         >
           <Typography className={classes.heading}>{title}</Typography>
         </ExpansionPanelSummary>
-        <ExpansionPanelDetails className={classes.details}>
+        <ExpansionPanelDetails classes={{ root: classes.details }}>
           {children}
         </ExpansionPanelDetails>
       </ExpansionPanel>

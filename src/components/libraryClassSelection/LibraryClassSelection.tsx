@@ -1,23 +1,37 @@
+import { Theme } from '@material-ui/core/styles/createMuiTheme';
+import createStyles from '@material-ui/core/styles/createStyles';
+import withStyles, { WithStyles } from '@material-ui/core/styles/withStyles';
+import Typography from '@material-ui/core/Typography';
 import gql from 'graphql-tag';
 import * as React from 'react';
 import { Query } from 'react-apollo';
 import { LibraryClassButton, Text } from 'src/components';
-import { sectionPadding } from 'src/components/section/Section';
 import { getColor } from 'src/utils';
 import styled from 'styled-components';
 
 /**
  * Types
  */
-export interface ILibraryClassSelection {
+export interface ILibraryClassSelection extends WithStyles<typeof styles> {
   selectedClasses: string[];
 }
 
 /**
+ * Styles
+ */
+const styles = (theme: Theme) =>
+  createStyles({
+    typography: {
+      fontSize: '1rem',
+      fontWeight: 'bold',
+      marginLeft: '20px'
+    }
+  });
+/**
  * Styled components
  */
 const Container = styled.div`
-  padding: ${sectionPadding};
+  padding: 4px;
 `;
 
 const SelectedClasses = styled.ul`
@@ -34,10 +48,13 @@ const NoClassesContainer = styled.div`
  * LibraryClassSelection: renders selected classes in Library
  */
 const LibraryClassSelection: React.SFC<ILibraryClassSelection> = ({
+  classes,
   selectedClasses
 }) => (
   <Container>
-    <Text fontWeight="bold">In playground</Text>
+    <Typography classes={{ root: classes.typography }}>
+      In playground
+    </Typography>
     <SelectedClasses>
       {!selectedClasses.length && (
         <NoClassesContainer>
@@ -81,4 +98,4 @@ const LibraryClassSelection: React.SFC<ILibraryClassSelection> = ({
   </Container>
 );
 
-export default LibraryClassSelection;
+export default withStyles(styles)(LibraryClassSelection);

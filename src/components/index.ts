@@ -1,5 +1,14 @@
 export { default as App } from 'src/components/app/App';
 export { default as Button } from 'src/components/button/Button';
+export { default as Canvas } from 'src/components/canvas/Canvas';
+export { default as CanvasClass } from 'src/components/canvasClass/CanvasClass';
+export {
+  default as CanvasClassNodeCounter
+} from 'src/components/canvasClassNodeCounter/CanvasClassNodeCounter';
+export {
+  default as CanvasContainer
+} from 'src/components/canvasContainer/CanvasContainer';
+export { default as CanvasLink } from 'src/components/canvasLink/CanvasLink';
 export {
   default as ClassIntrospector
 } from './introspection/ClassIntrospector';

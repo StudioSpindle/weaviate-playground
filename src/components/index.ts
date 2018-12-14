@@ -41,6 +41,13 @@ export {
 export {
   default as LibraryTextSearch
 } from 'src/components/libraryTextSearch/LibraryTextSearch';
+export { default as Results } from 'src/components/results/Results';
+export {
+  default as ResultsContainer
+} from 'src/components/resultsContainer/ResultsContainer';
+export {
+  default as ResultsFragment
+} from 'src/components/resultsFragment/ResultsFragment';
 export { default as Section } from 'src/components/section/Section';
 export { default as Tag } from 'src/components/tag/Tag';
 export { default as Text } from 'src/components/text/Text';

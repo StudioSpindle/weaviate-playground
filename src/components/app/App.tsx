@@ -5,7 +5,7 @@ import {
   Filters,
   Header,
   Library,
-  Section
+  ResultsContainer
 } from 'src/components';
 import styled, { injectGlobal } from 'styled-components';
 
@@ -70,15 +70,6 @@ const Main = styled.main`
   flex: 1;
 `;
 
-// const Zoom = styled.div`
-//   position: absolute;
-//   left: 50px;
-//   bottom: 100px;
-//   height: 100px;
-//   width: 50px;
-//   background: #ccc;
-// `;
-
 const Aside = styled<IAsideProps, 'aside'>('aside')`
   position: absolute;
   ${props => (props.alignRight ? 'right: 50px;' : 'left: 50px;')};
@@ -103,7 +94,7 @@ class App extends React.Component {
             <CanvasContainer />
 
             <Aside alignRight={true}>
-              <Section title="Results">Results</Section>
+              <ResultsContainer />
             </Aside>
           </ClassIntrospector>
         </Main>

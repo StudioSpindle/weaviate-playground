@@ -1,3 +1,4 @@
+export { default as createGqlFilters } from './createGqlFilters';
 export { default as executeMutation } from './executeMutation';
 export { default as getBreakpoint } from './getBreakpoint';
 export { default as getColor } from './getColor';

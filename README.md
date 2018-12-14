@@ -7,64 +7,56 @@ Weaviate Playground is a Javascript web app that allows users to explore [Weavia
 
 ## Usage
 
-## Roadmap
+This app is based on [Create React App](https://facebook.github.io/create-react-app/). You can utilize their commands to start, build and eject the app.
 
-- [ ] **Initial project setup**
-  - [ ] Determine browser support
-  - [ ] Typescript setup
-  - [ ] Code styling rules (i.e. prettier)
-  - [ ] Babel build process
-  - [ ] Gitflow
-  - [ ] Precommit and prepush hooks
-  - [ ] Pipelines
-  - [ ] Semver
-  - [ ] Deployment
-- [ ] **Initial app setup**
-  - [ ] Create React app
-  - [ ] Add routing
-  - [ ] Add GraphQL client
-  - [ ] Add Styled Components
-  - [ ] Create Layout container
-  - [ ] Add introspection logic (query could change over time)
-- [ ] **Component library (more details will follow)**
-- [ ] **Library section**
-  - [ ] Create library container
-  - [ ] Implement class text search
-  - [ ] Implement local/network toggle filter
-  - [ ] Implement all/things/actions selection filter
-  - [ ] Create selection container
-  - [ ] Create class checkbox button
-  - [ ] Populate container checkbox buttons
-- [ ] **Filter section**
-  - [ ] Create filter container
-  - [ ] Create checkbox filter
-  - [ ] Create slider filter
-  - [ ] Create other filters?
-  - [ ] Implement class text search
-  - [ ] Populate container with filters
-- [ ] **Graph section**
-  - [ ] Create graph container
-  - [ ] Create class with pie menu and badge
-  - [ ] Create edge
-  - [ ] Populate container with classes and edges
-  - [ ] Implement zoom functionality
-  - [ ] Implement 'Relate' interaction
-  - [ ] Implement 'Expand' interaction
-  - [ ] Implement 'Hide' interaction
-  - [ ] Implement 'Pin' interaction
-- [ ] **Results section**
-  - [ ] Create results container
-  - [ ] Create sankey diagram with filters
-  - [ ] Create JSON output view
-  - [ ] Add outputs to container and populate with data
-- [ ] **Support bar**
-  - [ ] Create support bar container
-  - [ ] Implement logic
-- [ ] **Unit tests**
-- [ ] **E2E tests**
-- [ ] **Performance tests (in combination with Weaviate)**
-- [ ] **Security tests (in combination with Weaviate)**
-- [ ] **Icing / extra**
-  - [ ] Animations
-  - [ ] Multi-language?
-  - [ ] Authentication?
+#### Installation
+
+```bash
+yarn
+```
+
+You need to have [NodeJS](https://nodejs.org/en/download/) and [Yarn](https://yarnpkg.com/lang/en/docs/install/) installed before running the yarn command.
+
+#### Starting
+
+```bash
+yarn start
+```
+
+This will automatically open your browser window and navigate to the right url. Make sure to add a weaviateUri param pointing to a Weaviate GraphQL instance to load data. For example, your complete url could look like this: `http://localhost:3000?weaviateUri=http://localhost:8081/graphql`
+
+#### Testing
+
+```bash
+yarn test
+```
+
+This will run all tests. You can also run tests separate from eachother by adding `:lint`, `:types` or `:unit` to the test command.
+
+#### Formatting
+
+```bash
+yarn prettier:fix
+```
+
+This will format Typescript, HTML and GraphQL files by using [Prettier](https://prettier.io/). Replace `:fix` with `:check` if you don't want to fix code.
+
+#### Analyzing
+
+```bash
+yarn analyze
+```
+
+This will run a source map explorer to inspect the composition of the app by file size. Inspection could come in handy when optimizing code for faster downloads.
+
+#### Releasing
+
+```bash
+yarn release
+```
+
+This will create a release by bumping the semver version number and optimizing code for production. You can also create a build without bumping the version number by running `yarn build`.
+
+#### Code quality
+
+We try to maintain code quality with testing and formatting. A precommit and prepush hook will run all tests. The hooks don't format code because this will interfere with commits that have change selections. It is the responsibility of the developer to run Prettier. Many code editors can run Prettier automatically when saving code.

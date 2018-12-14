@@ -4,7 +4,7 @@ import withTheme from '@material-ui/core/styles/withTheme';
 import Typography from '@material-ui/core/Typography';
 import gql from 'graphql-tag';
 import * as React from 'react';
-import { compose } from 'react-apollo';
+import { compose, Query } from 'react-apollo';
 import { Graph } from 'react-d3-graph';
 import client from 'src/apolloClient';
 import { CanvasClass } from 'src/components';
@@ -35,6 +35,7 @@ interface ICanvasProps extends WithStyles<typeof styles> {
 
 interface ICanvasState {
   graph: {
+    focusedNodeId?: ClassId;
     links: ID3Link[];
     nodes: ID3Node[];
   };
@@ -85,7 +86,7 @@ const onMouseOutLink = (source: any, target: any) => {
 class Canvas extends React.Component<ICanvasProps, ICanvasState> {
   constructor(props: ICanvasProps) {
     super(props);
-    this.state = { graph: { links: [], nodes: [] } };
+    this.state = { graph: { focusedNodeId: undefined, links: [], nodes: [] } };
   }
 
   public componentDidMount() {
@@ -217,6 +218,7 @@ class Canvas extends React.Component<ICanvasProps, ICanvasState> {
     });
 
     const selectedClasses = data.canvas.selectedClasses;
+
     const graph = {
       links: await this.getLinks(selectedClasses),
       nodes: await this.getClasses(selectedClasses)
@@ -230,6 +232,11 @@ class Canvas extends React.Component<ICanvasProps, ICanvasState> {
     const { classes, width, height, theme } = this.props;
 
     const config = {
+      automaticRearrangeAfterDropNode: true,
+      d3: {
+        gravity: -1200
+      },
+      directed: true,
       height,
       link: {
         highlightColor: theme.palette.secondary.main
@@ -259,14 +266,43 @@ class Canvas extends React.Component<ICanvasProps, ICanvasState> {
     }
 
     return (
-      <Graph
-        id="canvas"
-        data={graph}
-        config={config}
-        onClickLink={onClickLink}
-        onMouseOverLink={onMouseOverLink}
-        onMouseOutLink={onMouseOutLink}
-      />
+      <Query
+        query={gql`
+          query GetSelectedClassForFilter {
+            canvas @client {
+              selectedClass {
+                id
+              }
+            }
+          }
+        `}
+      >
+        {(selectedClassQuery: any) => {
+          if (selectedClassQuery.loading) {
+            return 'Loading...';
+          }
+
+          if (selectedClassQuery.error) {
+            return (
+              <Typography color="error">
+                {selectedClassQuery.error.message}
+              </Typography>
+            );
+          }
+
+          const focusedNodeId = selectedClassQuery.data.canvas.selectedClass.id;
+          return (
+            <Graph
+              id="canvas"
+              data={{ ...graph, focusedNodeId }}
+              config={config}
+              onClickLink={onClickLink}
+              onMouseOverLink={onMouseOverLink}
+              onMouseOutLink={onMouseOutLink}
+            />
+          );
+        }}
+      </Query>
     );
   }
 }

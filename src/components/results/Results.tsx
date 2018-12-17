@@ -3,8 +3,8 @@ import { AppBar, Tab, Tabs } from '@material-ui/core';
 import gql from 'graphql-tag';
 import * as React from 'react';
 import client from 'src/apolloClient';
+import { IWeaviateLocalGetWhereInpObj } from 'src/types';
 import { JsonIcon, SankeyIcon, SwarmIcon } from '../icons';
-import { IWeaviateLocalGetWhereInpObj } from '../resultsContainer/ResultsContainer';
 
 interface IResultsProps {
   queryString?: string;

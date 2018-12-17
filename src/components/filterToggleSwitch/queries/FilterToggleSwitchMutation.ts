@@ -17,7 +17,7 @@ export interface IFilterToggleSwitchVariables {
 /**
  * Query component
  */
-export class ToggleSwitchMutation extends Mutation<
+export class FilterToggleSwitchMutation extends Mutation<
   IFilterToggleSwitchData,
   IFilterToggleSwitchVariables
 > {}
@@ -25,8 +25,8 @@ export class ToggleSwitchMutation extends Mutation<
 /**
  * GQL query string
  */
-export const TOGGLE_SWITCH_MUTATION = gql`
-  mutation ToggleSwitch(
+export const FILTER_TOGGLE_SWITCH_MUTATION = gql`
+  mutation FilterToggleSwitch(
     $classId: String!
     $filterName: String!
     $filterType: String!

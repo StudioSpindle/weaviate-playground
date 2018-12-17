@@ -10,7 +10,7 @@ const updateClassFilters = (
   const classQuery = cache.readQuery({
     query: gql`
       query SelectedClass($id: String!) {
-        class(id: $id) {
+        class(id: $id) @client {
           filters
         }
       }

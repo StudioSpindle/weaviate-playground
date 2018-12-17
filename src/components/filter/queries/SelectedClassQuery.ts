@@ -19,14 +19,14 @@ interface IGetSelectedClassForFilterData {
 /**
  * Query component
  */
-export class GetSelectedClassForFilterQuery extends Query<
+export class SelectedClassForFilterQuery extends Query<
   IGetSelectedClassForFilterData
 > {}
 
 /**
  * GQL query string
  */
-export const GET_SELECTED_CLASS_FOR_FILTER = gql`
+export const SELECTED_CLASS_FOR_FILTER_QUERY = gql`
   query GetSelectedClassForFilter {
     canvas @client {
       selectedClass {

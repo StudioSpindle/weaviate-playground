@@ -1,18 +1,18 @@
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
-import gql from 'graphql-tag';
 import React from 'react';
-import { Query } from 'react-apollo';
 import apolloClient from 'src/apolloClient';
 import translations from 'src/translations/en';
 import {
-  GET_LOCAL_CLASSES,
-  GET_NETWORK_CLASSES,
-  GetLocalClassesQuery,
-  GetNetworkClassesQuery,
+  CLASS_IDS_QUERY,
+  ClassIdsQuery,
+  LOCAL_CLASSES_QUERY,
+  LocalClassesQuery,
+  NETWORK_CLASSES_QUERY,
+  NetworkClassesQuery,
   UPDATE_CLASS_MUTATION
-} from './queries';
+} from '../introspection/queries';
 
 const StateMessage = ({
   message,
@@ -41,19 +41,11 @@ const StateMessage = ({
  * classIds are being queried to create the empty slot on the client
  */
 const ClassIntrospector: React.SFC = ({ children }) => (
-  <Query
-    query={gql`
-      query classIds {
-        canvas @client {
-          classIds
-        }
-      }
-    `}
-  >
-    {(query: any) => {
+  <ClassIdsQuery query={CLASS_IDS_QUERY}>
+    {classIdsQuery => {
       return (
-        <GetLocalClassesQuery
-          query={GET_LOCAL_CLASSES}
+        <LocalClassesQuery
+          query={LOCAL_CLASSES_QUERY}
           variables={{ typename: 'WeaviateLocalGetObj' }}
         >
           {localClassesQuery => {
@@ -107,8 +99,8 @@ const ClassIntrospector: React.SFC = ({ children }) => (
             );
 
             return (
-              <GetNetworkClassesQuery
-                query={GET_NETWORK_CLASSES}
+              <NetworkClassesQuery
+                query={NETWORK_CLASSES_QUERY}
                 variables={{ typename: 'WeaviateNetworkGetObj' }}
               >
                 {networkClassesQuery => {
@@ -170,13 +162,13 @@ const ClassIntrospector: React.SFC = ({ children }) => (
 
                   return children;
                 }}
-              </GetNetworkClassesQuery>
+              </NetworkClassesQuery>
             );
           }}
-        </GetLocalClassesQuery>
+        </LocalClassesQuery>
       );
     }}
-  </Query>
+  </ClassIdsQuery>
 );
 
 export default ClassIntrospector;

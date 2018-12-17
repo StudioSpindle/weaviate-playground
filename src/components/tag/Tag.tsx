@@ -1,18 +1,19 @@
+import Typography from '@material-ui/core/Typography';
 import * as React from 'react';
-import { Text } from 'src/components';
-import { IText } from 'src/components/text/Text';
 import styled from 'styled-components';
 
 /**
  * Types
  */
-type TagProps = IText;
+// tslint:disable-next-line:no-empty-interface
+interface ITagProps {}
 
 /**
  * Styled components
  */
 // TODO: load typed color
 const Container = styled.code`
+  display: inline-flex;
   margin: 0 1px;
   background: #f2f4f5;
   padding: 0.1em 0.2em;
@@ -23,11 +24,9 @@ const Container = styled.code`
 /**
  * Tag component
  */
-const Tag: React.SFC<TagProps> = ({ children, ...textProps }) => (
+const Tag: React.SFC<ITagProps> = ({ children }) => (
   <Container>
-    <Text size="0.9em" {...textProps}>
-      {children}
-    </Text>
+    <Typography variant="caption">{children}</Typography>
   </Container>
 );
 

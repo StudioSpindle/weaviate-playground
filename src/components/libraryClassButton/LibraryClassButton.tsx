@@ -1,6 +1,6 @@
+import Typography from '@material-ui/core/Typography';
 import React from 'react';
-import { Query } from 'react-apollo';
-import { Tag, Text } from 'src/components';
+import { Tag } from 'src/components';
 import {
   ActionIcon,
   AddIcon,
@@ -8,9 +8,10 @@ import {
   ThingIcon
 } from 'src/components/icons';
 import {
-  GET_LIBRARY_CLASS_BUTTON_QUERY,
-  UPDATE_SELECTED_CLASSES,
-  UpdateSelectedClassesMutation
+  LIBRARY_CLASS_BUTTON_QUERY,
+  LibraryClassButtonQuery,
+  SELECTED_CLASSES_MUTATION,
+  SelectedClassesMutation
 } from 'src/components/libraryClassButton/queries';
 import { getColor } from 'src/utils';
 import styled from 'styled-components';
@@ -65,14 +66,17 @@ const LibraryClassButton: React.SFC<ILibraryClassProps> = ({
   id,
   renderSelected
 }: ILibraryClassProps) => (
-  <Query query={GET_LIBRARY_CLASS_BUTTON_QUERY} variables={{ id }}>
+  <LibraryClassButtonQuery
+    query={LIBRARY_CLASS_BUTTON_QUERY}
+    variables={{ id }}
+  >
     {classQuery => {
       if (classQuery.loading) {
         return (
           <li>
             <Container>
               <div>
-                <Text>Loading...</Text>
+                <Typography>Loading...</Typography>
               </div>
             </Container>
           </li>
@@ -84,7 +88,19 @@ const LibraryClassButton: React.SFC<ILibraryClassProps> = ({
           <li>
             <Container>
               <div>
-                <Text>${classQuery.error.message}</Text>
+                <Typography>${classQuery.error.message}</Typography>
+              </div>
+            </Container>
+          </li>
+        );
+      }
+
+      if (!classQuery.data) {
+        return (
+          <li>
+            <Container>
+              <div>
+                <Typography>An error has occured</Typography>
               </div>
             </Container>
           </li>
@@ -117,8 +133,8 @@ const LibraryClassButton: React.SFC<ILibraryClassProps> = ({
       }
 
       return (
-        <UpdateSelectedClassesMutation
-          mutation={UPDATE_SELECTED_CLASSES}
+        <SelectedClassesMutation
+          mutation={SELECTED_CLASSES_MUTATION}
           variables={{ id }}
         >
           {(updateSelectedClasses: any) => (
@@ -131,9 +147,9 @@ const LibraryClassButton: React.SFC<ILibraryClassProps> = ({
                     {classType === 'Things' && <ThingIcon {...iconProps} />}
                     {classType === 'Actions' && <ActionIcon {...iconProps} />}
                   </IconContainer>
-                  <Text fontWeight="bold">
+                  <Typography>
                     {name} <Tag>{instance}</Tag>
-                  </Text>
+                  </Typography>
                 </IconNameContainer>
 
                 <IconContainer>
@@ -146,10 +162,10 @@ const LibraryClassButton: React.SFC<ILibraryClassProps> = ({
               </Container>
             </li>
           )}
-        </UpdateSelectedClassesMutation>
+        </SelectedClassesMutation>
       );
     }}
-  </Query>
+  </LibraryClassButtonQuery>
 );
 
 export default LibraryClassButton;

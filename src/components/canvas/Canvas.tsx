@@ -4,11 +4,13 @@ import withTheme from '@material-ui/core/styles/withTheme';
 import Typography from '@material-ui/core/Typography';
 import gql from 'graphql-tag';
 import * as React from 'react';
-import { compose, Query } from 'react-apollo';
+import { compose } from 'react-apollo';
 import { Graph } from 'react-d3-graph';
 import client from 'src/apolloClient';
 import { CanvasClass } from 'src/components';
-import { GET_META_TYPE } from '../filters/queries';
+import { createGqlGet } from 'src/utils';
+import { META_TYPE_QUERY } from '../filters/queries';
+import { SELECTED_CLASS_QUERY, SelectedClassQuery } from './queries';
 
 /**
  * Types
@@ -102,7 +104,7 @@ class Canvas extends React.Component<ICanvasProps, ICanvasState> {
 
   public async getMetaType(typename: string) {
     const { data }: any = await client.query({
-      query: GET_META_TYPE,
+      query: META_TYPE_QUERY,
       variables: { typename }
     });
     return data;
@@ -147,35 +149,31 @@ class Canvas extends React.Component<ICanvasProps, ICanvasState> {
         // Get the id of the linking class
         const links = await Promise.all(
           metaDataLinkingClassFields.map(async (linkingField: any) => {
-            const classLocationCapitalized =
-              classLocation.charAt(0).toUpperCase() + classLocation.slice(1);
             const fieldName = linkingField.__type.name;
             const fieldNameCapitalized =
               fieldName.charAt(0).toUpperCase() + fieldName.slice(1);
-            const queryString = `
-              query MetaDataForFilter {
-                ${classLocationCapitalized} {
-                  Get {
-                    ${classType} {
-                      ${className} {
-                        ${fieldNameCapitalized} {
-                          __typename
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            `;
+            const isLocal = classLocation === 'local';
+
+            const queryString = createGqlGet({
+              classLocation,
+              className,
+              classType,
+              properties: `${fieldNameCapitalized} { __typename }`,
+              reference: 'GetTypeName',
+              type: 'Get'
+            });
 
             const queryResult: any = await client.query({
               query: gql(queryString)
             });
 
-            const targetTypename =
-              queryResult.data[classLocationCapitalized].Get[classType][
-                className
-              ][0][fieldNameCapitalized].__typename;
+            const targetTypename = isLocal
+              ? queryResult.data.Local.Get[classType][className][0][
+                  fieldNameCapitalized
+                ].__typename
+              : queryResult.data.Network.Get[classLocation][classType][
+                  className
+                ][0][fieldNameCapitalized].__typename;
 
             // Create link when linking class is in canvas
             const classIdTarget = `${classLocation}-${classType}-${targetTypename}`;
@@ -266,17 +264,7 @@ class Canvas extends React.Component<ICanvasProps, ICanvasState> {
     }
 
     return (
-      <Query
-        query={gql`
-          query GetSelectedClassForFilter {
-            canvas @client {
-              selectedClass {
-                id
-              }
-            }
-          }
-        `}
-      >
+      <SelectedClassQuery query={SELECTED_CLASS_QUERY}>
         {(selectedClassQuery: any) => {
           if (selectedClassQuery.loading) {
             return 'Loading...';
@@ -302,7 +290,7 @@ class Canvas extends React.Component<ICanvasProps, ICanvasState> {
             />
           );
         }}
-      </Query>
+      </SelectedClassQuery>
     );
   }
 }

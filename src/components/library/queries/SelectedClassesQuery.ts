@@ -4,7 +4,7 @@ import { Query } from 'react-apollo';
 /**
  * Types
  */
-interface IGetSelectedClassesData {
+interface ISelectedClassesData {
   canvas: {
     selectedClasses: string[];
   };
@@ -13,12 +13,12 @@ interface IGetSelectedClassesData {
 /**
  * Query component
  */
-export class GetSelectedClassesQuery extends Query<IGetSelectedClassesData> {}
+export class SelectedClassesQuery extends Query<ISelectedClassesData> {}
 
 /**
  * GQL query string
  */
-export const GET_SELECTED_CLASSES = gql`
+export const SELECTED_CLASSES_QUERY = gql`
   query GetSelectedClasses {
     canvas @client {
       selectedClasses

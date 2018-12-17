@@ -1,10 +1,12 @@
 import { createStyles, WithStyles } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import { Theme } from '@material-ui/core/styles/createMuiTheme';
-import gql from 'graphql-tag';
 import * as React from 'react';
-import { Query } from 'react-apollo';
 import { Canvas } from 'src/components';
+import {
+  SELECTED_CLASSES_QUERY,
+  SelectedClassesQuery
+} from '../library/queries';
 
 /**
  * Types
@@ -60,15 +62,7 @@ class CanvasContainer extends React.Component<
     }
 
     return (
-      <Query
-        query={gql`
-          query selectedClasses {
-            canvas @client {
-              selectedClasses
-            }
-          }
-        `}
-      >
+      <SelectedClassesQuery query={SELECTED_CLASSES_QUERY}>
         {(selectedClassesQuery: any) => {
           if (selectedClassesQuery.loading) {
             return <p>Loading....</p>;
@@ -95,7 +89,7 @@ class CanvasContainer extends React.Component<
             </div>
           );
         }}
-      </Query>
+      </SelectedClassesQuery>
     );
   }
 }

@@ -1,5 +1,4 @@
 export { default as App } from 'src/components/app/App';
-export { default as Button } from 'src/components/button/Button';
 export { default as Canvas } from 'src/components/canvas/Canvas';
 export { default as CanvasClass } from 'src/components/canvasClass/CanvasClass';
 export {
@@ -9,9 +8,7 @@ export {
   default as CanvasContainer
 } from 'src/components/canvasContainer/CanvasContainer';
 export { default as CanvasLink } from 'src/components/canvasLink/CanvasLink';
-export {
-  default as ClassIntrospector
-} from './introspection/ClassIntrospector';
+export { default as ClassIntrospector } from './library/ClassIntrospector';
 export { default as Filter } from 'src/components/filter/Filter';
 export { default as RangeSlider } from './filterRangeSlider/FilterRangeSlider';
 export { default as Filters } from 'src/components/filters/Filters';
@@ -50,4 +47,3 @@ export {
 } from 'src/components/resultsFragment/ResultsFragment';
 export { default as Section } from 'src/components/section/Section';
 export { default as Tag } from 'src/components/tag/Tag';
-export { default as Text } from 'src/components/text/Text';

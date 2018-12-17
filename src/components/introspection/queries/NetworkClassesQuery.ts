@@ -5,22 +5,31 @@ import { ClassType } from 'src/types';
 /**
  * Types
  */
-interface IGetLocalClassesData {
+interface IGetNetworkClassesData {
   __type: {
     name: string;
     fields: Array<{
-      name: ClassType;
+      name: string;
       type: {
         name: string;
         ofType: {
           name: string;
         };
         fields: Array<{
-          name: string;
+          name: ClassType;
           type: {
+            name: string;
             ofType: {
               name: string;
             };
+            fields: Array<{
+              name: string;
+              type: {
+                ofType: {
+                  name: string;
+                };
+              };
+            }>;
           };
         }>;
       };
@@ -28,23 +37,23 @@ interface IGetLocalClassesData {
   };
 }
 
-interface IGetLocalClassesVariables {
-  typename: 'WeaviateLocalGetObj';
+interface IGetClassesVariables {
+  typename: 'WeaviateNetworkGetObj';
 }
 
 /**
  * Query component
  */
-export class GetLocalClassesQuery extends Query<
-  IGetLocalClassesData,
-  IGetLocalClassesVariables
+export class NetworkClassesQuery extends Query<
+  IGetNetworkClassesData,
+  IGetClassesVariables
 > {}
 
 /**
  * GQL query string
  */
-export const GET_LOCAL_CLASSES = gql`
-  query GetLocalClasses($typename: String!) {
+export const NETWORK_CLASSES_QUERY = gql`
+  query GetNetworkClasses($typename: String!) {
     __type(name: $typename) {
       name
       fields {
@@ -57,8 +66,17 @@ export const GET_LOCAL_CLASSES = gql`
           fields {
             name
             type {
+              name
               ofType {
                 name
+              }
+              fields {
+                name
+                type {
+                  ofType {
+                    name
+                  }
+                }
               }
             }
           }

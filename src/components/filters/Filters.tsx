@@ -1,12 +1,17 @@
+import { Typography } from '@material-ui/core';
 import * as React from 'react';
-import { Filter, Section, Text } from 'src/components';
+import { Filter, Section } from 'src/components';
 import {
-  GET_META_TYPE,
-  GET_SELECTED_CLASS,
-  GetMetaTypeQuery,
-  GetSelectedClassQuery
+  META_TYPE_QUERY,
+  MetaTypeQuery,
+  SELECTED_CLASS_QUERY,
+  SelectedClassQuery
 } from 'src/components/filters/queries';
 import styled from 'styled-components';
+
+/**
+ *
+ */
 
 const TextContainer = styled.div`
   padding: 2em;
@@ -18,7 +23,7 @@ const defaultErrorMessage = 'An error has occured';
  * Dynamically fetches filters for a specific Class
  */
 const Filters = () => (
-  <GetSelectedClassQuery query={GET_SELECTED_CLASS}>
+  <SelectedClassQuery query={SELECTED_CLASS_QUERY}>
     {selectedClassQuery => {
       /**
        * Get the Class that is selected on canvas
@@ -31,11 +36,11 @@ const Filters = () => (
         return (
           <Section title={`Filters`}>
             <TextContainer>
-              <Text color="gray" colorvariant="gray4">
+              <Typography color="error">
                 {(selectedClassQuery.error &&
                   selectedClassQuery.error.message) ||
                   defaultErrorMessage}
-              </Text>
+              </Typography>
             </TextContainer>
           </Section>
         );
@@ -47,9 +52,9 @@ const Filters = () => (
         return (
           <Section title={`Filters`}>
             <TextContainer>
-              <Text color="gray" colorvariant="gray4">
+              <Typography>
                 Please select a class from the canvas to display filters
-              </Text>
+              </Typography>
             </TextContainer>
           </Section>
         );
@@ -60,8 +65,8 @@ const Filters = () => (
        */
       return (
         <Section title={`Filters for ${name}`}>
-          <GetMetaTypeQuery
-            query={GET_META_TYPE}
+          <MetaTypeQuery
+            query={META_TYPE_QUERY}
             variables={{ typename: `Meta${name}` }}
           >
             {metaTypeQuery => {
@@ -76,10 +81,10 @@ const Filters = () => (
               ) {
                 return (
                   <TextContainer>
-                    <Text color="gray" colorvariant="gray4">
+                    <Typography>
                       {(metaTypeQuery.error && metaTypeQuery.error.message) ||
                         defaultErrorMessage}
-                    </Text>
+                    </Typography>
                   </TextContainer>
                 );
               }
@@ -99,11 +104,11 @@ const Filters = () => (
                   />
                 ));
             }}
-          </GetMetaTypeQuery>
+          </MetaTypeQuery>
         </Section>
       );
     }}
-  </GetSelectedClassQuery>
+  </SelectedClassQuery>
 );
 
 export default Filters;

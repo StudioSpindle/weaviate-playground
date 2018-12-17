@@ -7,10 +7,10 @@ import {
   Section
 } from 'src/components';
 import {
-  GET_CLASSES_FILTERS,
-  GET_SELECTED_CLASSES,
-  GetClassesFiltersQuery,
-  GetSelectedClassesQuery
+  CLASSES_FILTERS_QUERY,
+  ClassesFiltersQuery,
+  SELECTED_CLASSES_QUERY,
+  SelectedClassesQuery
 } from 'src/components/library/queries';
 import styled from 'styled-components';
 
@@ -27,7 +27,7 @@ const ClassContainer = styled.div`
  */
 const Library = () => (
   <Section title="Library">
-    <GetClassesFiltersQuery query={GET_CLASSES_FILTERS}>
+    <ClassesFiltersQuery query={CLASSES_FILTERS_QUERY}>
       {classesFiltersQuery => {
         if (classesFiltersQuery.loading) {
           return 'Loading...';
@@ -55,7 +55,7 @@ const Library = () => (
               selectedClassType={selectedClassType}
             />
 
-            <GetSelectedClassesQuery query={GET_SELECTED_CLASSES}>
+            <SelectedClassesQuery query={SELECTED_CLASSES_QUERY}>
               {selectedClassesQuery => {
                 if (selectedClassesQuery.loading) {
                   return 'Loading...';
@@ -78,11 +78,11 @@ const Library = () => (
                   </ClassContainer>
                 );
               }}
-            </GetSelectedClassesQuery>
+            </SelectedClassesQuery>
           </React.Fragment>
         );
       }}
-    </GetClassesFiltersQuery>
+    </ClassesFiltersQuery>
   </Section>
 );
 

@@ -1,33 +1,14 @@
 import Typography from '@material-ui/core/Typography';
-import gql from 'graphql-tag';
 import React from 'react';
-import { Query } from 'react-apollo';
 import { Results, ResultsFragment, Section } from 'src/components';
+import { IWeaviateLocalGetWhereInpObj } from 'src/types';
+import { createGqlFragments } from 'src/utils';
 import { ClassId } from '../canvas/Canvas';
-
-type WhereOperatorEnum =
-  | 'And'
-  | 'Or'
-  | 'Equal'
-  | 'Not'
-  | 'NotEqual'
-  | 'GreaterThan'
-  | 'GreaterThanEqual'
-  | 'LessThan'
-  | 'LessThanEqual';
-
-interface IWhereOperandsInpObj {
-  operator: WhereOperatorEnum;
-  operands: IWhereOperandsInpObj[];
-  path?: string[];
-  valueInt?: number;
-  valueNumter?: number;
-  valueBoolean?: boolean;
-  valueString?: string;
-}
-
-// tslint:disable-next-line:no-empty-interface
-export interface IWeaviateLocalGetWhereInpObj extends IWhereOperandsInpObj {}
+import {
+  SELECTED_CLASSES_QUERY,
+  SelectedClassesQuery
+} from '../library/queries';
+import { CLASS_QUERY, ClassQuery } from './queries';
 
 export interface IFragment {
   queryString: string;
@@ -79,37 +60,11 @@ class ResultsContainer extends React.Component<{}, IResultsContainerState> {
       return undefined;
     }
 
-    const referFragment = (fragmentKey: string) => `...${fragmentKey}`;
+    const queryString = createGqlFragments(fragments);
 
     const localKeys = fragmentKeys.filter(fragmentKey =>
       fragmentKey.startsWith('local')
     );
-
-    const networkKeys = fragmentKeys.filter(
-      fragmentKey => !fragmentKey.startsWith('local')
-    );
-
-    const queryString = `
-      query SelectedClassesWithFilters($where: WeaviateLocalGetWhereInpObj) {
-        ${
-          localKeys.length
-            ? `Local {
-                ${localKeys.map(referFragment)}
-              }`
-            : ''
-        }
-        ${
-          networkKeys.length
-            ? `Network {
-                ${networkKeys.map(referFragment)}
-              }`
-            : ''
-        }
-      }
-      ${[...localKeys, ...networkKeys]
-        .map(fragmentKey => fragments[fragmentKey].queryString)
-        .join(' ')}
-  `;
 
     const operands = localKeys
       .filter(fragmentKey => Boolean(fragments[fragmentKey].where))
@@ -131,15 +86,7 @@ class ResultsContainer extends React.Component<{}, IResultsContainerState> {
   public render() {
     return (
       <Section title="Results">
-        <Query
-          query={gql`
-            query selectedClasses {
-              canvas @client {
-                selectedClasses
-              }
-            }
-          `}
-        >
+        <SelectedClassesQuery query={SELECTED_CLASSES_QUERY}>
           {selectedClassesQuery => {
             if (selectedClassesQuery.loading) {
               return 'Loading...';
@@ -153,6 +100,10 @@ class ResultsContainer extends React.Component<{}, IResultsContainerState> {
               );
             }
 
+            if (!selectedClassesQuery.data) {
+              return <Typography color="error">An error occured!</Typography>;
+            }
+
             const selectedClasses =
               selectedClassesQuery.data.canvas.selectedClasses;
             const fragments = this.mergeFragments();
@@ -162,24 +113,17 @@ class ResultsContainer extends React.Component<{}, IResultsContainerState> {
               <React.Fragment>
                 {selectedClasses.map((selectedClassId: ClassId) => {
                   return (
-                    <Query
+                    <ClassQuery
                       key={selectedClassId}
-                      query={gql`
-                        query SelectedClass($id: String!) {
-                          class(id: $id) {
-                            id
-                            classType
-                            classLocation
-                            filters
-                            instance
-                            name
-                          }
-                        }
-                      `}
+                      query={CLASS_QUERY}
                       variables={{ id: selectedClassId }}
                     >
                       {classQuery => {
-                        if (classQuery.loading || classQuery.error) {
+                        if (
+                          classQuery.loading ||
+                          classQuery.error ||
+                          !classQuery.data
+                        ) {
                           return null;
                         }
 
@@ -193,7 +137,7 @@ class ResultsContainer extends React.Component<{}, IResultsContainerState> {
                           />
                         );
                       }}
-                    </Query>
+                    </ClassQuery>
                   );
                 })}
 
@@ -206,7 +150,7 @@ class ResultsContainer extends React.Component<{}, IResultsContainerState> {
               </React.Fragment>
             );
           }}
-        </Query>
+        </SelectedClassesQuery>
       </Section>
     );
   }

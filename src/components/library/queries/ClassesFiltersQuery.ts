@@ -20,7 +20,7 @@ interface IGetClassesFiltersVariables {
 /**
  * Query component
  */
-export class GetClassesFiltersQuery extends Query<
+export class ClassesFiltersQuery extends Query<
   IGetClassesFiltersData,
   IGetClassesFiltersVariables
 > {}
@@ -28,7 +28,7 @@ export class GetClassesFiltersQuery extends Query<
 /**
  * GQL query string
  */
-export const GET_CLASSES_FILTERS = gql`
+export const CLASSES_FILTERS_QUERY = gql`
   query GetClassesFiltersForLibrary {
     classesFilters @client {
       classLocation

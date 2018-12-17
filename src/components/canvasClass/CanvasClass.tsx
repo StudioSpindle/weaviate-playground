@@ -6,16 +6,20 @@ import {
 } from '@material-ui/core/styles';
 import { Theme } from '@material-ui/core/styles/createMuiTheme';
 import Typography from '@material-ui/core/Typography';
-import gql from 'graphql-tag';
 import * as React from 'react';
-import { compose, Mutation, Query } from 'react-apollo';
+import { compose } from 'react-apollo';
 import { CanvasClassNodeCounter } from 'src/components';
+import {
+  CLASS_SELECTION_CANVAS_MUTATION,
+  UpdateClassSelectionCanvasMutation
+} from 'src/resolvers/mutations';
 import { ID3Node } from 'src/types';
 import { ActionIcon, ThingIcon } from '../icons';
 import {
-  UPDATE_SELECTED_CLASSES,
-  UpdateSelectedClassesMutation
+  SELECTED_CLASSES_MUTATION,
+  SelectedClassesMutation
 } from '../libraryClassButton/queries';
+import { SELECTED_CLASS_QUERY, SelectedClassQuery } from './queries';
 
 export interface ICanvasClassProps extends WithStyles<typeof styles> {
   classId: string;
@@ -25,6 +29,14 @@ export interface ICanvasClassProps extends WithStyles<typeof styles> {
 
 const styles = (theme: Theme) =>
   createStyles({
+    button: {
+      background: theme.palette.common.white,
+      border: `1px solid ${theme.palette.common.black}`,
+      height: '100px',
+      position: 'absolute',
+      width: '100px',
+      zIndex: -1
+    },
     circle: {
       alignItems: 'center',
       borderRadius: '50%',
@@ -59,24 +71,13 @@ class CanvasClass extends React.Component<ICanvasClassProps> {
     const { classes, classId, theme } = this.props;
 
     return (
-      <Query
-        query={gql`
-          query classSelected($id: String!) {
-            class(id: $id) @client {
-              classType
-              isSelected
-              name
-            }
-            canvas @client {
-              selectedClass
-            }
-          }
-        `}
+      <SelectedClassQuery
+        query={SELECTED_CLASS_QUERY}
         variables={{ id: classId }}
       >
         {(canvasClassQuery: any) => {
           if (canvasClassQuery.loading) {
-            return <p>Loading local classes</p>;
+            return null;
           }
 
           if (canvasClassQuery.error) {
@@ -88,12 +89,8 @@ class CanvasClass extends React.Component<ICanvasClassProps> {
           }
 
           return (
-            <Mutation
-              mutation={gql`
-                mutation updateClassSelectionCanvas($id: String!) {
-                  updateClassSelectionCanvas(id: $id) @client
-                }
-              `}
+            <UpdateClassSelectionCanvasMutation
+              mutation={CLASS_SELECTION_CANVAS_MUTATION}
               variables={{ id: classId }}
             >
               {selectClassMutation => {
@@ -132,71 +129,49 @@ class CanvasClass extends React.Component<ICanvasClassProps> {
                     {isSelected && (
                       <React.Fragment>
                         <button
+                          className={classes.button}
                           style={{
-                            background: theme.palette.common.white,
-                            border: `1px solid ${theme.palette.common.black}`,
                             borderRadius: '90px 0 0 0',
-                            height: '100px',
                             left: '-46px',
-                            position: 'absolute',
-                            top: '-46px',
-                            width: '100px',
-                            zIndex: -1
+                            top: '-46px'
                           }}
                         >
                           <Typography>Relate</Typography>
                         </button>
                         <button
+                          className={classes.button}
                           style={{
-                            background: theme.palette.common.white,
-                            border: `1px solid ${theme.palette.common.black}`,
                             borderRadius: '0 90px 0 0',
-                            height: '100px',
-                            position: 'absolute',
                             right: '-46px',
-                            top: '-46px',
-                            width: '100px',
-                            zIndex: -1
+                            top: '-46px'
                           }}
                         >
                           <Typography>Expand</Typography>
                         </button>
-                        <UpdateSelectedClassesMutation
-                          mutation={UPDATE_SELECTED_CLASSES}
+                        <SelectedClassesMutation
+                          mutation={SELECTED_CLASSES_MUTATION}
                           variables={{ id: classId }}
                         >
                           {(updateSelectedClasses: any) => (
                             <button
+                              className={classes.button}
                               style={{
-                                background: theme.palette.common.white,
-                                border: `1px solid ${
-                                  theme.palette.common.black
-                                }`,
                                 borderRadius: '0 0 0 90px',
                                 bottom: '-46px',
-                                height: '100px',
-                                left: '-46px',
-                                position: 'absolute',
-                                width: '100px',
-                                zIndex: -1
+                                left: '-46px'
                               }}
                               onClick={updateSelectedClasses}
                             >
                               <Typography>Hide</Typography>
                             </button>
                           )}
-                        </UpdateSelectedClassesMutation>
+                        </SelectedClassesMutation>
                         <button
+                          className={classes.button}
                           style={{
-                            background: theme.palette.common.white,
-                            border: `1px solid ${theme.palette.common.black}`,
                             borderRadius: '0 0 90px 0',
                             bottom: '-46px',
-                            height: '100px',
-                            position: 'absolute',
-                            right: '-46px',
-                            width: '100px',
-                            zIndex: -1
+                            right: '-46px'
                           }}
                         >
                           <Typography>Pin</Typography>
@@ -206,10 +181,10 @@ class CanvasClass extends React.Component<ICanvasClassProps> {
                   </React.Fragment>
                 );
               }}
-            </Mutation>
+            </UpdateClassSelectionCanvasMutation>
           );
         }}
-      </Query>
+      </SelectedClassQuery>
     );
   }
 }

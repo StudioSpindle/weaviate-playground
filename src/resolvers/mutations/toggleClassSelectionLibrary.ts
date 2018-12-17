@@ -14,7 +14,7 @@ const toggleClassSelectionLibrary = (
   const classQuery = cache.readQuery({
     query: gql`
       query classSelected($id: String!) {
-        class(id: $id) {
+        class(id: $id) @client {
           isSelected
         }
       }

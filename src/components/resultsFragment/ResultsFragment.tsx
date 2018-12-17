@@ -1,10 +1,8 @@
 import * as React from 'react';
 import { ClassId } from 'src/components/canvas/Canvas';
-import { createGqlFilters } from 'src/utils';
-import {
-  IFragment,
-  IWeaviateLocalGetWhereInpObj
-} from '../resultsContainer/ResultsContainer';
+import { IWeaviateLocalGetWhereInpObj } from 'src/types';
+import { createGqlFilters, createGqlFragment } from 'src/utils';
+import { IFragment } from '../resultsContainer/ResultsContainer';
 
 interface IResultsFragmentProps {
   classObj: {
@@ -16,7 +14,7 @@ interface IResultsFragmentProps {
     name: string;
   };
   selectedClassId: string;
-  cleanString(textString: string): void;
+  cleanString(textString: string): string;
   addFragment(classId: ClassId, fragment: IFragment): void;
   removeFragment(classId: ClassId): void;
 }
@@ -47,7 +45,7 @@ class ResultsFragment extends React.Component<IResultsFragmentProps> {
 
   public addFragment() {
     const { addFragment, classObj, cleanString } = this.props;
-    const { classLocation, classType, id, instance, filters, name } = classObj;
+    const { classLocation, classType, id, filters, name } = classObj;
 
     if (!classObj) {
       return null;
@@ -58,30 +56,18 @@ class ResultsFragment extends React.Component<IResultsFragmentProps> {
       JSON.parse(filters)
     ) as IWeaviateLocalGetWhereInpObj;
 
-    const cleanClassId = cleanString(id);
+    const reference = cleanString(id);
 
-    const isLocal = classLocation === 'Local';
+    const queryString = createGqlFragment({
+      classLocation,
+      className: name,
+      classType,
+      properties: 'uuid, name',
+      reference,
+      type: 'Get'
+    });
 
-    if (classLocation === 'Local') {
-      const queryString = `
-        fragment ${cleanClassId} on ${
-        isLocal ? 'WeaviateLocalObj' : 'WeaviateNetworkObj'
-      } {
-          ${isLocal ? '' : `${instance} {`}
-            Get(where: $where) {
-              ${classType} {
-                ${name} {
-                  uuid
-                  name
-                }
-              }
-            }
-          ${isLocal ? '' : '}'}
-        }
-      `;
-
-      addFragment(id, { queryString, where });
-    }
+    addFragment(id, { queryString, where });
 
     return null;
   }

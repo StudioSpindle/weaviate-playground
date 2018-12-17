@@ -5,7 +5,8 @@ import Typography from '@material-ui/core/Typography';
 import gql from 'graphql-tag';
 import * as React from 'react';
 import { Query } from 'react-apollo';
-import { createGqlFilters } from 'src/utils';
+import { createGqlFilters, createGqlGet } from 'src/utils';
+import { CLASS_QUERY, ClassQuery } from './queries';
 
 /**
  * Types
@@ -58,21 +59,22 @@ const CanvasClassNodeCounter: React.SFC<ICanvasClassNodeCounterProps> = ({
   );
 
   return (
-    <Query
-      query={gql`
-        query Class($id: String!) {
-          class(id: $id) @client {
-            instance
-            name
-            classLocation
-            classType
-            filters
-          }
-        }
-      `}
-      variables={{ id: classId }}
-    >
+    <ClassQuery query={CLASS_QUERY} variables={{ id: classId }}>
       {classQuery => {
+        if (classQuery.loading) {
+          return <Circle count="..." />;
+        }
+
+        if (classQuery.error) {
+          return <Circle count="!" />;
+          // classQuery.error.message;
+        }
+
+        if (!classQuery.data) {
+          // TODO: Replace with proper message
+          return null;
+        }
+
         const {
           classLocation,
           classType,
@@ -80,27 +82,19 @@ const CanvasClassNodeCounter: React.SFC<ICanvasClassNodeCounterProps> = ({
           instance,
           name
         } = classQuery.data.class;
+
         const isNetwork = classLocation !== instance;
         const path = [classType, name];
         const where = createGqlFilters(path, JSON.parse(filters));
 
-        const queryString = `
-          query CanvasClassNodeCounterQuery($where: WeaviateLocalGetMetaWhereInpObj) {
-            ${classLocation} {
-              ${isNetwork ? `${instance} {` : ''}
-                GetMeta(where: $where) {
-                  ${classType} {
-                    ${name} {
-                      meta {
-                        count
-                      }
-                    }
-                  }
-                }
-              ${isNetwork ? '}' : ''}
-            }
-          }
-        `;
+        const queryString = createGqlGet({
+          classLocation,
+          className: name,
+          classType,
+          properties: 'meta { count }',
+          reference: 'CanvasClassNodeCounterQuery',
+          type: 'GetMeta'
+        });
 
         return (
           <Query query={gql(queryString)} variables={{ where }}>
@@ -130,7 +124,7 @@ const CanvasClassNodeCounter: React.SFC<ICanvasClassNodeCounterProps> = ({
           </Query>
         );
       }}
-    </Query>
+    </ClassQuery>
   );
 };
 

@@ -1,3 +1,6 @@
+import { Theme } from '@material-ui/core/styles/createMuiTheme';
+import createStyles from '@material-ui/core/styles/createStyles';
+import withStyles, { WithStyles } from '@material-ui/core/styles/withStyles';
 import Typography from '@material-ui/core/Typography';
 import React from 'react';
 import { Tag } from 'src/components';
@@ -13,41 +16,40 @@ import {
   SELECTED_CLASSES_MUTATION,
   SelectedClassesMutation
 } from 'src/components/libraryClassButton/queries';
-import { getColor } from 'src/utils';
-import styled from 'styled-components';
 
 /**
  * Types
  */
-export interface ILibraryClassProps {
+export interface ILibraryClassProps extends WithStyles<typeof styles> {
   id: string;
   renderSelected: boolean;
 }
 
 /**
- * Styled components
+ * Styles
  */
-const Container = styled.button`
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  padding-top: 1em;
-  padding-bottom: 1em;
-  border: none;
-  &:hover {
-    background-color: ${getColor('indigo', 'tint-3')};
-  }
-`;
-
-const IconNameContainer = styled.div`
-  display: flex;
-`;
-
-const IconContainer = styled.div`
-  display: flex;
-  margin-left: 24px;
-  margin-right: 1em;
-`;
+const styles = (theme: Theme) =>
+  createStyles({
+    button: {
+      '&:hover': {
+        backgroundColor: theme.palette.primary.main
+      },
+      border: 'none',
+      display: 'flex',
+      justifyContent: 'space-between',
+      paddingBottom: '1em',
+      paddingTop: '1em',
+      width: '100%'
+    },
+    iconContainer: {
+      display: 'flex',
+      marginLeft: '24px',
+      marginRight: '1em'
+    },
+    iconNameContainer: {
+      display: 'flex'
+    }
+  });
 
 const iconSize = 24;
 const iconProps = {
@@ -63,6 +65,7 @@ const updateSelection = (updateSelectedClasses: any, id: string) =>
  * LibraryClassButton component: renders button used for each class in Library
  */
 const LibraryClassButton: React.SFC<ILibraryClassProps> = ({
+  classes,
   id,
   renderSelected
 }: ILibraryClassProps) => (
@@ -74,11 +77,11 @@ const LibraryClassButton: React.SFC<ILibraryClassProps> = ({
       if (classQuery.loading) {
         return (
           <li>
-            <Container>
+            <button className={classes.button}>
               <div>
                 <Typography>Loading...</Typography>
               </div>
-            </Container>
+            </button>
           </li>
         );
       }
@@ -86,11 +89,11 @@ const LibraryClassButton: React.SFC<ILibraryClassProps> = ({
       if (classQuery.error) {
         return (
           <li>
-            <Container>
+            <button className={classes.button}>
               <div>
                 <Typography>${classQuery.error.message}</Typography>
               </div>
-            </Container>
+            </button>
           </li>
         );
       }
@@ -98,11 +101,11 @@ const LibraryClassButton: React.SFC<ILibraryClassProps> = ({
       if (!classQuery.data) {
         return (
           <li>
-            <Container>
+            <button className={classes.button}>
               <div>
                 <Typography>An error has occured</Typography>
               </div>
-            </Container>
+            </button>
           </li>
         );
       }
@@ -139,27 +142,28 @@ const LibraryClassButton: React.SFC<ILibraryClassProps> = ({
         >
           {(updateSelectedClasses: any) => (
             <li>
-              <Container
+              <button
+                className={classes.button}
                 onClick={updateSelection.bind(null, updateSelectedClasses, id)}
               >
-                <IconNameContainer>
-                  <IconContainer>
+                <div className={classes.iconNameContainer}>
+                  <div className={classes.iconContainer}>
                     {classType === 'Things' && <ThingIcon {...iconProps} />}
                     {classType === 'Actions' && <ActionIcon {...iconProps} />}
-                  </IconContainer>
+                  </div>
                   <Typography>
                     {name} <Tag>{instance}</Tag>
                   </Typography>
-                </IconNameContainer>
+                </div>
 
-                <IconContainer>
+                <div className={classes.iconContainer}>
                   {isSelected ? (
                     <CheckIcon width="24px" height="24px" color="vividPink" />
                   ) : (
                     <AddIcon width="24px" height="24px" />
                   )}
-                </IconContainer>
-              </Container>
+                </div>
+              </button>
             </li>
           )}
         </SelectedClassesMutation>
@@ -168,4 +172,4 @@ const LibraryClassButton: React.SFC<ILibraryClassProps> = ({
   </LibraryClassButtonQuery>
 );
 
-export default LibraryClassButton;
+export default withStyles(styles)(LibraryClassButton);

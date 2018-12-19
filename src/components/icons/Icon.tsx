@@ -1,13 +1,14 @@
+import { Theme } from '@material-ui/core/styles/createMuiTheme';
+import createStyles from '@material-ui/core/styles/createStyles';
+import withStyles from '@material-ui/core/styles/withStyles';
 import * as React from 'react';
-import getColor, { Color } from 'src/utils/getColor';
-import styled from 'styled-components';
 
 /**
  * Types
  */
 export interface IconProps {
   className?: string;
-  color?: Color;
+  color?: string;
   width?: string;
   height?: string;
   title?: string;
@@ -15,11 +16,33 @@ export interface IconProps {
 }
 
 /**
+ * Styles
+ */
+const styles = (theme: Theme) =>
+  createStyles({
+    container: {
+      display: 'inline-block',
+      fill: 'currentColor',
+      flexShrink: 0,
+      transition: 'fill 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms',
+      userSelect: 'none'
+    }
+  });
+
+/**
  * Icon component: wrapper component for icons
  */
 export class Icon extends React.Component<IconProps> {
   public render() {
-    const { children, className, style, title } = this.props;
+    const {
+      children,
+      className,
+      color,
+      height,
+      style,
+      title,
+      width
+    } = this.props;
     return (
       <svg
         className={className}
@@ -27,7 +50,12 @@ export class Icon extends React.Component<IconProps> {
         viewBox="0 0 27 27"
         focusable="false"
         aria-hidden={title ? 'false' : 'true'}
-        style={style}
+        style={{
+          color: color || 'inherit',
+          height: height || '1em',
+          width: width || '1em',
+          ...style
+        }}
       >
         {title ? <title>{title}</title> : null}
         {children}
@@ -36,16 +64,4 @@ export class Icon extends React.Component<IconProps> {
   }
 }
 
-/**
- * Style component
- */
-export default styled(Icon)`
-  display: inline-block;
-  color: ${p => (p.color ? getColor(p.color) : 'inherit')};
-  fill: currentColor;
-  width: ${p => (p.width ? p.width : '1em')};
-  height: ${p => (p.height ? p.height : '1em')};
-  transition: fill 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
-  user-select: none;
-  flex-shrink: 0;
-`;
+export default withStyles(styles)(Icon);

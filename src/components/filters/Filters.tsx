@@ -1,4 +1,7 @@
-import { Typography } from '@material-ui/core';
+import { Theme } from '@material-ui/core/styles/createMuiTheme';
+import createStyles from '@material-ui/core/styles/createStyles';
+import withStyles, { WithStyles } from '@material-ui/core/styles/withStyles';
+import Typography from '@material-ui/core/Typography';
 import * as React from 'react';
 import { Filter, Section } from 'src/components';
 import {
@@ -7,22 +10,31 @@ import {
   SELECTED_CLASS_QUERY,
   SelectedClassQuery
 } from 'src/components/filters/queries';
-import styled from 'styled-components';
 
 /**
- *
+ * Types
  */
+interface IFiltersProps extends WithStyles<typeof styles> {}
 
-const TextContainer = styled.div`
-  padding: 2em;
-`;
+/**
+ * Styles
+ */
+const styles = (theme: Theme) =>
+  createStyles({
+    inactiveText: {
+      color: theme.palette.grey[400]
+    },
+    textContainer: {
+      padding: '2em'
+    }
+  });
 
 const defaultErrorMessage = 'An error has occured';
 
 /**
  * Dynamically fetches filters for a specific Class
  */
-const Filters = () => (
+const Filters: React.SFC<IFiltersProps> = ({ classes }) => (
   <SelectedClassQuery query={SELECTED_CLASS_QUERY}>
     {selectedClassQuery => {
       /**
@@ -35,13 +47,13 @@ const Filters = () => (
       if (selectedClassQuery.error || !selectedClassQuery.data) {
         return (
           <Section title={`Filters`}>
-            <TextContainer>
+            <div className={classes.textContainer}>
               <Typography color="error">
                 {(selectedClassQuery.error &&
                   selectedClassQuery.error.message) ||
                   defaultErrorMessage}
               </Typography>
-            </TextContainer>
+            </div>
           </Section>
         );
       }
@@ -51,11 +63,11 @@ const Filters = () => (
       if (name === '') {
         return (
           <Section title={`Filters`}>
-            <TextContainer>
-              <Typography>
+            <div className={classes.textContainer}>
+              <Typography className={classes.inactiveText}>
                 Please select a class from the canvas to display filters
               </Typography>
-            </TextContainer>
+            </div>
           </Section>
         );
       }
@@ -80,12 +92,12 @@ const Filters = () => (
                 !metaTypeQuery.data.__type
               ) {
                 return (
-                  <TextContainer>
+                  <div className={classes.textContainer}>
                     <Typography>
                       {(metaTypeQuery.error && metaTypeQuery.error.message) ||
                         defaultErrorMessage}
                     </Typography>
-                  </TextContainer>
+                  </div>
                 );
               }
 
@@ -111,4 +123,4 @@ const Filters = () => (
   </SelectedClassQuery>
 );
 
-export default Filters;
+export default withStyles(styles)(Filters);

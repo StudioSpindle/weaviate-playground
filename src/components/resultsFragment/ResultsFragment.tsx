@@ -1,7 +1,9 @@
 import * as React from 'react';
+import client from 'src/apolloClient';
 import { ClassId } from 'src/components/canvas/Canvas';
 import { IWeaviateLocalGetWhereInpObj } from 'src/types';
 import { createGqlFilters, createGqlFragment } from 'src/utils';
+import { META_TYPE_QUERY } from '../filters/queries';
 import { IFragment } from '../resultsContainer/ResultsContainer';
 
 interface IResultsFragmentProps {
@@ -43,7 +45,16 @@ class ResultsFragment extends React.Component<IResultsFragmentProps> {
     removeFragment(classObj.id);
   }
 
-  public addFragment() {
+  public async fetchMetaType(): Promise<any> {
+    const { classObj } = this.props;
+
+    return await client.query({
+      query: META_TYPE_QUERY,
+      variables: { typename: classObj.name }
+    });
+  }
+
+  public async addFragment() {
     const { addFragment, classObj, cleanString } = this.props;
     const { classLocation, classType, id, filters, name } = classObj;
 
@@ -58,11 +69,26 @@ class ResultsFragment extends React.Component<IResultsFragmentProps> {
 
     const reference = cleanString(id);
 
+    const metaQuery = await this.fetchMetaType();
+
+    const createProperties = (fields: any) =>
+      fields
+        .filter(
+          (field: any) =>
+            field.type.name === 'String' ||
+            field.type.name === 'Int' ||
+            field.type.name === 'Boolean'
+        )
+        .map((field: any) => field.name)
+        .join();
+
+    const properties = createProperties(metaQuery.data.__type.fields);
+
     const queryString = createGqlFragment({
       classLocation,
       className: name,
       classType,
-      properties: 'uuid, name',
+      properties,
       reference,
       type: 'Get'
     });

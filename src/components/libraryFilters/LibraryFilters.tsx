@@ -16,7 +16,6 @@ import {
   UpdateClassesFiltersMutation
 } from 'src/components/library/queries';
 import { ClassLocation, ClassType } from 'src/types';
-import { Color } from 'src/utils/getColor';
 
 /**
  * Types
@@ -60,25 +59,33 @@ const styles = (theme: Theme) =>
     button: {
       border: `1px solid ${theme.palette.grey[900]}`,
       borderRadius: 0,
+      color: theme.palette.common.black,
       marginLeft: '0.125em',
       marginRight: '0.125em'
+    },
+    buttonSelected: {
+      backgroundColor: theme.palette.primary.main,
+      borderColor: theme.palette.primary.main,
+      color: theme.palette.common.white,
+
+      '&:hover': {
+        backgroundColor: theme.palette.grey[200],
+        borderColor: theme.palette.primary.main,
+        color: theme.palette.common.black
+      }
     },
     container: {
       display: 'flex',
       justifyContent: 'space-between',
       margin: '1em 0.25em 0.25em 0.25em'
     },
-    label: {
-      color: theme.palette.common.black
+    iconContainer: {
+      fontSize: '15px',
+      marginTop: '5px'
     },
     root: {
       borderRadius: 0,
       boxShadow: 'none'
-    },
-    selected: {
-      backgroundColor: theme.palette.primary.main,
-      borderColor: theme.palette.primary.main,
-      color: theme.palette.common.white
     },
     typography: {
       color: 'inherit',
@@ -87,28 +94,6 @@ const styles = (theme: Theme) =>
       marginTop: '0.125rem'
     }
   });
-
-const getIcon = (value: ClassLocation | ClassType, isSelected: boolean) => {
-  const iconSize = 15;
-  const props = {
-    color: isSelected ? 'white' : ('almostBlack' as Color),
-    height: iconSize + 'px',
-    isFilled: true,
-    width: iconSize + 'px'
-  };
-  switch (value) {
-    case classLocations.local:
-      return <LocalIcon {...props} />;
-    case classLocations.network:
-      return <NetworkIcon {...props} />;
-    case classTypes.actions:
-      return <ActionIcon {...props} />;
-    case classTypes.things:
-      return <ThingIcon {...props} />;
-    default:
-      return undefined;
-  }
-};
 
 const updateClassesFiltersLocation = (
   updateClassesFilters: (value: any) => void,
@@ -133,83 +118,97 @@ const LibraryFilters: React.SFC<ILibraryFiltersProps> = ({
   classes,
   selectedClassLocation,
   selectedClassType
-}) => (
-  <div className={classes.container}>
-    <UpdateClassesFiltersMutation mutation={UPDATE_CLASSES_FILTERS}>
-      {updateClassesFilters => (
-        <ToggleButtonGroup
-          classes={{ root: classes.root }}
-          value={selectedClassLocation}
-          exclusive={true}
-          onChange={updateClassesFiltersLocation.bind(
-            null,
-            updateClassesFilters
-          )}
-        >
-          {Object.keys(classLocations).map((classLocationKey, i) => {
-            const classLocation: ClassLocation =
-              classLocations[classLocationKey];
-            const isSelected = classLocation === selectedClassLocation;
-            return (
-              <ToggleButton
-                key={i}
-                value={classLocation}
-                selected={isSelected}
-                classes={{
-                  label: classes.label,
-                  root: classes.button,
-                  selected: classes.selected
-                }}
-              >
-                {getIcon(classLocation, isSelected)}{' '}
-                <Typography
-                  classes={{ root: classes.typography }}
-                  style={{ color: isSelected ? 'white' : 'black' }}
-                >
-                  {classLocation}
-                </Typography>
-              </ToggleButton>
-            );
-          })}
-        </ToggleButtonGroup>
-      )}
-    </UpdateClassesFiltersMutation>
+}) => {
+  const getIcon = (value: ClassLocation | ClassType, isSelected: boolean) => {
+    switch (value) {
+      case classLocations.local:
+        return <LocalIcon viewBox="0 0 30 30" fontSize="inherit" />;
+      case classLocations.network:
+        return <NetworkIcon viewBox="0 0 30 30" fontSize="inherit" />;
+      case classTypes.actions:
+        return <ActionIcon viewBox="0 0 30 30" fontSize="inherit" />;
+      case classTypes.things:
+        return <ThingIcon viewBox="0 0 30 30" fontSize="inherit" />;
+      default:
+        return undefined;
+    }
+  };
 
-    <UpdateClassesFiltersMutation mutation={UPDATE_CLASSES_FILTERS}>
-      {updateClassesFilters => (
-        <ToggleButtonGroup
-          classes={{ root: classes.root }}
-          value={selectedClassType}
-          exclusive={true}
-          onChange={updateClassesFiltersType.bind(null, updateClassesFilters)}
-        >
-          {Object.keys(classTypes).map((classTypeKey, i) => {
-            const classType: ClassType = classTypes[classTypeKey];
-            const isSelected = classType === selectedClassType;
-            return (
-              <ToggleButton
-                key={i}
-                value={classType}
-                selected={isSelected}
-                classes={{
-                  root: classes.button,
-                  selected: classes.selected
-                }}
-              >
-                {getIcon(classType, isSelected)}{' '}
-                <Typography
-                  classes={{ root: classes.typography }}
-                  style={{ color: isSelected ? 'white' : 'black' }}
+  return (
+    <div className={classes.container}>
+      <UpdateClassesFiltersMutation mutation={UPDATE_CLASSES_FILTERS}>
+        {updateClassesFilters => (
+          <ToggleButtonGroup
+            classes={{ root: classes.root }}
+            value={selectedClassLocation}
+            exclusive={true}
+            onChange={updateClassesFiltersLocation.bind(
+              null,
+              updateClassesFilters
+            )}
+          >
+            {Object.keys(classLocations).map((classLocationKey, i) => {
+              const classLocation: ClassLocation =
+                classLocations[classLocationKey];
+              const isSelected = classLocation === selectedClassLocation;
+              return (
+                <ToggleButton
+                  key={i}
+                  value={classLocation}
+                  selected={isSelected}
+                  classes={{
+                    root: classes.button,
+                    selected: classes.buttonSelected
+                  }}
                 >
-                  {classType}
-                </Typography>
-              </ToggleButton>
-            );
-          })}
-        </ToggleButtonGroup>
-      )}
-    </UpdateClassesFiltersMutation>
-  </div>
-);
+                  <span className={classes.iconContainer}>
+                    {getIcon(classLocation, isSelected)}{' '}
+                  </span>
+                  <Typography classes={{ root: classes.typography }}>
+                    {classLocation}
+                  </Typography>
+                </ToggleButton>
+              );
+            })}
+          </ToggleButtonGroup>
+        )}
+      </UpdateClassesFiltersMutation>
+
+      <UpdateClassesFiltersMutation mutation={UPDATE_CLASSES_FILTERS}>
+        {updateClassesFilters => (
+          <ToggleButtonGroup
+            classes={{ root: classes.root }}
+            value={selectedClassType}
+            exclusive={true}
+            onChange={updateClassesFiltersType.bind(null, updateClassesFilters)}
+          >
+            {Object.keys(classTypes).map((classTypeKey, i) => {
+              const classType: ClassType = classTypes[classTypeKey];
+              const isSelected = classType === selectedClassType;
+              return (
+                <ToggleButton
+                  key={i}
+                  value={classType}
+                  selected={isSelected}
+                  classes={{
+                    root: classes.button,
+                    selected: classes.buttonSelected
+                  }}
+                >
+                  <span className={classes.iconContainer}>
+                    {getIcon(classType, isSelected)}{' '}
+                  </span>
+                  <Typography classes={{ root: classes.typography }}>
+                    {classType}
+                  </Typography>
+                </ToggleButton>
+              );
+            })}
+          </ToggleButtonGroup>
+        )}
+      </UpdateClassesFiltersMutation>
+    </div>
+  );
+};
 
 export default withStyles(styles)(LibraryFilters);

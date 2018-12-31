@@ -32,6 +32,12 @@ const styles = (theme: Theme) =>
   createStyles({
     button: {
       '&:hover': {
+        '& p': {
+          color: theme.palette.common.white
+        },
+        '& svg': {
+          fill: theme.palette.common.white
+        },
         backgroundColor: theme.palette.primary.main
       },
       border: 'none',
@@ -40,6 +46,9 @@ const styles = (theme: Theme) =>
       paddingBottom: '1em',
       paddingTop: '1em',
       width: '100%'
+    },
+    buttonText: {
+      fontWeight: 'bold'
     },
     iconContainer: {
       display: 'flex',
@@ -51,11 +60,9 @@ const styles = (theme: Theme) =>
     }
   });
 
-const iconSize = 24;
-const iconProps = {
-  height: iconSize + 'px',
-  isFilled: true,
-  width: iconSize + 'px'
+const viewBox = {
+  classType: '0 0 30 30',
+  selection: '0 0 24 24'
 };
 
 const updateSelection = (updateSelectedClasses: any, id: string) =>
@@ -148,19 +155,23 @@ const LibraryClassButton: React.SFC<ILibraryClassProps> = ({
               >
                 <div className={classes.iconNameContainer}>
                   <div className={classes.iconContainer}>
-                    {classType === 'Things' && <ThingIcon {...iconProps} />}
-                    {classType === 'Actions' && <ActionIcon {...iconProps} />}
+                    {classType === 'Things' && (
+                      <ThingIcon viewBox={viewBox.classType} />
+                    )}
+                    {classType === 'Actions' && (
+                      <ActionIcon viewBox={viewBox.classType} />
+                    )}
                   </div>
-                  <Typography>
+                  <Typography className={classes.buttonText}>
                     {name} <Tag>{instance}</Tag>
                   </Typography>
                 </div>
 
                 <div className={classes.iconContainer}>
                   {isSelected ? (
-                    <CheckIcon width="24px" height="24px" color="vividPink" />
+                    <CheckIcon viewBox={viewBox.selection} />
                   ) : (
-                    <AddIcon width="24px" height="24px" />
+                    <AddIcon viewBox={viewBox.selection} />
                   )}
                 </div>
               </button>

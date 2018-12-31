@@ -4,5 +4,4 @@ export { default as createGqlFragments } from './createGqlFragments';
 export { default as createGqlGet } from './createGqlGet';
 export { default as executeMutation } from './executeMutation';
 export { default as getBreakpoint } from './getBreakpoint';
-export { default as getColor } from './getColor';
 export { default as unCamelCase } from './unCamelCase';

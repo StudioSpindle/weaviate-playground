@@ -1,5 +1,5 @@
 import * as React from 'react';
-import client from 'src/apolloClient';
+import client from 'src/apollo/apolloClient';
 import { ClassId } from 'src/components/canvas/Canvas';
 import { IWeaviateLocalGetWhereInpObj } from 'src/types';
 import { createGqlFilters, createGqlFragment } from 'src/utils';

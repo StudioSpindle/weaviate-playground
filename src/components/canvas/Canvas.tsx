@@ -6,7 +6,7 @@ import gql from 'graphql-tag';
 import * as React from 'react';
 import { compose } from 'react-apollo';
 import { Graph } from 'react-d3-graph';
-import client from 'src/apolloClient';
+import client from 'src/apollo/apolloClient';
 import { CanvasClass } from 'src/components';
 import { createGqlGet } from 'src/utils';
 import { META_TYPE_QUERY } from '../filters/queries';
@@ -67,6 +67,9 @@ const styles = (theme: Theme) =>
       flexDirection: 'column',
       justifyContent: 'center',
       padding: '32px 48px'
+    },
+    noNodesText: {
+      color: theme.palette.grey[400]
     }
   });
 
@@ -167,6 +170,9 @@ class Canvas extends React.Component<ICanvasProps, ICanvasState> {
               query: gql(queryString)
             });
 
+            // tslint:disable-next-line:no-console
+            console.log(queryResult);
+
             const targetTypename = isLocal
               ? queryResult.data.Local.Get[classType][className][0][
                   fieldNameCapitalized
@@ -254,10 +260,16 @@ class Canvas extends React.Component<ICanvasProps, ICanvasState> {
       return (
         <div className={classes.container}>
           <div className={classes.messageBox}>
-            <Typography variant="h6" gutterBottom={true}>
+            <Typography
+              variant="h6"
+              gutterBottom={true}
+              className={classes.noNodesText}
+            >
               There are no nodes in the playground
             </Typography>
-            <Typography>Add nodes from the library</Typography>
+            <Typography className={classes.noNodesText}>
+              Add nodes from the library
+            </Typography>
           </div>
         </div>
       );

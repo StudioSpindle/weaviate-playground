@@ -1,12 +1,18 @@
-// tslint:disable-next-line:ordered-imports
-import { AppBar, Tab, Tabs } from '@material-ui/core';
+import AppBar from '@material-ui/core/AppBar';
+import Divider from '@material-ui/core/Divider';
+import { Theme } from '@material-ui/core/styles/createMuiTheme';
+import createStyles from '@material-ui/core/styles/createStyles';
+import withStyles, { WithStyles } from '@material-ui/core/styles/withStyles';
+import Tab from '@material-ui/core/Tab';
+import Tabs from '@material-ui/core/Tabs';
 import gql from 'graphql-tag';
 import * as React from 'react';
-import client from 'src/apolloClient';
+import client from 'src/apollo/apolloClient';
+import { ResultsJson, ResultsSankey } from 'src/components';
 import { IWeaviateLocalGetWhereInpObj } from 'src/types';
 import { JsonIcon, SankeyIcon, SwarmIcon } from '../icons';
 
-interface IResultsProps {
+interface IResultsProps extends WithStyles<typeof styles> {
   queryString?: string;
   where?: IWeaviateLocalGetWhereInpObj;
 }
@@ -16,13 +22,17 @@ interface IResultsState {
   selectedTab?: number;
 }
 
-const TabContainer = ({ children }: { children: any }) => {
-  return (
-    <div style={{ margin: '1em', padding: '1em', border: '1px solid black' }}>
-      {children}
-    </div>
-  );
-};
+/**
+ * Styles
+ */
+const styles = (theme: Theme) =>
+  createStyles({
+    tabContainer: {
+      border: `1px solid ${theme.palette.grey[100]}`,
+      margin: '1em',
+      padding: '1em'
+    }
+  });
 
 class Results extends React.Component<IResultsProps, IResultsState> {
   constructor(props: IResultsProps) {
@@ -60,31 +70,34 @@ class Results extends React.Component<IResultsProps, IResultsState> {
 
   public render() {
     const { data, selectedTab } = this.state;
+    const { classes } = this.props;
 
     return (
       <React.Fragment>
-        <AppBar position="static">
+        <AppBar position="static" color="inherit" elevation={0}>
           <Tabs value={selectedTab} onChange={this.changeTab}>
             <Tab icon={<SankeyIcon />} />
             <Tab icon={<SwarmIcon />} />
             <Tab icon={<JsonIcon />} />
           </Tabs>
         </AppBar>
-        {selectedTab === 0 && <TabContainer>Sankey diagram</TabContainer>}
-        {selectedTab === 1 && <TabContainer>Swarm diagram</TabContainer>}
+        <Divider />
+        {selectedTab === 0 && (
+          <div className={classes.tabContainer}>
+            <ResultsSankey data={data} />
+          </div>
+        )}
+        {selectedTab === 1 && (
+          <div className={classes.tabContainer}>Swarm diagram</div>
+        )}
         {selectedTab === 2 && (
-          <TabContainer>
-            <textarea
-              style={{ height: '100%', width: '100%', border: 'none' }}
-              rows={25}
-              value={JSON.stringify(data, undefined, 4)}
-              readOnly={true}
-            />
-          </TabContainer>
+          <div className={classes.tabContainer}>
+            <ResultsJson data={data} />
+          </div>
         )}
       </React.Fragment>
     );
   }
 }
 
-export default Results;
+export default withStyles(styles)(Results);

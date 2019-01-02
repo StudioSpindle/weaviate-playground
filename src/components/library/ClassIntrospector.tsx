@@ -2,7 +2,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import React from 'react';
-import apolloClient from 'src/apolloClient';
+import apolloClient from 'src/apollo/apolloClient';
 import translations from 'src/translations/en';
 import {
   CLASS_IDS_QUERY,

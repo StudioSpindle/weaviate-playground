@@ -168,7 +168,7 @@ class Filter extends React.Component<IFilterProps> {
                     const FILTER_META_QUERY = gql(queryString);
 
                     return (
-                      <Query query={FILTER_META_QUERY} variables={{ id }}>
+                      <Query query={FILTER_META_QUERY}>
                         {filterMetaQuery => {
                           /**
                            * Get meta data for filter

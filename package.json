@@ -16,6 +16,7 @@
     "apollo-link-http": "^1.5.5",
     "apollo-link-state": "^0.4.2",
     "d3": "^5.7.0",
+    "get-value": "^3.0.1",
     "graphql": "^14.0.2",
     "graphql-tag": "^2.9.2",
     "node-fetch": "^2.2.0",
@@ -25,6 +26,7 @@
     "react-d3-graph": "^2.0.0-rc2",
     "react-dom": "^16.5.2",
     "react-scripts-ts": "2.17.0",
+    "react-vis": "^1.11.5",
     "source-map-explorer": "^1.6.0",
     "standard-version": "^4.4.0"
   },
@@ -52,6 +54,7 @@
   },
   "devDependencies": {
     "@types/d3": "^5.0.1",
+    "@types/get-value": "^3.0.0",
     "@types/jest": "^23.3.2",
     "@types/node": "^10.10.3",
     "@types/rc-slider": "^8.6.0",

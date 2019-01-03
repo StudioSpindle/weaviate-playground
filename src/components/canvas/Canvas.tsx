@@ -2,6 +2,7 @@ import { createStyles, withStyles, WithStyles } from '@material-ui/core/styles';
 import { Theme } from '@material-ui/core/styles/createMuiTheme';
 import withTheme from '@material-ui/core/styles/withTheme';
 import Typography from '@material-ui/core/Typography';
+import get from 'get-value';
 import gql from 'graphql-tag';
 import * as React from 'react';
 import { compose } from 'react-apollo';
@@ -170,16 +171,15 @@ class Canvas extends React.Component<ICanvasProps, ICanvasState> {
               query: gql(queryString)
             });
 
-            // tslint:disable-next-line:no-console
-            console.log(queryResult);
-
             const targetTypename = isLocal
-              ? queryResult.data.Local.Get[classType][className][0][
-                  fieldNameCapitalized
-                ].__typename
-              : queryResult.data.Network.Get[classLocation][classType][
-                  className
-                ][0][fieldNameCapitalized].__typename;
+              ? get(
+                  queryResult,
+                  `data.Local.Get.${classType}.${className}[0].${fieldNameCapitalized}.__typename`
+                )
+              : get(
+                  queryResult,
+                  `data.Network.Get.${classLocation}.${classType}.${className}[0].${fieldNameCapitalized}.__typename`
+                );
 
             // Create link when linking class is in canvas
             const classIdTarget = `${classLocation}-${classType}-${targetTypename}`;

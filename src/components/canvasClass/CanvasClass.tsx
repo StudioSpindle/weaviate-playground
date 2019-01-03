@@ -58,7 +58,6 @@ const styles = (theme: Theme) =>
 const iconSize = 27;
 const iconProps = {
   height: iconSize + 'px',
-  isFilled: true,
   width: iconSize + 'px'
 };
 

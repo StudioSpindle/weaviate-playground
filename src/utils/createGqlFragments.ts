@@ -12,7 +12,7 @@ export default (fragments: any) => {
   );
 
   return `
-      query SelectedClassesWithFilters($where: WeaviateLocalGetWhereInpObj) {
+      query SelectedClassesWithFilters {
         ${
           localKeys.length
             ? `Local {

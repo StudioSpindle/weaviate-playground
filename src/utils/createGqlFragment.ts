@@ -1,5 +1,3 @@
-import { IWeaviateLocalGetWhereInpObj } from 'src/types';
-
 export interface ICreateGqlGetProps {
   classLocation: string;
   className: string;
@@ -7,7 +5,7 @@ export interface ICreateGqlGetProps {
   properties: string;
   reference?: string;
   type: 'Get' | 'GetMeta';
-  where?: IWeaviateLocalGetWhereInpObj;
+  where?: string;
 }
 
 export default ({
@@ -16,7 +14,8 @@ export default ({
   classType,
   properties,
   reference,
-  type
+  type,
+  where
 }: ICreateGqlGetProps) => {
   const isLocal = classLocation === 'local' || classLocation === 'Local';
 
@@ -24,10 +23,10 @@ export default ({
     fragment ${reference} on ${
     isLocal ? 'WeaviateLocalObj' : 'WeaviateNetworkObj'
   } {
-    ${type}(where: $where) {
+    ${type} {
         ${isLocal ? '' : `${classLocation} {`}
             ${classType} {
-                ${className} {
+                ${className}${where ? `(where: ${where})` : ''} {
                     ${properties}
                 }
             }
@@ -36,20 +35,3 @@ export default ({
     }
   `;
 };
-
-//   `
-//     fragment ${cleanClassId} on ${
-//     isLocal ? 'WeaviateLocalObj' : 'WeaviateNetworkObj'
-//   } {
-//       ${isLocal ? '' : `${instance} {`}
-//         Get(where: $where) {
-//           ${classType} {
-//             ${name} {
-//               uuid
-//               name
-//             }
-//           }
-//         }
-//       ${isLocal ? '' : '}'}
-//     }
-//   `;

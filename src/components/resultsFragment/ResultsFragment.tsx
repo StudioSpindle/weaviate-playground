@@ -1,7 +1,6 @@
 import * as React from 'react';
 import client from 'src/apollo/apolloClient';
 import { ClassId } from 'src/components/canvas/Canvas';
-import { IWeaviateLocalGetWhereInpObj } from 'src/types';
 import { createGqlFilters, createGqlFragment } from 'src/utils';
 import { META_TYPE_QUERY } from '../filters/queries';
 import { IFragment } from '../resultsContainer/ResultsContainer';
@@ -62,10 +61,7 @@ class ResultsFragment extends React.Component<IResultsFragmentProps> {
       return null;
     }
     const path = [classType, name];
-    const where = createGqlFilters(
-      path,
-      JSON.parse(filters)
-    ) as IWeaviateLocalGetWhereInpObj;
+    const where = createGqlFilters(path, JSON.parse(filters));
 
     const reference = cleanString(id);
 
@@ -90,10 +86,11 @@ class ResultsFragment extends React.Component<IResultsFragmentProps> {
       classType,
       properties,
       reference,
-      type: 'Get'
+      type: 'Get',
+      where
     });
 
-    addFragment(id, { queryString, where });
+    addFragment(id, { queryString });
 
     return null;
   }

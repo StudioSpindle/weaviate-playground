@@ -179,17 +179,21 @@ class Filter extends React.Component<IFilterProps> {
 
                           if (filterMetaQuery.error) {
                             return (
-                              <Typography color="error">
-                                {filterMetaQuery.error.message}
-                              </Typography>
+                              <ExpansionPanelSummary>
+                                <Typography color="error">
+                                  {filterMetaQuery.error.message}
+                                </Typography>
+                              </ExpansionPanelSummary>
                             );
                           }
 
                           if (!filterMetaQuery.data) {
                             return (
-                              <Typography color="error">
-                                {translations.defaultError}
-                              </Typography>
+                              <ExpansionPanelSummary>
+                                <Typography color="error">
+                                  {translations.defaultError}
+                                </Typography>
+                              </ExpansionPanelSummary>
                             );
                           }
 
@@ -287,7 +291,13 @@ class Filter extends React.Component<IFilterProps> {
                                             />
                                           );
                                         default:
-                                          return 'Unknown filter type';
+                                          return (
+                                            <ExpansionPanelSummary>
+                                              <Typography color="error">
+                                                Unknown filter type
+                                              </Typography>
+                                            </ExpansionPanelSummary>
+                                          );
                                       }
                                     }}
                                   </FilterToggleSwitchMutation>

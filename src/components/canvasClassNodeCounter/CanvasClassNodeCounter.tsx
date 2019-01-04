@@ -2,6 +2,7 @@ import { Theme } from '@material-ui/core/styles/createMuiTheme';
 import createStyles from '@material-ui/core/styles/createStyles';
 import withStyles, { WithStyles } from '@material-ui/core/styles/withStyles';
 import Typography from '@material-ui/core/Typography';
+import get from 'get-value';
 import gql from 'graphql-tag';
 import * as React from 'react';
 import { Query } from 'react-apollo';
@@ -47,85 +48,91 @@ const styles = (theme: Theme) =>
 /**
  * CanvasClassNodeCounte component
  */
-const CanvasClassNodeCounter: React.SFC<ICanvasClassNodeCounterProps> = ({
-  borderColor,
-  classes,
-  classId
-}) => {
-  const Circle = ({ count }: { count?: number | string }) => (
-    <div className={classes.circle} style={{ borderColor }}>
-      <Typography className={classes.text}>{count || '?'}</Typography>
-    </div>
-  );
+class CanvasClassNodeCounter extends React.PureComponent<
+  ICanvasClassNodeCounterProps
+> {
+  public render() {
+    const { borderColor, classes, classId } = this.props;
 
-  return (
-    <ClassQuery query={CLASS_QUERY} variables={{ id: classId }}>
-      {classQuery => {
-        if (classQuery.loading) {
-          return <Circle count="..." />;
-        }
+    const Circle = ({ count }: { count?: number | string }) => (
+      <div className={classes.circle} style={{ borderColor }}>
+        <Typography className={classes.text}>{count || '?'}</Typography>
+      </div>
+    );
+    return (
+      <ClassQuery query={CLASS_QUERY} variables={{ id: classId }}>
+        {classQuery => {
+          if (classQuery.loading) {
+            return <Circle count="..." />;
+          }
 
-        if (classQuery.error) {
-          return <Circle count="!" />;
-          // classQuery.error.message;
-        }
+          if (classQuery.error) {
+            return <Circle count="!" />;
+            // classQuery.error.message;
+          }
 
-        if (!classQuery.data) {
-          // TODO: Replace with proper message
-          return null;
-        }
+          if (!classQuery.data) {
+            // TODO: Replace with proper message
+            return null;
+          }
 
-        const {
-          classLocation,
-          classType,
-          filters,
-          instance,
-          name
-        } = classQuery.data.class;
+          const {
+            classLocation,
+            classType,
+            filters,
+            instance,
+            name
+          } = classQuery.data.class;
 
-        const isNetwork = classLocation !== instance;
-        const path = [classType, name];
-        const where = createGqlFilters(path, JSON.parse(filters));
+          const isNetwork = classLocation !== instance;
+          const path = [classType, name];
+          const where = createGqlFilters(path, JSON.parse(filters));
 
-        const queryString = createGqlGet({
-          classLocation,
-          className: name,
-          classType,
-          properties: 'meta { count }',
-          reference: 'CanvasClassNodeCounterQuery',
-          type: 'GetMeta'
-        });
+          const queryString = createGqlGet({
+            classLocation,
+            className: name,
+            classType,
+            properties: 'meta { count }',
+            reference: 'CanvasClassNodeCounterQuery',
+            type: 'GetMeta',
+            where
+          });
 
-        return (
-          <Query query={gql(queryString)} variables={{ where }}>
-            {canvasClassNodeCounterQuery => {
-              if (canvasClassNodeCounterQuery.loading) {
-                return <Circle count="..." />;
-              }
+          return (
+            <Query query={gql(queryString)}>
+              {canvasClassNodeCounterQuery => {
+                if (canvasClassNodeCounterQuery.loading) {
+                  return <Circle count="..." />;
+                }
 
-              if (canvasClassNodeCounterQuery.error) {
-                return <Circle count="!" />;
-                // canvasClassNodeCounterQuery.error.message;
-              }
+                if (canvasClassNodeCounterQuery.error) {
+                  return <Circle count="!" />;
+                  // canvasClassNodeCounterQuery.error.message;
+                }
 
-              if (!canvasClassNodeCounterQuery.data) {
-                // TODO: Replace with proper message
-                return null;
-              }
+                if (!canvasClassNodeCounterQuery.data) {
+                  // TODO: Replace with proper message
+                  return null;
+                }
 
-              const count = isNetwork
-                ? canvasClassNodeCounterQuery.data[classLocation][instance]
-                    .GetMeta[classType][name].meta.count
-                : canvasClassNodeCounterQuery.data[classLocation].GetMeta[
-                    classType
-                  ][name].meta.count;
-              return <Circle count={count} />;
-            }}
-          </Query>
-        );
-      }}
-    </ClassQuery>
-  );
-};
+                const count = isNetwork
+                  ? get(
+                      canvasClassNodeCounterQuery,
+                      `data.${classLocation}.${instance}.GetMeta.${classType}.${name}.meta.count`
+                    )
+                  : get(
+                      canvasClassNodeCounterQuery,
+                      `data.${classLocation}.GetMeta.${classType}.${name}.meta.count`
+                    );
+
+                return <Circle count={count} />;
+              }}
+            </Query>
+          );
+        }}
+      </ClassQuery>
+    );
+  }
+}
 
 export default withStyles(styles)(CanvasClassNodeCounter);

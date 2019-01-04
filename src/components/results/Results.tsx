@@ -9,12 +9,10 @@ import gql from 'graphql-tag';
 import * as React from 'react';
 import client from 'src/apollo/apolloClient';
 import { ResultsJson, ResultsSankey } from 'src/components';
-import { IWeaviateLocalGetWhereInpObj } from 'src/types';
 import { JsonIcon, SankeyIcon, SwarmIcon } from '../icons';
 
 interface IResultsProps extends WithStyles<typeof styles> {
   queryString?: string;
-  where?: IWeaviateLocalGetWhereInpObj;
 }
 
 interface IResultsState {
@@ -48,17 +46,16 @@ class Results extends React.Component<IResultsProps, IResultsState> {
   }
 
   public componentDidUpdate(prevProps: IResultsProps) {
-    const { queryString, where } = this.props;
-    if (queryString !== prevProps.queryString || where !== prevProps.where) {
+    const { queryString } = this.props;
+    if (queryString !== prevProps.queryString) {
       this.fetchData();
     }
   }
 
   public async fetchData() {
-    const { queryString, where } = this.props;
+    const { queryString } = this.props;
     const { data }: any = await client.query({
-      query: gql(queryString),
-      variables: { where }
+      query: gql(queryString)
     });
 
     this.setState({ data });

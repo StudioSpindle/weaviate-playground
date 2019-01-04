@@ -89,7 +89,7 @@ const onMouseOutLink = (source: any, target: any) => {
   console.log(`Mouse out link between ${source} and ${target}`);
 };
 
-class Canvas extends React.Component<ICanvasProps, ICanvasState> {
+class Canvas extends React.PureComponent<ICanvasProps, ICanvasState> {
   constructor(props: ICanvasProps) {
     super(props);
     this.state = { graph: { focusedNodeId: undefined, links: [], nodes: [] } };
@@ -174,11 +174,11 @@ class Canvas extends React.Component<ICanvasProps, ICanvasState> {
             const targetTypename = isLocal
               ? get(
                   queryResult,
-                  `data.Local.Get.${classType}.${className}[0].${fieldNameCapitalized}.__typename`
+                  `data.Local.Get.${classType}.${className}.0.${fieldNameCapitalized}.__typename`
                 )
               : get(
                   queryResult,
-                  `data.Network.Get.${classLocation}.${classType}.${className}[0].${fieldNameCapitalized}.__typename`
+                  `data.Network.Get.${classLocation}.${classType}.${className}.0.${fieldNameCapitalized}.__typename`
                 );
 
             // Create link when linking class is in canvas

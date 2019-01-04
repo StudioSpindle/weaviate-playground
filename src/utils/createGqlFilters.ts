@@ -58,13 +58,24 @@ export default (path: string[], filters: any) => {
     operands = operands.filter(Boolean);
 
     if (operands.length === 0) {
-      return null;
+      return undefined;
     }
 
-    return {
+    const obj = {
       operands,
       operator: 'And'
     };
+
+    const filterString = JSON.stringify(obj);
+
+    return filterString
+      .replace(/\"([^(\")"]+)\":/g, '$1:')
+      .replace(new RegExp('"GreaterThanEqual"', 'g'), 'GreaterThanEqual')
+      .replace(new RegExp('"LessThanEqual"', 'g'), 'LessThanEqual')
+      .replace(new RegExp('"Equal"', 'g'), 'Equal')
+      .replace(new RegExp('"And"', 'g'), 'And')
+      .replace(new RegExp('"Or"', 'g'), 'Or');
   }
-  return null;
+
+  return undefined;
 };

@@ -1,7 +1,6 @@
 import Typography from '@material-ui/core/Typography';
 import React from 'react';
 import { Results, ResultsFragment, Section } from 'src/components';
-import { IWeaviateLocalGetWhereInpObj } from 'src/types';
 import { createGqlFragments } from 'src/utils';
 import { ClassId } from '../canvas/Canvas';
 import {
@@ -12,7 +11,6 @@ import { CLASS_QUERY, ClassQuery } from './queries';
 
 export interface IFragment {
   queryString: string;
-  where?: IWeaviateLocalGetWhereInpObj;
 }
 
 interface IResultsContainerState {
@@ -62,24 +60,8 @@ class ResultsContainer extends React.Component<{}, IResultsContainerState> {
 
     const queryString = createGqlFragments(fragments);
 
-    const localKeys = fragmentKeys.filter(fragmentKey =>
-      fragmentKey.startsWith('local')
-    );
-
-    const operands = localKeys
-      .filter(fragmentKey => Boolean(fragments[fragmentKey].where))
-      .map(fragmentKey => fragments[fragmentKey].where);
-
-    const where = operands.length
-      ? ({
-          operands,
-          operator: 'And'
-        } as IWeaviateLocalGetWhereInpObj)
-      : undefined;
-
     return {
-      queryString,
-      where
+      queryString
     };
   }
 
@@ -141,12 +123,7 @@ class ResultsContainer extends React.Component<{}, IResultsContainerState> {
                   );
                 })}
 
-                {fragments && (
-                  <Results
-                    queryString={fragments.queryString}
-                    where={fragments.where}
-                  />
-                )}
+                {fragments && <Results queryString={fragments.queryString} />}
               </React.Fragment>
             );
           }}

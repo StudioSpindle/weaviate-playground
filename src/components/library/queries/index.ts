@@ -1,3 +1,3 @@
-export * from './GetClassesFilters';
-export * from './GetSelectedClasses';
-export * from './UpdateClassesFilters';
+export * from './ClassesFiltersQuery';
+export * from './SelectedClassesQuery';
+export * from './UpdateClassesFiltersMutation';

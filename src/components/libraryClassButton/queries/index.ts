@@ -1,2 +1,2 @@
-export * from './GetLibraryClassButton';
-export * from './UpdateSelectedClasses';
+export * from './LibraryClassButtonQuery';
+export * from './SelectedClassesMutation';

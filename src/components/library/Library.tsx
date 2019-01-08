@@ -1,3 +1,6 @@
+import { Theme } from '@material-ui/core/styles/createMuiTheme';
+import createStyles from '@material-ui/core/styles/createStyles';
+import withStyles, { WithStyles } from '@material-ui/core/styles/withStyles';
 import * as React from 'react';
 import {
   LibraryClasses,
@@ -7,27 +10,34 @@ import {
   Section
 } from 'src/components';
 import {
-  GET_CLASSES_FILTERS,
-  GET_SELECTED_CLASSES,
-  GetClassesFiltersQuery,
-  GetSelectedClassesQuery
+  CLASSES_FILTERS_QUERY,
+  ClassesFiltersQuery,
+  SELECTED_CLASSES_QUERY,
+  SelectedClassesQuery
 } from 'src/components/library/queries';
-import styled from 'styled-components';
 
 /**
- * Styled components
+ * Types
  */
-const ClassContainer = styled.div`
-  max-height: 25vh;
-  overflow: scroll;
-`;
+interface ILibraryProps extends WithStyles<typeof styles> {}
+
+/**
+ * Styles
+ */
+const styles = (theme: Theme) =>
+  createStyles({
+    classContainer: {
+      maxHeight: '25vh',
+      overflow: 'scroll'
+    }
+  });
 
 /**
  * Library component: renders class selection with filter options
  */
-const Library = () => (
+const Library: React.SFC<ILibraryProps> = ({ classes }) => (
   <Section title="Library">
-    <GetClassesFiltersQuery query={GET_CLASSES_FILTERS}>
+    <ClassesFiltersQuery query={CLASSES_FILTERS_QUERY}>
       {classesFiltersQuery => {
         if (classesFiltersQuery.loading) {
           return 'Loading...';
@@ -55,7 +65,7 @@ const Library = () => (
               selectedClassType={selectedClassType}
             />
 
-            <GetSelectedClassesQuery query={GET_SELECTED_CLASSES}>
+            <SelectedClassesQuery query={SELECTED_CLASSES_QUERY}>
               {selectedClassesQuery => {
                 if (selectedClassesQuery.loading) {
                   return 'Loading...';
@@ -72,18 +82,18 @@ const Library = () => (
                 const selectedClasses =
                   selectedClassesQuery.data.canvas.selectedClasses;
                 return (
-                  <ClassContainer>
+                  <div className={classes.classContainer}>
                     <LibraryClassSelection selectedClasses={selectedClasses} />
                     <LibraryClasses />
-                  </ClassContainer>
+                  </div>
                 );
               }}
-            </GetSelectedClassesQuery>
+            </SelectedClassesQuery>
           </React.Fragment>
         );
       }}
-    </GetClassesFiltersQuery>
+    </ClassesFiltersQuery>
   </Section>
 );
 
-export default Library;
+export default withStyles(styles)(Library);

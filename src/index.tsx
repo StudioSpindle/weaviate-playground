@@ -2,10 +2,10 @@ import { MuiThemeProvider } from '@material-ui/core/styles';
 import * as React from 'react';
 import { ApolloProvider } from 'react-apollo';
 import * as ReactDOM from 'react-dom';
-import client from 'src/apolloClient';
+import client from 'src/apollo/apolloClient';
 import { App } from 'src/components';
 import registerServiceWorker from 'src/registerServiceWorker';
-import theme from './materialTheme';
+import theme from './themes/default';
 
 ReactDOM.render(
   <ApolloProvider client={client}>

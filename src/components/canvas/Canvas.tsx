@@ -2,13 +2,16 @@ import { createStyles, withStyles, WithStyles } from '@material-ui/core/styles';
 import { Theme } from '@material-ui/core/styles/createMuiTheme';
 import withTheme from '@material-ui/core/styles/withTheme';
 import Typography from '@material-ui/core/Typography';
+import get from 'get-value';
 import gql from 'graphql-tag';
 import * as React from 'react';
 import { compose } from 'react-apollo';
 import { Graph } from 'react-d3-graph';
-import client from 'src/apolloClient';
+import client from 'src/apollo/apolloClient';
 import { CanvasClass } from 'src/components';
-import { GET_META_TYPE } from '../filters/queries';
+import { createGqlGet } from 'src/utils';
+import { META_TYPE_QUERY } from '../filters/queries';
+import { SELECTED_CLASS_QUERY, SelectedClassQuery } from './queries';
 
 /**
  * Types
@@ -35,6 +38,7 @@ interface ICanvasProps extends WithStyles<typeof styles> {
 
 interface ICanvasState {
   graph: {
+    focusedNodeId?: ClassId;
     links: ID3Link[];
     nodes: ID3Node[];
   };
@@ -64,6 +68,9 @@ const styles = (theme: Theme) =>
       flexDirection: 'column',
       justifyContent: 'center',
       padding: '32px 48px'
+    },
+    noNodesText: {
+      color: theme.palette.grey[400]
     }
   });
 
@@ -82,10 +89,10 @@ const onMouseOutLink = (source: any, target: any) => {
   console.log(`Mouse out link between ${source} and ${target}`);
 };
 
-class Canvas extends React.Component<ICanvasProps, ICanvasState> {
+class Canvas extends React.PureComponent<ICanvasProps, ICanvasState> {
   constructor(props: ICanvasProps) {
     super(props);
-    this.state = { graph: { links: [], nodes: [] } };
+    this.state = { graph: { focusedNodeId: undefined, links: [], nodes: [] } };
   }
 
   public componentDidMount() {
@@ -101,7 +108,7 @@ class Canvas extends React.Component<ICanvasProps, ICanvasState> {
 
   public async getMetaType(typename: string) {
     const { data }: any = await client.query({
-      query: GET_META_TYPE,
+      query: META_TYPE_QUERY,
       variables: { typename }
     });
     return data;
@@ -146,35 +153,33 @@ class Canvas extends React.Component<ICanvasProps, ICanvasState> {
         // Get the id of the linking class
         const links = await Promise.all(
           metaDataLinkingClassFields.map(async (linkingField: any) => {
-            const classLocationCapitalized =
-              classLocation.charAt(0).toUpperCase() + classLocation.slice(1);
             const fieldName = linkingField.__type.name;
             const fieldNameCapitalized =
               fieldName.charAt(0).toUpperCase() + fieldName.slice(1);
-            const queryString = `
-              query MetaDataForFilter {
-                ${classLocationCapitalized} {
-                  Get {
-                    ${classType} {
-                      ${className} {
-                        ${fieldNameCapitalized} {
-                          __typename
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            `;
+            const isLocal = classLocation === 'local';
+
+            const queryString = createGqlGet({
+              classLocation,
+              className,
+              classType,
+              properties: `${fieldNameCapitalized} { __typename }`,
+              reference: 'GetTypeName',
+              type: 'Get'
+            });
 
             const queryResult: any = await client.query({
               query: gql(queryString)
             });
 
-            const targetTypename =
-              queryResult.data[classLocationCapitalized].Get[classType][
-                className
-              ][0][fieldNameCapitalized].__typename;
+            const targetTypename = isLocal
+              ? get(
+                  queryResult,
+                  `data.Local.Get.${classType}.${className}.0.${fieldNameCapitalized}.__typename`
+                )
+              : get(
+                  queryResult,
+                  `data.Network.Get.${classLocation}.${classType}.${className}.0.${fieldNameCapitalized}.__typename`
+                );
 
             // Create link when linking class is in canvas
             const classIdTarget = `${classLocation}-${classType}-${targetTypename}`;
@@ -217,6 +222,7 @@ class Canvas extends React.Component<ICanvasProps, ICanvasState> {
     });
 
     const selectedClasses = data.canvas.selectedClasses;
+
     const graph = {
       links: await this.getLinks(selectedClasses),
       nodes: await this.getClasses(selectedClasses)
@@ -230,6 +236,11 @@ class Canvas extends React.Component<ICanvasProps, ICanvasState> {
     const { classes, width, height, theme } = this.props;
 
     const config = {
+      automaticRearrangeAfterDropNode: true,
+      d3: {
+        gravity: -1200
+      },
+      directed: true,
       height,
       link: {
         highlightColor: theme.palette.secondary.main
@@ -249,24 +260,49 @@ class Canvas extends React.Component<ICanvasProps, ICanvasState> {
       return (
         <div className={classes.container}>
           <div className={classes.messageBox}>
-            <Typography variant="h6" gutterBottom={true}>
+            <Typography
+              variant="h6"
+              gutterBottom={true}
+              className={classes.noNodesText}
+            >
               There are no nodes in the playground
             </Typography>
-            <Typography>Add nodes from the library</Typography>
+            <Typography className={classes.noNodesText}>
+              Add nodes from the library
+            </Typography>
           </div>
         </div>
       );
     }
 
     return (
-      <Graph
-        id="canvas"
-        data={graph}
-        config={config}
-        onClickLink={onClickLink}
-        onMouseOverLink={onMouseOverLink}
-        onMouseOutLink={onMouseOutLink}
-      />
+      <SelectedClassQuery query={SELECTED_CLASS_QUERY}>
+        {(selectedClassQuery: any) => {
+          if (selectedClassQuery.loading) {
+            return 'Loading...';
+          }
+
+          if (selectedClassQuery.error) {
+            return (
+              <Typography color="error">
+                {selectedClassQuery.error.message}
+              </Typography>
+            );
+          }
+
+          const focusedNodeId = selectedClassQuery.data.canvas.selectedClass.id;
+          return (
+            <Graph
+              id="canvas"
+              data={{ ...graph, focusedNodeId }}
+              config={config}
+              onClickLink={onClickLink}
+              onMouseOverLink={onMouseOverLink}
+              onMouseOutLink={onMouseOutLink}
+            />
+          );
+        }}
+      </SelectedClassQuery>
     );
   }
 }

@@ -1,21 +1,12 @@
-import gql from 'graphql-tag';
 import React from 'react';
-import { Query } from 'react-apollo';
 import { LibraryClassButton } from 'src/components';
+import { CLASS_IDS_QUERY, ClassIdsQuery } from './queries';
 
 /**
  * LibraryClasses: fetches classes for selection made in Library
  */
 const LibraryClasses: React.SFC = () => (
-  <Query
-    query={gql`
-      query classIds {
-        canvas @client {
-          classIds
-        }
-      }
-    `}
-  >
+  <ClassIdsQuery query={CLASS_IDS_QUERY}>
     {(query: any) => {
       const classIds = query.data.canvas.classIds;
       return (
@@ -26,7 +17,7 @@ const LibraryClasses: React.SFC = () => (
         </ul>
       );
     }}
-  </Query>
+  </ClassIdsQuery>
 );
 
 export default LibraryClasses;

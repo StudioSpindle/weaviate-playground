@@ -3,7 +3,10 @@ import Switch, { SwitchProps } from '@material-ui/core/Switch';
 import Typography from '@material-ui/core/Typography';
 import * as React from 'react';
 import { IDefaultFilterProps } from 'src/components/filter/Filter';
-import { TOGGLE_SWITCH_MUTATION, ToggleSwitchMutation } from './queries';
+import {
+  FILTER_TOGGLE_SWITCH_MUTATION,
+  FilterToggleSwitchMutation
+} from './queries';
 
 export interface IToggleSwitchProps extends SwitchProps, IDefaultFilterProps {
   label?: string;
@@ -27,8 +30,8 @@ class ToggleSwitch extends React.Component<IToggleSwitchProps> {
     return (
       <Grid container={true} spacing={24} alignItems="center">
         <Grid item={true}>
-          <ToggleSwitchMutation
-            mutation={TOGGLE_SWITCH_MUTATION}
+          <FilterToggleSwitchMutation
+            mutation={FILTER_TOGGLE_SWITCH_MUTATION}
             variables={{
               classId,
               filterName,
@@ -44,7 +47,7 @@ class ToggleSwitch extends React.Component<IToggleSwitchProps> {
                 {...rest}
               />
             )}
-          </ToggleSwitchMutation>
+          </FilterToggleSwitchMutation>
         </Grid>
         {label && (
           <Grid item={true}>

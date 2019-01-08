@@ -1,2 +1,2 @@
-export * from './GetMetaData';
-export * from './GetSelectedClass';
+export * from './ClassFiltersQuery';
+export * from './SelectedClassQuery';

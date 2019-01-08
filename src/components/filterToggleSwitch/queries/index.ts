@@ -1,1 +1,1 @@
-export * from './FilterToggleSwitch';
+export * from './FilterToggleSwitchMutation';

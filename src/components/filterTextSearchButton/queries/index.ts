@@ -1,1 +1,1 @@
-export * from 'src/components/filterTextSearchButton/queries/ToggleFilterTextSearchButton';
+export * from 'src/components/filterTextSearchButton/queries/ToggleFilterTextSearchButtonMutation';

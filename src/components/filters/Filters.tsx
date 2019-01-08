@@ -1,24 +1,41 @@
+import { Theme } from '@material-ui/core/styles/createMuiTheme';
+import createStyles from '@material-ui/core/styles/createStyles';
+import withStyles, { WithStyles } from '@material-ui/core/styles/withStyles';
+import Typography from '@material-ui/core/Typography';
 import * as React from 'react';
-import { Filter, Section, Text } from 'src/components';
+import { Filter, Section } from 'src/components';
 import {
-  GET_META_TYPE,
-  GET_SELECTED_CLASS,
-  GetMetaTypeQuery,
-  GetSelectedClassQuery
+  META_TYPE_QUERY,
+  MetaTypeQuery,
+  SELECTED_CLASS_QUERY,
+  SelectedClassQuery
 } from 'src/components/filters/queries';
-import styled from 'styled-components';
 
-const TextContainer = styled.div`
-  padding: 2em;
-`;
+/**
+ * Types
+ */
+interface IFiltersProps extends WithStyles<typeof styles> {}
+
+/**
+ * Styles
+ */
+const styles = (theme: Theme) =>
+  createStyles({
+    inactiveText: {
+      color: theme.palette.grey[400]
+    },
+    textContainer: {
+      padding: '2em'
+    }
+  });
 
 const defaultErrorMessage = 'An error has occured';
 
 /**
  * Dynamically fetches filters for a specific Class
  */
-const Filters = () => (
-  <GetSelectedClassQuery query={GET_SELECTED_CLASS}>
+const Filters: React.SFC<IFiltersProps> = ({ classes }) => (
+  <SelectedClassQuery query={SELECTED_CLASS_QUERY}>
     {selectedClassQuery => {
       /**
        * Get the Class that is selected on canvas
@@ -30,13 +47,13 @@ const Filters = () => (
       if (selectedClassQuery.error || !selectedClassQuery.data) {
         return (
           <Section title={`Filters`}>
-            <TextContainer>
-              <Text color="gray" colorvariant="gray4">
+            <div className={classes.textContainer}>
+              <Typography color="error">
                 {(selectedClassQuery.error &&
                   selectedClassQuery.error.message) ||
                   defaultErrorMessage}
-              </Text>
-            </TextContainer>
+              </Typography>
+            </div>
           </Section>
         );
       }
@@ -46,11 +63,11 @@ const Filters = () => (
       if (name === '') {
         return (
           <Section title={`Filters`}>
-            <TextContainer>
-              <Text color="gray" colorvariant="gray4">
+            <div className={classes.textContainer}>
+              <Typography className={classes.inactiveText}>
                 Please select a class from the canvas to display filters
-              </Text>
-            </TextContainer>
+              </Typography>
+            </div>
           </Section>
         );
       }
@@ -60,8 +77,8 @@ const Filters = () => (
        */
       return (
         <Section title={`Filters for ${name}`}>
-          <GetMetaTypeQuery
-            query={GET_META_TYPE}
+          <MetaTypeQuery
+            query={META_TYPE_QUERY}
             variables={{ typename: `Meta${name}` }}
           >
             {metaTypeQuery => {
@@ -75,12 +92,12 @@ const Filters = () => (
                 !metaTypeQuery.data.__type
               ) {
                 return (
-                  <TextContainer>
-                    <Text color="gray" colorvariant="gray4">
+                  <div className={classes.textContainer}>
+                    <Typography>
                       {(metaTypeQuery.error && metaTypeQuery.error.message) ||
                         defaultErrorMessage}
-                    </Text>
-                  </TextContainer>
+                    </Typography>
+                  </div>
                 );
               }
 
@@ -99,11 +116,11 @@ const Filters = () => (
                   />
                 ));
             }}
-          </GetMetaTypeQuery>
+          </MetaTypeQuery>
         </Section>
       );
     }}
-  </GetSelectedClassQuery>
+  </SelectedClassQuery>
 );
 
-export default Filters;
+export default withStyles(styles)(Filters);

@@ -15,19 +15,18 @@ import {
   RangeSlider,
   ToggleSwitch
 } from 'src/components';
+import { META_TYPE_QUERY, MetaTypeQuery } from 'src/components/filters/queries';
 import {
-  GET_META_TYPE,
-  GetMetaTypeQuery
-} from 'src/components/filters/queries';
-import {
-  TOGGLE_SWITCH_MUTATION,
-  ToggleSwitchMutation
+  FILTER_TOGGLE_SWITCH_MUTATION,
+  FilterToggleSwitchMutation
 } from 'src/components/filterToggleSwitch/queries';
 import translations from 'src/translations/en';
-import { unCamelCase } from 'src/utils';
+import { createGqlGet, unCamelCase } from 'src/utils';
 import {
-  GET_SELECTED_CLASS_FOR_FILTER,
-  GetSelectedClassForFilterQuery
+  CLASS_FILTERS_QUERY,
+  ClassFiltersQuery,
+  SELECTED_CLASS_FOR_FILTER_QUERY,
+  SelectedClassForFilterQuery
 } from './queries';
 
 /**
@@ -71,7 +70,7 @@ const getTypename = (parentTypename: string, fieldName: string) =>
     `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)}Obj`
   );
 
-const createQueryString = (parentTypename: string, fields: any) =>
+const createProperties = (parentTypename: string, fields: any) =>
   fields
     .map((field: any) => {
       if (field.type.name || field.name === 'pointingTo') {
@@ -101,7 +100,7 @@ class Filter extends React.Component<IFilterProps> {
           <Typography className={classes.text}>{unCamelCase(name)}</Typography>
         </ExpansionPanelSummary>
         <ExpansionPanelDetails classes={{ root: classes.details }}>
-          <GetMetaTypeQuery query={GET_META_TYPE} variables={{ typename }}>
+          <MetaTypeQuery query={META_TYPE_QUERY} variables={{ typename }}>
             {metaTypeQuery => {
               if (metaTypeQuery.loading) {
                 return 'Loading...';
@@ -116,8 +115,8 @@ class Filter extends React.Component<IFilterProps> {
               }
 
               return (
-                <GetSelectedClassForFilterQuery
-                  query={GET_SELECTED_CLASS_FOR_FILTER}
+                <SelectedClassForFilterQuery
+                  query={SELECTED_CLASS_FOR_FILTER_QUERY}
                 >
                   {selectedClassQuery => {
                     if (selectedClassQuery.loading) {
@@ -152,31 +151,24 @@ class Filter extends React.Component<IFilterProps> {
                       classNameAlt ||
                       selectedClassQuery.data.canvas.selectedClass.name;
 
-                    const queryString = createQueryString(
+                    const properties = createProperties(
                       typename,
                       metaTypeQuery.data.__type.fields
                     );
 
-                    const qs = `
-                      query MetaDataForFilter {
-                        ${classLocation} {
-                          GetMeta {
-                            ${classType} {
-                              ${className} {
-                                ${name} {
-                                  ${queryString}
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    `;
+                    const queryString = createGqlGet({
+                      classLocation,
+                      className,
+                      classType,
+                      properties: `${name} { ${properties} }`,
+                      reference: 'MetaDataForFilter',
+                      type: 'GetMeta'
+                    });
 
-                    const query = gql(qs);
+                    const FILTER_META_QUERY = gql(queryString);
 
                     return (
-                      <Query query={query} variables={{ id }}>
+                      <Query query={FILTER_META_QUERY}>
                         {filterMetaQuery => {
                           /**
                            * Get meta data for filter
@@ -187,17 +179,21 @@ class Filter extends React.Component<IFilterProps> {
 
                           if (filterMetaQuery.error) {
                             return (
-                              <Typography color="error">
-                                {filterMetaQuery.error.message}
-                              </Typography>
+                              <ExpansionPanelSummary>
+                                <Typography color="error">
+                                  {filterMetaQuery.error.message}
+                                </Typography>
+                              </ExpansionPanelSummary>
                             );
                           }
 
                           if (!filterMetaQuery.data) {
                             return (
-                              <Typography color="error">
-                                {translations.defaultError}
-                              </Typography>
+                              <ExpansionPanelSummary>
+                                <Typography color="error">
+                                  {translations.defaultError}
+                                </Typography>
+                              </ExpansionPanelSummary>
                             );
                           }
 
@@ -206,17 +202,11 @@ class Filter extends React.Component<IFilterProps> {
                               classType
                             ][className][name];
 
-                          const queryX = gql`
-                            query ClassFilters {
-                              class(id: $id) @client {
-                                id
-                                filters
-                              }
-                            }
-                          `;
-
                           return (
-                            <Query query={queryX} variables={{ id }}>
+                            <ClassFiltersQuery
+                              query={CLASS_FILTERS_QUERY}
+                              variables={{ id }}
+                            >
                               {classFiltersQuery => {
                                 /**
                                  * Get meta data for filter
@@ -253,8 +243,8 @@ class Filter extends React.Component<IFilterProps> {
                                   filterValue
                                 };
                                 return (
-                                  <ToggleSwitchMutation
-                                    mutation={TOGGLE_SWITCH_MUTATION}
+                                  <FilterToggleSwitchMutation
+                                    mutation={FILTER_TOGGLE_SWITCH_MUTATION}
                                     variables={{
                                       classId: id,
                                       filterName: name,
@@ -301,22 +291,28 @@ class Filter extends React.Component<IFilterProps> {
                                             />
                                           );
                                         default:
-                                          return 'Unknown filter type';
+                                          return (
+                                            <ExpansionPanelSummary>
+                                              <Typography color="error">
+                                                Unknown filter type
+                                              </Typography>
+                                            </ExpansionPanelSummary>
+                                          );
                                       }
                                     }}
-                                  </ToggleSwitchMutation>
+                                  </FilterToggleSwitchMutation>
                                 );
                               }}
-                            </Query>
+                            </ClassFiltersQuery>
                           );
                         }}
                       </Query>
                     );
                   }}
-                </GetSelectedClassForFilterQuery>
+                </SelectedClassForFilterQuery>
               );
             }}
-          </GetMetaTypeQuery>
+          </MetaTypeQuery>
         </ExpansionPanelDetails>
       </ExpansionPanel>
     );

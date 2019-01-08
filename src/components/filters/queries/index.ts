@@ -1,2 +1,2 @@
-export * from './GetMetaType';
-export * from './GetSelectedClass';
+export * from './MetaTypeQuery';
+export * from './SelectedClassQuery';

@@ -1,116 +1,87 @@
+import { Theme } from '@material-ui/core/styles/createMuiTheme';
+import createStyles from '@material-ui/core/styles/createStyles';
+import withStyles, { WithStyles } from '@material-ui/core/styles/withStyles';
 import * as React from 'react';
 import {
   CanvasContainer,
   ClassIntrospector,
   Filters,
+  Footer,
   Header,
   Library,
-  Section
+  ResultsContainer
 } from 'src/components';
-import styled, { injectGlobal } from 'styled-components';
 
 /**
  * Types
  */
-interface IAsideProps {
-  alignRight?: boolean;
-}
+interface IAppProps extends WithStyles<typeof styles> {}
 
 /**
- * Global styles for app
+ * Styles
  */
-// tslint:disable-next-line:no-unused-expression
-injectGlobal`
-  *, *::before, *::after {
-    box-sizing: inherit;
-    margin: 0;
-    padding: 0;
-    vertical-align: baseline;
-  }
-
-  html {
-    text-size-adjust: 100%;
-  }
-
-  body, #root {
-    display: flex;
-    min-height: 100vh;
-    flex-direction: column;
-    margin: 0;
-  }
-
-  a {
-    transition: background .256s ease-out,border-color .256s ease-out,border-radius .256s ease-out,color .256s ease-out,opacity .256s ease-out,outline .256s ease-out,transform .256s ease-out,-webkit-transform .256s ease-out;
-    border-bottom: 2px solid #b0a002;
-    color: #304a6c;
-    outline: none;
-    text-decoration: none;
-  }
-
-  input {
-    font-family: "Alegreya Sans",sans-serif;
-    font-kerning: auto;
-    font-variant-ligatures: common-ligatures;
-    font-size: 1em;
-  }
-`;
-
-/**
- * Styled components
- */
-const Footer = styled.footer`
-  max-height: 50px;
-  height: 50px;
-  background: #ccc;
-  flex: 1 0 0;
-`;
-
-const Main = styled.main`
-  display: flex;
-  flex: 1;
-`;
-
-// const Zoom = styled.div`
-//   position: absolute;
-//   left: 50px;
-//   bottom: 100px;
-//   height: 100px;
-//   width: 50px;
-//   background: #ccc;
-// `;
-
-const Aside = styled<IAsideProps, 'aside'>('aside')`
-  position: absolute;
-  ${props => (props.alignRight ? 'right: 50px;' : 'left: 50px;')};
-  margin-top: 50px;
-`;
+const styles = (theme: Theme) =>
+  createStyles({
+    '@global': {
+      '*, *::before, *::after': {
+        boxSizing: 'inherit',
+        margin: 0,
+        padding: 0,
+        verticalAlign: 'baseline'
+      },
+      'body, #root': {
+        display: 'flex',
+        flexDirection: 'column',
+        margin: 0,
+        minHeight: '100vh'
+      },
+      html: {
+        textSizeAdjust: '100%'
+      },
+      input: {
+        fontFamily: theme.typography.fontFamily,
+        fontKerning: 'auto',
+        fontSize: '1em',
+        fontVariantLigatures: 'common-ligatures'
+      }
+    },
+    aside: {
+      marginTop: '50px',
+      position: 'absolute'
+    },
+    main: {
+      display: 'flex',
+      flex: 1
+    }
+  });
 
 /**
  * App component: renders main UI elements
  */
-class App extends React.Component {
+class App extends React.Component<IAppProps> {
   public render() {
+    const { classes } = this.props;
     return (
       <React.Fragment>
         <Header />
-        <Main>
+        <main className={classes.main}>
           <ClassIntrospector>
-            <Aside>
+            <aside className={classes.aside} style={{ left: '50px' }}>
               <Library />
               <Filters />
-            </Aside>
+            </aside>
 
             <CanvasContainer />
 
-            <Aside alignRight={true}>
-              <Section title="Results">Results</Section>
-            </Aside>
+            <aside className={classes.aside} style={{ right: '50px' }}>
+              <ResultsContainer />
+            </aside>
           </ClassIntrospector>
-        </Main>
-        <Footer>Support bar</Footer>
+        </main>
+        <Footer />
       </React.Fragment>
     );
   }
 }
 
-export default App;
+export default withStyles(styles)(App);

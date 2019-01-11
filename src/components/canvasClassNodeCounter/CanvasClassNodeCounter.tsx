@@ -56,7 +56,9 @@ class CanvasClassNodeCounter extends React.PureComponent<
 
     const Circle = ({ count }: { count?: number | string }) => (
       <div className={classes.circle} style={{ borderColor }}>
-        <Typography className={classes.text}>{count || '?'}</Typography>
+        <Typography className={classes.text}>
+          {!count && count !== 0 ? '?' : count}
+        </Typography>
       </div>
     );
     return (
@@ -89,9 +91,9 @@ class CanvasClassNodeCounter extends React.PureComponent<
           const where = createGqlFilters(path, JSON.parse(filters));
 
           const queryString = createGqlGet({
-            classLocation,
             className: name,
             classType,
+            instance,
             properties: 'meta { count }',
             reference: 'CanvasClassNodeCounterQuery',
             type: 'GetMeta',
@@ -118,7 +120,7 @@ class CanvasClassNodeCounter extends React.PureComponent<
                 const count = isNetwork
                   ? get(
                       canvasClassNodeCounterQuery,
-                      `data.${classLocation}.${instance}.GetMeta.${classType}.${name}.meta.count`
+                      `data.${classLocation}.GetMeta.${instance}.${classType}.${name}.meta.count`
                     )
                   : get(
                       canvasClassNodeCounterQuery,

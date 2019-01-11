@@ -14,7 +14,7 @@ export interface IFragment {
 }
 
 interface IResultsContainerState {
-  fragments: {};
+  fragments: { [key: string]: any };
 }
 
 class ResultsContainer extends React.Component<{}, IResultsContainerState> {

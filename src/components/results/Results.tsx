@@ -67,7 +67,7 @@ class Results extends React.Component<IResultsProps, IResultsState> {
 
   public render() {
     const { data, selectedTab } = this.state;
-    const { classes } = this.props;
+    const { classes, queryString } = this.props;
 
     return (
       <React.Fragment>
@@ -75,6 +75,7 @@ class Results extends React.Component<IResultsProps, IResultsState> {
           <Tabs value={selectedTab} onChange={this.changeTab}>
             <Tab icon={<SankeyIcon />} />
             <Tab icon={<SwarmIcon />} />
+            <Tab icon={<JsonIcon />} />
             <Tab icon={<JsonIcon />} />
           </Tabs>
         </AppBar>
@@ -88,9 +89,14 @@ class Results extends React.Component<IResultsProps, IResultsState> {
           <div className={classes.tabContainer}>Swarm diagram</div>
         )}
         {selectedTab === 2 && (
-          <div className={classes.tabContainer}>
-            <ResultsJson data={data} />
-          </div>
+          <React.Fragment>
+            <div className={classes.tabContainer}>
+              <ResultsJson data={queryString} />
+            </div>
+            <div className={classes.tabContainer}>
+              <ResultsJson data={JSON.stringify(data, undefined, 4)} />
+            </div>
+          </React.Fragment>
         )}
       </React.Fragment>
     );

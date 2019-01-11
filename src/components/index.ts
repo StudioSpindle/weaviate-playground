@@ -7,7 +7,6 @@ export {
 export {
   default as CanvasContainer
 } from 'src/components/canvasContainer/CanvasContainer';
-export { default as CanvasLink } from 'src/components/canvasLink/CanvasLink';
 export { default as ClassIntrospector } from './library/ClassIntrospector';
 export { default as Filter } from 'src/components/filter/Filter';
 export { default as RangeSlider } from './filterRangeSlider/FilterRangeSlider';

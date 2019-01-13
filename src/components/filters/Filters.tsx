@@ -58,7 +58,8 @@ const Filters: React.SFC<IFiltersProps> = ({ classes }) => (
         );
       }
 
-      const { name } = selectedClassQuery.data.canvas.selectedClass;
+      const { instance, name } = selectedClassQuery.data.canvas.selectedClass;
+      const typename = `${instance === 'Local' ? '' : instance}Meta${name}`;
 
       if (name === '') {
         return (
@@ -76,11 +77,8 @@ const Filters: React.SFC<IFiltersProps> = ({ classes }) => (
        * Get the meta information for the selected Class
        */
       return (
-        <Section title={`Filters for ${name}`}>
-          <MetaTypeQuery
-            query={META_TYPE_QUERY}
-            variables={{ typename: `Meta${name}` }}
-          >
+        <Section title={`Filters for ${name} on ${instance}`}>
+          <MetaTypeQuery query={META_TYPE_QUERY} variables={{ typename }}>
             {metaTypeQuery => {
               if (metaTypeQuery.loading) {
                 return 'Loading...';

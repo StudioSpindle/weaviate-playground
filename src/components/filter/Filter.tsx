@@ -6,6 +6,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { Theme } from '@material-ui/core/styles/createMuiTheme';
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import get from 'get-value';
 import gql from 'graphql-tag';
 import * as React from 'react';
 import { Query } from 'react-apollo';
@@ -70,22 +71,25 @@ const getTypename = (parentTypename: string, fieldName: string) =>
     `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)}Obj`
   );
 
-const createProperties = (parentTypename: string, fields: any) =>
-  fields
+const createProperties = (parentTypename: string, fields: any[]) => {
+  if (!fields) {
+    return '__typename';
+  }
+
+  return fields
     .map((field: any) => {
       if (field.type.name || field.name === 'pointingTo') {
         return `${field.name}`;
       }
-
       if (field.name === 'topOccurrences') {
         return `${field.name} { value, occurs }`;
       }
-
       // tslint:disable-next-line:no-console
       console.log(`Couldn't fetch ${getTypename(parentTypename, field.name)}`);
       return null;
     })
     .join();
+};
 
 /**
  * Filter component: dynamically fetches filter specs and renders filter
@@ -134,7 +138,7 @@ class Filter extends React.Component<IFilterProps> {
                     if (!selectedClassQuery.data || !metaTypeQuery.data) {
                       return (
                         <Typography color="error">
-                          {translations.defaultError}
+                          1{translations.defaultError}
                         </Typography>
                       );
                     }
@@ -145,21 +149,21 @@ class Filter extends React.Component<IFilterProps> {
                     const {
                       id,
                       classLocation,
-                      classType
+                      classType,
+                      instance
                     } = selectedClassQuery.data.canvas.selectedClass;
                     const className =
                       classNameAlt ||
                       selectedClassQuery.data.canvas.selectedClass.name;
 
-                    const properties = createProperties(
-                      typename,
-                      metaTypeQuery.data.__type.fields
-                    );
+                    const fields = get(metaTypeQuery, 'data.__type.fields');
+
+                    const properties = createProperties(typename, fields);
 
                     const queryString = createGqlGet({
-                      classLocation,
                       className,
                       classType,
+                      instance,
                       properties: `${name} { ${properties} }`,
                       reference: 'MetaDataForFilter',
                       type: 'GetMeta'
@@ -197,10 +201,12 @@ class Filter extends React.Component<IFilterProps> {
                             );
                           }
 
-                          const metaData =
-                            filterMetaQuery.data[classLocation].GetMeta[
-                              classType
-                            ][className][name];
+                          const metaData = get(
+                            filterMetaQuery,
+                            `data.${classLocation}.GetMeta.${
+                              instance === 'Local' ? '' : `${instance}.`
+                            }${classType}.${className}.${name}`
+                          );
 
                           return (
                             <ClassFiltersQuery
@@ -294,7 +300,8 @@ class Filter extends React.Component<IFilterProps> {
                                           return (
                                             <ExpansionPanelSummary>
                                               <Typography color="error">
-                                                Unknown filter type
+                                                Unknown filter type{' '}
+                                                {metaData.type}
                                               </Typography>
                                             </ExpansionPanelSummary>
                                           );

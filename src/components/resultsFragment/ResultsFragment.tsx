@@ -44,18 +44,16 @@ class ResultsFragment extends React.Component<IResultsFragmentProps> {
     removeFragment(classObj.id);
   }
 
-  public async fetchMetaType(): Promise<any> {
-    const { classObj } = this.props;
-
+  public async fetchMetaType(typename: string): Promise<any> {
     return await client.query({
       query: META_TYPE_QUERY,
-      variables: { typename: classObj.name }
+      variables: { typename }
     });
   }
 
   public async addFragment() {
     const { addFragment, classObj, cleanString } = this.props;
-    const { classLocation, classType, id, filters, name } = classObj;
+    const { classType, id, instance, filters, name } = classObj;
 
     if (!classObj) {
       return null;
@@ -64,8 +62,14 @@ class ResultsFragment extends React.Component<IResultsFragmentProps> {
     const where = createGqlFilters(path, JSON.parse(filters));
 
     const reference = cleanString(id);
+    const typename = instance === 'Local' ? name : `${instance}${name}`;
+    const metaQuery = await this.fetchMetaType(typename);
 
-    const metaQuery = await this.fetchMetaType();
+    if (!metaQuery.data.__type) {
+      // tslint:disable-next-line:no-console
+      console.log(`Missing meta data for ${name}`);
+      return null;
+    }
 
     const createProperties = (fields: any) =>
       fields
@@ -81,7 +85,7 @@ class ResultsFragment extends React.Component<IResultsFragmentProps> {
     const properties = createProperties(metaQuery.data.__type.fields);
 
     const queryString = createGqlFragment({
-      classLocation,
+      classLocation: instance,
       className: name,
       classType,
       properties,

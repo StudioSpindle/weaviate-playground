@@ -1,5 +1,5 @@
 export interface ICreateGqlGetProps {
-  classLocation: string;
+  instance: string;
   className: string;
   classType: string;
   properties: string;
@@ -9,21 +9,21 @@ export interface ICreateGqlGetProps {
 }
 
 export default ({
-  classLocation,
   className,
   classType,
+  instance,
   properties,
   reference,
   type,
   where
 }: ICreateGqlGetProps) => {
-  const isLocal = classLocation === 'local' || classLocation === 'Local';
+  const isLocal = instance === 'local' || instance === 'Local';
 
   return `
     query ${reference || 'Get'} {
       ${isLocal ? 'Local' : 'Network'} {
           ${type} {
-            ${isLocal ? '' : `${classLocation} {`}
+            ${isLocal ? '' : `${instance} {`}
               ${classType} {
                 ${className} ${where ? `(where: ${where})` : ''}{
                   ${properties}

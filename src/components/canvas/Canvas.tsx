@@ -22,6 +22,7 @@ export type ClassId = string;
 export interface ID3Link {
   target: ClassId;
   source: ClassId;
+  isActive?: boolean;
 }
 
 export interface ID3Node {
@@ -74,11 +75,6 @@ const styles = (theme: Theme) =>
     }
   });
 
-const onClickLink = (source: any, target: any, and: any) => {
-  // tslint:disable-next-line:no-console
-  console.log(`Clicked link between ${source} and ${target}`);
-};
-
 const onMouseOverLink = (source: any, target: any) => {
   // tslint:disable-next-line:no-console
   console.log(`Mouse over in link between ${source} and ${target}`);
@@ -124,12 +120,22 @@ class Canvas extends React.PureComponent<ICanvasProps, ICanvasState> {
     const selectedClassesLinksPromises = selectedClasses.map(
       async (classId: string) => {
         const classIdParts = classId.split('-');
-        const classLocation = classIdParts[0];
+        const instance = classIdParts[0];
         const classType = classIdParts[1];
         const className = classIdParts[classIdParts.length - 1];
+        const typename =
+          instance === 'local'
+            ? `Meta${className}`
+            : `${instance}Meta${className}`;
 
         // Get metaData for class
-        const metaTypeClass: any = await this.getMetaType(`Meta${className}`);
+        const metaTypeClass: any = await this.getMetaType(typename);
+
+        if (!metaTypeClass.__type) {
+          // tslint:disable-next-line:no-console
+          console.log(`Missing meta data for ${typename}`);
+          return [];
+        }
 
         // Get metaData for class fields
         const metaDataClassFields = await Promise.all(
@@ -156,12 +162,12 @@ class Canvas extends React.PureComponent<ICanvasProps, ICanvasState> {
             const fieldName = linkingField.__type.name;
             const fieldNameCapitalized =
               fieldName.charAt(0).toUpperCase() + fieldName.slice(1);
-            const isLocal = classLocation === 'local';
+            const isLocal = instance === 'local';
 
             const queryString = createGqlGet({
-              classLocation,
               className,
               classType,
+              instance,
               properties: `${fieldNameCapitalized} { __typename }`,
               reference: 'GetTypeName',
               type: 'Get'
@@ -178,14 +184,15 @@ class Canvas extends React.PureComponent<ICanvasProps, ICanvasState> {
                 )
               : get(
                   queryResult,
-                  `data.Network.Get.${classLocation}.${classType}.${className}.0.${fieldNameCapitalized}.__typename`
+                  `data.Network.Get.${instance}.${classType}.${className}.0.${fieldNameCapitalized}.__typename`
                 );
 
             // Create link when linking class is in canvas
-            const classIdTarget = `${classLocation}-${classType}-${targetTypename}`;
+            const classIdTarget = `${instance}-${classType}-${targetTypename}`;
 
             if (selectedClasses.includes(classIdTarget)) {
               return {
+                color: 'blue',
                 source: classId,
                 target: classIdTarget,
                 value: fieldNameCapitalized
@@ -230,6 +237,27 @@ class Canvas extends React.PureComponent<ICanvasProps, ICanvasState> {
 
     this.setState({ graph });
   }
+
+  public onClickLink = (source: any, target: any) => {
+    const { links } = this.state.graph;
+    const index = links.findIndex(
+      link => link.source === source && link.target === target
+    );
+    const targetLink = links[index];
+    const updatedLink = {
+      ...targetLink,
+      color: 'green',
+      isActive: !targetLink.isActive
+    };
+
+    links[index] = updatedLink;
+    this.setState({
+      graph: {
+        ...this.state.graph,
+        links
+      }
+    });
+  };
 
   public render() {
     const { graph } = this.state;
@@ -296,7 +324,7 @@ class Canvas extends React.PureComponent<ICanvasProps, ICanvasState> {
               id="canvas"
               data={{ ...graph, focusedNodeId }}
               config={config}
-              onClickLink={onClickLink}
+              onClickLink={this.onClickLink}
               onMouseOverLink={onMouseOverLink}
               onMouseOutLink={onMouseOutLink}
             />

@@ -7,6 +7,7 @@ import { Query } from 'react-apollo';
 interface ISelectedClassData {
   canvas: {
     selectedClass: {
+      instance: string;
       name: string;
       filters: object;
     };
@@ -25,6 +26,7 @@ export const SELECTED_CLASS_QUERY = gql`
   query GetSelectedClassForFilters {
     canvas @client {
       selectedClass {
+        instance
         name
         filters
       }

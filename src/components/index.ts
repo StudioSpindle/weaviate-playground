@@ -21,6 +21,9 @@ export {
   default as ToggleSwitch
 } from './filterToggleSwitch/FilterToggleSwitch';
 export { default as Footer } from './footer/Footer';
+export {
+  default as GraphiQLContainer
+} from './graphiQLContainer/GraphiQLContainer';
 export { default as Header } from 'src/components/header/Header';
 export { default as Library } from 'src/components/library/Library';
 export {

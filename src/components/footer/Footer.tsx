@@ -5,6 +5,7 @@ import withStyles, { WithStyles } from '@material-ui/core/styles/withStyles';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import * as React from 'react';
+import { GraphiQLContainer } from 'src/components';
 
 interface IFooterProps extends WithStyles<typeof styles> {}
 
@@ -12,6 +13,9 @@ const styles = (theme: Theme) => ({
   appBar: {
     bottom: 0,
     top: 'auto'
+  },
+  grow: {
+    flexGrow: 1
   },
   toolbar: {
     alignItems: 'center',
@@ -35,6 +39,8 @@ class Footer extends React.Component<IFooterProps> {
         <Divider />
         <Toolbar variant="dense">
           <Typography color="inherit">Add nodes from the library</Typography>
+          <div className={classes.grow} />
+          <GraphiQLContainer />
         </Toolbar>
       </AppBar>
     );

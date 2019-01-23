@@ -21,6 +21,7 @@ export {
   default as ToggleSwitch
 } from './filterToggleSwitch/FilterToggleSwitch';
 export { default as Footer } from './footer/Footer';
+export { default as Graph } from './graph/Graph';
 export {
   default as GraphiQLContainer
 } from './graphiQLContainer/GraphiQLContainer';
@@ -41,6 +42,8 @@ export {
 export {
   default as LibraryTextSearch
 } from 'src/components/libraryTextSearch/LibraryTextSearch';
+export { default as Link } from './link/Link';
+export { default as Node } from './node/Node';
 export { default as Results } from 'src/components/results/Results';
 export {
   default as ResultsContainer

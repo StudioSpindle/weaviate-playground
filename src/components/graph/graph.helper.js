@@ -205,10 +205,10 @@ function _validateGraphData(data) {
             utils.throwErr("Graph", `${ERRORS.INVALID_LINKS} - "${l.target}" is not a valid target node id`);
         }
 
-        if (l && l.value !== undefined && typeof l.value !== "number") {
+        if (l && l.value !== undefined && !(typeof l.value === "number" || typeof l.value === "string")) {
             utils.throwErr(
                 "Graph",
-                `${ERRORS.INVALID_LINK_VALUE} - found in link with source "${l.source}" and target "${l.target}"`
+                `${ERRORS.INVALID_LINK_VALUE} - found in link "${l.value}" with source "${l.source}" and target "${l.target}"`
             );
         }
     }
@@ -398,7 +398,8 @@ function initializeGraphState({
  * and the id of the highlighted node.
  * @memberof Graph/helper
  */
-function updateNodeHighlightedValue(nodes, links, config, id, value = false) {
+function updateNodeHighlightedValue(nodes, links, config, id, value) {
+    value = Boolean(value);
     const highlightedNode = value ? id : "";
     const node = Object.assign({}, nodes[id], {
         highlighted: value

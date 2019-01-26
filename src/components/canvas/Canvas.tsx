@@ -22,6 +22,7 @@ export interface ID3Link {
   target: ClassId;
   source: ClassId;
   isActive?: boolean;
+  value: string;
 }
 
 export interface ID3Node {

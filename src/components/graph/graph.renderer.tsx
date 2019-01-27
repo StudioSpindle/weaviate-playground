@@ -28,8 +28,10 @@ function renderLinks(
 
   return outLinks.map(link => {
     const { source, target, value } = link;
-    const sourceId = typeof source === 'string' ? source : undefined; // source.id;
-    const targetId = typeof source === 'string' ? target : undefined; // target.id;
+    // @ts-ignore
+    const sourceId = typeof source === 'string' ? source : source.id; // source.id;
+    // @ts-ignore
+    const targetId = typeof source === 'string' ? target : target.id; // target.id;
     const key = `${sourceId}${CONST.COORDS_SEPARATOR}${targetId}`;
     const props = buildLinkProps(
       { ...link, source: `${sourceId}`, target: `${targetId}`, value },

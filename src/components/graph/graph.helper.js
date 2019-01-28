@@ -150,6 +150,7 @@ function _mapDataLinkToD3Link(link, index) {
         index,
         source,
         target,
+        value: link.value
     };
 }
 
@@ -238,6 +239,7 @@ function checkForGraphElementsChanges(nextProps, currentState) {
         // FIXME: solve this source data inconsistency later
         source: l.source.id !== undefined && l.source.id !== null ? l.source.id : l.source,
         target: l.target.id !== undefined && l.target.id !== null ? l.target.id : l.target,
+        value: l.value
     }));
     const graphElementsUpdated = !(
         utils.isDeepEqual(nextNodes, stateD3Nodes) && utils.isDeepEqual(nextLinks, stateD3Links)
@@ -256,10 +258,12 @@ function checkForGraphElementsChanges(nextProps, currentState) {
         }))) ||
         !utils.isDeepEqual(nextLinks, stateD3Links.map(({
             source,
-            target
+            target,
+            value
         }) => ({
             source,
-            target
+            target,
+            value
         })));
 
     return {

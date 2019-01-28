@@ -45,7 +45,8 @@ export default class Link extends React.Component<ILink> {
       target,
       value
     } = this.props;
-    const markerWidth = 200;
+    const textValue = value || 'Unkown link';
+    const markerWidth = textValue.length * 15;
     const markerHeight = 60;
     const fontSize = 30;
 
@@ -102,16 +103,18 @@ export default class Link extends React.Component<ILink> {
               style={rectStyle}
             />
             <text
-              x={fontSize * 2}
-              y={(markerHeight - fontSize) / 3 + fontSize}
+              x={(markerWidth - 2 * strokeWidth) / 2}
+              y={(markerHeight - 2 * strokeWidth) / 2}
               width={markerWidth - 2 * strokeWidth}
               height={markerHeight - 2 * strokeWidth}
               fontFamily="Alegreya Sans"
               fontWeight="bold"
-              fontSize={fontSize}
+              fontSize={fontSize / 1.5}
               fill="black"
+              textAnchor="middle"
+              alignmentBaseline="central"
             >
-              {value || 'Unkown link'}
+              {textValue}
             </text>
           </marker>
         </defs>

@@ -1,40 +1,49 @@
 import * as React from 'react';
-import { ID3Link, ID3Node } from '../canvas/Canvas';
 import Link from '../link/Link';
 import Marker from '../marker/Marker';
 import { MARKERS } from '../marker/marker.const';
 import Node from '../node/Node';
 import { isNodeVisible } from './collapse.helper';
-import { IGraphConfig } from './Graph';
 import { buildLinkProps, buildNodeProps } from './graph.builder';
 import CONST from './graph.const';
+import {
+  IGraphConfig,
+  IGraphD3Link,
+  IGraphD3Links,
+  IGraphLink,
+  IGraphLinkCallbacks,
+  IGraphNodeCallbacks,
+  IGraphNodes
+} from './types';
 
-function renderLinks(
-  nodes: ID3Node[],
-  links: ID3Link[],
+const renderLinks = (
+  nodes: IGraphNodes,
+  links: IGraphD3Links,
   linksMatrix: Array<{}>,
   config: IGraphConfig,
-  linkCallbacks: Array<() => void>,
+  linkCallbacks: IGraphLinkCallbacks,
   highlightedNode: string,
-  highlightedLink: {},
+  highlightedLink: IGraphLink,
   transform: number
-) {
+) => {
   let outLinks = links;
 
   if (config.collapsible) {
-    // @ts-ignore
     outLinks = outLinks.filter(({ isHidden }) => !isHidden);
   }
 
   return outLinks.map(link => {
     const { source, target, value } = link;
-    // @ts-ignore
     const sourceId = typeof source === 'string' ? source : source.id; // source.id;
-    // @ts-ignore
     const targetId = typeof source === 'string' ? target : target.id; // target.id;
     const key = `${sourceId}${CONST.COORDS_SEPARATOR}${targetId}`;
     const props = buildLinkProps(
-      { ...link, source: `${sourceId}`, target: `${targetId}`, value },
+      {
+        ...link,
+        source: `${sourceId}`,
+        target: `${targetId}`,
+        value
+      } as IGraphLink,
       nodes,
       linksMatrix,
       config,
@@ -46,22 +55,21 @@ function renderLinks(
 
     return <Link key={key} {...props} />;
   });
-}
+};
 
-function renderNodes(
-  nodes: ID3Node[],
-  nodeCallbacks: Array<() => void>,
+const renderNodes = (
+  nodes: IGraphNodes,
+  nodeCallbacks: IGraphNodeCallbacks,
   config: IGraphConfig,
   highlightedNode: string,
-  highlightedLink: string,
+  highlightedLink: IGraphLink,
   transform: number,
   linksMatrix: Array<{}>
-) {
+) => {
   let outNodes = Object.keys(nodes);
 
   if (config.collapsible) {
     outNodes = outNodes.filter(nodeId =>
-      // @ts-ignore
       isNodeVisible(nodeId, nodes, linksMatrix)
     );
   }
@@ -78,14 +86,14 @@ function renderNodes(
 
     return <Node key={nodeId} {...props} />;
   });
-}
+};
 
 /**
  * Builds graph defs (for now markers, but we could also have gradients for instance).
  * NOTE: defs are static svg graphical objects, thus we only need to render them once, the result
  * is cached on the 1st call and from there we simply return the cached jsx.
  */
-function renderDefs() {
+const renderDefs = () => {
   let cachedDefs: JSX.Element;
 
   return (config: any) => {
@@ -106,7 +114,7 @@ function renderDefs() {
 
     return cachedDefs;
   };
-}
+};
 
 /**
  * Memoized reference for _renderDefs.
@@ -116,30 +124,16 @@ const memoizedRenderDefs = renderDefs();
 /**
  * Method that actually is exported an consumed by Graph component in order to build all Nodes and Link
  * components.
- * @param  {Object.<string, Object>} nodes - an object containing all nodes mapped by their id.
- * @param  {Function[]} nodeCallbacks - array of callbacks for used defined event handler for node interactions.
- * @param  {Array.<Object>} links - array of links {@link #Link|Link}.
- * @param  {Object.<string, Object>} linksMatrix - an object containing a matrix of connections of the graph, for each nodeId,
- * there is an Object that maps adjacent nodes ids (string) and their values (number).
- * @param  {Function[]} linkCallbacks - array of callbacks for used defined event handler for link interactions.
- * @param  {Object} config - an object containing rd3g consumer defined configurations {@link #config config} for the graph.
- * @param  {string} highlightedNode - this value contains a string that represents the some currently highlighted node.
- * @param  {Object} highlightedLink - this object contains a source and target property for a link that is highlighted at some point in time.
- * @param  {string} highlightedLink.source - id of source node for highlighted link.
- * @param  {string} highlightedLink.target - id of target node for highlighted link.
- * @param  {number} transform - value that indicates the amount of zoom transformation.
- * @returns {Object} returns an object containing the generated nodes and links that form the graph.
- * @memberof Graph/renderer
  */
 function renderGraph(
-  nodes: ID3Node[],
-  nodeCallbacks: Array<() => void>,
-  links: ID3Link[],
+  nodes: IGraphNodes,
+  nodeCallbacks: IGraphNodeCallbacks,
+  links: IGraphD3Link[],
   linksMatrix: Array<{}>,
-  linkCallbacks: Array<() => void>,
+  linkCallbacks: IGraphLinkCallbacks,
   config: IGraphConfig,
   highlightedNode: string,
-  highlightedLink: string,
+  highlightedLink: IGraphLink,
   transform: number
 ) {
   return {

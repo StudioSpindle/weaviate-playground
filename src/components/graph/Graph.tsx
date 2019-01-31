@@ -1,5 +1,5 @@
 import { drag as d3Drag } from 'd3-drag';
-import { forceLink as d3ForceLink, SimulationLinkDatum } from 'd3-force';
+import { forceLink as d3ForceLink } from 'd3-force';
 import {
   event as d3Event,
   select as d3Select,
@@ -15,31 +15,11 @@ import DEFAULT_CONFIG from './graph.config';
 import CONST from './graph.const';
 import * as graphHelper from './graph.helper';
 import * as graphRenderer from './graph.renderer';
+import { IGraphConfig, IGraphD3Links, IGraphD3Nodes } from './types';
 
 /**
  * Types
  */
-
-export interface IGraphConfig {
-  automaticRearrangeAfterDropNode: boolean;
-  collapsible: boolean;
-  d3: {
-    alphaTarget: string;
-    linkLength: number;
-    linkStrength: number;
-  };
-  directed: boolean;
-  focusAnimationDuration: number;
-  height: number;
-  linkHighlightBehavior: boolean;
-  maxZoom: number;
-  minZoom: number;
-  nodeHighlightBehavior: boolean;
-  panAndZoom: boolean;
-  staticGraph: boolean;
-  width: number;
-}
-
 export interface IGraphProps {
   config: {};
   data: {
@@ -61,8 +41,8 @@ export interface IGraphState {
   config: IGraphConfig;
   configUpdated: boolean;
   d3ConfigUpdated: boolean;
-  d3Links: Array<SimulationLinkDatum<{}>>;
-  d3Nodes: {};
+  d3Links: IGraphD3Links;
+  d3Nodes: IGraphD3Nodes;
   enableFocusAnimation: boolean;
   focusedNodeId: string;
   focusTransformation: boolean;
@@ -117,11 +97,10 @@ export default class Graph extends React.Component<IGraphProps, IGraphState> {
       newGraphElements
     } = graphHelper.checkForGraphElementsChanges(nextProps, this.state);
     const state = graphElementsUpdated
-      ? // @ts-ignore
-        graphHelper.initializeGraphState(nextProps, this.state)
+      ? graphHelper.initializeGraphState(nextProps, this.state)
       : this.state;
-    // @ts-ignore
-    const newConfig: IGraphConfig = nextProps.config || {};
+
+    const newConfig: Partial<IGraphConfig> = nextProps.config || {};
     const {
       configUpdated,
       d3ConfigUpdated
@@ -141,9 +120,8 @@ export default class Graph extends React.Component<IGraphProps, IGraphState> {
         : this.state.transform;
 
     const focusedNodeId = nextProps.data.focusedNodeId;
-    // @ts-ignore
+
     const d3FocusedNode = this.state.d3Nodes.find(
-      // @ts-ignore
       node => `${node.id}` === `${focusedNodeId}`
     );
     const focusTransformation = graphHelper.getCenterAndZoomTransformation(
@@ -371,7 +349,7 @@ export default class Graph extends React.Component<IGraphProps, IGraphState> {
         config
       );
 
-      const links = collapseHelper.toggleLinksMatrixConnections(
+      const linksMatrix = collapseHelper.toggleLinksMatrixConnections(
         this.state.links,
         leafConnections,
         config
@@ -379,14 +357,13 @@ export default class Graph extends React.Component<IGraphProps, IGraphState> {
 
       const d3Links = collapseHelper.toggleLinksConnections(
         this.state.d3Links,
-        // @ts-ignore
-        links
+        linksMatrix
       );
 
       this.tick(
         {
           d3Links,
-          links
+          linksMatrix
         },
         () => onClickNode && onClickNode(clickedNodeId)
       );
@@ -499,7 +476,6 @@ export default class Graph extends React.Component<IGraphProps, IGraphState> {
       // @ts-ignore
       this.state.nodes,
       {
-        // @ts-ignore
         onClickNode: this.onClickNode,
         onMouseOut: this.onMouseOutNode,
         onMouseOverNode: this.onMouseOverNode

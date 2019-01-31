@@ -3,7 +3,7 @@ import React from 'react';
 /**
  * Types
  */
-export interface IMarker {
+export interface IMarkerProps {
   id: string;
   fill: string;
 }
@@ -11,7 +11,7 @@ export interface IMarker {
 /**
  * Component
  */
-export default class Marker extends React.Component<IMarker> {
+export default class Marker extends React.Component<IMarkerProps> {
   public render() {
     return (
       <marker

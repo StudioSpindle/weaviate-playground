@@ -1,37 +1,33 @@
 import * as React from 'react';
+import {
+  IGraphNode,
+  IGraphNodeCallbacks,
+  IGraphNodeConfig
+} from '../graph/types';
 import CONST from './node.const';
 import nodeHelper from './node.helper';
 
 /**
  * Types
  */
-export interface INode {
+export interface INodeProps
+  extends Partial<IGraphNode & IGraphNodeConfig & IGraphNodeCallbacks> {
   className: string;
   cursor: string;
-  cx: number;
-  cy: number;
+  cx: string | number;
+  cy: string | number;
   dx: number;
   fill: string;
-  fontColor: string;
-  fontSize: number;
-  fontWeight: string;
   id: string;
   label: string;
   opacity: number;
-  overrideGlobalViewGenerator: boolean;
-  renderLabel: boolean;
+  overrideGlobalViewGenerator?: string | boolean;
   size: number;
   stroke: string;
-  strokeWidth: number;
-  svg: string;
   type: string;
-  onClickNode(id: string): void;
-  onMouseOut(id: string): void;
-  onMouseOverNode(id: string): void;
-  viewGenerator(props: INode): HTMLElement;
 }
 
-export interface INodeProps {
+export interface INodePathProps {
   cursor: string;
   d?: string;
   opacity: number;
@@ -50,7 +46,7 @@ export interface INodeProps {
 /**
  * Component
  */
-export default class Node extends React.Component<INode> {
+export default class Node extends React.Component<INodeProps> {
   public handleOnClickNode = () => {
     const { id, onClickNode } = this.props;
 
@@ -99,7 +95,7 @@ export default class Node extends React.Component<INode> {
       overrideGlobalViewGenerator
     } = this.props;
 
-    const nodeProps: INodeProps = {
+    const nodeProps: INodePathProps = {
       cursor,
       onClick: this.handleOnClickNode,
       onMouseOut: this.handleOnMouseOutNode,
@@ -116,8 +112,8 @@ export default class Node extends React.Component<INode> {
       opacity: this.props.opacity
     };
 
-    let gtx = cx;
-    let gty = cy;
+    let gtx = Number(cx);
+    let gty = Number(cy);
     let labelComp;
     let node;
 

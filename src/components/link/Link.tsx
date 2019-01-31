@@ -3,7 +3,7 @@ import React from 'react';
 /**
  * Types
  */
-export interface ILink {
+export interface ILinkProps {
   className: string;
   d: string;
   markerId: string;
@@ -13,7 +13,7 @@ export interface ILink {
   strokeWidth: number;
   source: any;
   target: any;
-  value: string;
+  value?: string;
   onClickLink(source: any, target: any): void;
   onMouseOutLink(source: any, target: any): void;
   onMouseOverLink(source: any, target: any): void;
@@ -22,7 +22,7 @@ export interface ILink {
 /**
  * Component
  */
-export default class Link extends React.Component<ILink> {
+export default class Link extends React.Component<ILinkProps> {
   public handleOnClickLink = () =>
     this.props.onClickLink(this.props.source, this.props.target);
 

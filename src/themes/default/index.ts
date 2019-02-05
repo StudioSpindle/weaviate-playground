@@ -293,4 +293,4 @@ const theme = createMuiTheme({
 
 /* tslint:enable:object-literal-sort-keys */
 
-export default theme;
+export default { logo: undefined, theme };

@@ -5,12 +5,12 @@ import * as ReactDOM from 'react-dom';
 import client from 'src/apollo/apolloClient';
 import { App } from 'src/components';
 import registerServiceWorker from 'src/registerServiceWorker';
-import theme from './themes/default';
+import themeSpec from './themes/default';
 
 ReactDOM.render(
   <ApolloProvider client={client}>
-    <MuiThemeProvider theme={theme}>
-      <App />
+    <MuiThemeProvider theme={themeSpec.theme}>
+      <App logo={themeSpec.logo} />
     </MuiThemeProvider>
   </ApolloProvider>,
   document.getElementById('root') as HTMLElement

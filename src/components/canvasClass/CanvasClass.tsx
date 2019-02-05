@@ -15,10 +15,10 @@ import {
 } from 'src/resolvers/mutations';
 import { ID3Node } from 'src/types';
 import { ActionIcon, ThingIcon } from '../icons';
-import {
-  SELECTED_CLASSES_MUTATION,
-  SelectedClassesMutation
-} from '../libraryClassButton/queries';
+// import {
+//   SELECTED_CLASSES_MUTATION,
+//   SelectedClassesMutation
+// } from '../libraryClassButton/queries';
 import { SELECTED_CLASS_QUERY, SelectedClassQuery } from './queries';
 
 export interface ICanvasClassProps extends WithStyles<typeof styles> {
@@ -125,7 +125,8 @@ class CanvasClass extends React.Component<ICanvasClassProps> {
                         classId={classId}
                       />
                     </div>
-                    {isSelected && (
+
+                    {/* {isSelected && (
                       <React.Fragment>
                         <button
                           className={classes.button}
@@ -176,7 +177,7 @@ class CanvasClass extends React.Component<ICanvasClassProps> {
                           <Typography>Pin</Typography>
                         </button>
                       </React.Fragment>
-                    )}
+                    )} */}
                   </React.Fragment>
                 );
               }}

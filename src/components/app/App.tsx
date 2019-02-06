@@ -7,6 +7,7 @@ import {
   ClassIntrospector,
   Filters,
   Footer,
+  GraphiQLContainer,
   Header,
   Library,
   ResultsContainer
@@ -63,6 +64,12 @@ const styles = (theme: Theme) =>
  */
 class App extends React.Component<IAppProps> {
   public render() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const showGraphiQL = urlParams.get('graphiql');
+
+    if (showGraphiQL) {
+      return <GraphiQLContainer />;
+    }
     const { classes, logo } = this.props;
     return (
       <React.Fragment>

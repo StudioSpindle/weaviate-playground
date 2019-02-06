@@ -1,11 +1,11 @@
 import AppBar from '@material-ui/core/AppBar';
+import Button from '@material-ui/core/Button';
 import Divider from '@material-ui/core/Divider';
 import { Theme } from '@material-ui/core/styles/createMuiTheme';
 import withStyles, { WithStyles } from '@material-ui/core/styles/withStyles';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import * as React from 'react';
-import { GraphiQLContainer } from 'src/components';
 
 interface IFooterProps extends WithStyles<typeof styles> {}
 
@@ -40,7 +40,15 @@ class Footer extends React.Component<IFooterProps> {
         <Toolbar variant="dense">
           <Typography color="inherit">Add nodes from the library</Typography>
           <div className={classes.grow} />
-          <GraphiQLContainer />
+          <Button
+            variant="text"
+            color="secondary"
+            component="a"
+            href={`${window.location.href}&graphiql=true`}
+            target="_blank"
+          >
+            <Typography>GraphiQL</Typography>
+          </Button>
         </Toolbar>
       </AppBar>
     );

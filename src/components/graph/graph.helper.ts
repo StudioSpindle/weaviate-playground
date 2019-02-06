@@ -324,10 +324,10 @@ const initializeGraphState = (
   state: IGraphState
 ): IGraphState => {
   validateGraphData(data);
-  // tslint:disable-next-line:no-console
-  console.log('asfdsf');
 
-  const graph = {
+  let graph;
+
+  graph = {
     links: data.links.map((l, index) => mapDataLinkToD3Link(l, index)),
     nodes:
       state && state.nodes

@@ -2,7 +2,8 @@ import {
   forceManyBody as d3ForceManyBody,
   forceSimulation as d3ForceSimulation,
   forceX as d3ForceX,
-  forceY as d3ForceY
+  forceY as d3ForceY,
+  Simulation
 } from 'd3-force';
 import ERRORS from '../err';
 import utils from '../utils';
@@ -17,7 +18,7 @@ import {
   IGraphD3Nodes,
   IGraphLink,
   IGraphLinksMatrix,
-  IGraphNodes
+  IGraphNodesMatrix
 } from './types';
 
 const NODE_PROPS_WHITELIST = [
@@ -37,7 +38,7 @@ const createForceSimulation = (
   width: number,
   height: number,
   gravity: number
-): {} => {
+): Simulation<any, any> => {
   const frx = d3ForceX(width / 2).strength(CONST.FORCE_X);
   const fry = d3ForceY(height / 2).strength(CONST.FORCE_Y);
   const forceStrength = gravity;
@@ -93,7 +94,7 @@ const initializeLinks = (
  * that are optional for the user. Also it generates an index mapping, this maps nodes ids the their index in the array
  * of nodes. This is needed because d3 callbacks such as node click and link click return the index of the node.
  */
-const initializeNodes = (graphNodes: IGraphD3Nodes): IGraphNodes => {
+const initializeNodes = (graphNodes: IGraphD3Nodes): IGraphNodesMatrix => {
   const nodes = {};
   const n = graphNodes.length;
 
@@ -132,6 +133,7 @@ const mapDataLinkToD3Link = (link: IGraphLink, index: number): IGraphD3Link => {
   };
 
   return {
+    id: `${link.source}-${link.target}-${link.value}`,
     index,
     isActive: link.isActive,
     source,
@@ -144,9 +146,9 @@ const mapDataLinkToD3Link = (link: IGraphLink, index: number): IGraphD3Link => {
  * Tags orphan nodes with a `_orphan` flag.
  */
 const tagOrphanNodes = (
-  nodes: IGraphNodes,
+  nodes: IGraphNodesMatrix,
   linksMatrix: IGraphLinksMatrix
-): IGraphNodes => {
+): IGraphNodesMatrix => {
   return Object.keys(nodes).reduce((acc, nodeId) => {
     const { inDegree, outDegree } = computeNodeDegree(nodeId, linksMatrix);
     const node = nodes[nodeId];
@@ -277,16 +279,14 @@ const checkForGraphConfigChanges = (
   nextProps: IGraphProps,
   currentState: IGraphState
 ): { configUpdated: any; d3ConfigUpdated: any } => {
-  const newConfig = nextProps.config || {};
+  const newConfig: Partial<IGraphConfig> = nextProps.config || {};
   const configUpdated =
     newConfig &&
     !utils.isEmptyObject(newConfig) &&
     !utils.isDeepEqual(newConfig, currentState.config);
   const d3ConfigUpdated =
     newConfig &&
-    // @ts-ignore
     newConfig.d3 &&
-    // @ts-ignore
     !utils.isDeepEqual(newConfig.d3, currentState.config.d3);
 
   return {
@@ -300,8 +300,8 @@ const checkForGraphConfigChanges = (
  * selected node.
  */
 const getCenterAndZoomTransformation = (
-  d3Node: IGraphD3Node,
-  config: IGraphConfig
+  config: IGraphConfig,
+  d3Node?: IGraphD3Node
 ): string | undefined => {
   if (!d3Node) {
     return;
@@ -324,34 +324,26 @@ const initializeGraphState = (
   state: IGraphState
 ): IGraphState => {
   validateGraphData(data);
+  // tslint:disable-next-line:no-console
+  console.log('asfdsf');
 
-  let graph;
+  const graph = {
+    links: data.links.map((l, index) => mapDataLinkToD3Link(l, index)),
+    nodes:
+      state && state.nodes
+        ? data.nodes.map(
+            n =>
+              state.nodes[n.id]
+                ? {
+                    ...n,
+                    ...utils.pick(state.nodes[n.id], NODE_PROPS_WHITELIST)
+                  }
+                : n
+          )
+        : data.nodes
+  };
 
-  if (state && state.nodes) {
-    graph = {
-      links: data.links.map((l, index) => mapDataLinkToD3Link(l, index)),
-      nodes: data.nodes.map(
-        n =>
-          state.nodes[n.id]
-            ? Object.assign(
-                {},
-                n,
-                utils.pick(state.nodes[n.id], NODE_PROPS_WHITELIST)
-              )
-            : Object.assign({}, n)
-      )
-    };
-  } else {
-    graph = {
-      links: data.links.map(l => Object.assign({}, l)),
-      nodes: data.nodes.map(n => Object.assign({}, n))
-    };
-  }
-
-  const newConfig = Object.assign(
-    {},
-    utils.merge(DEFAULT_CONFIG, config || {})
-  );
+  const newConfig = { ...utils.merge(DEFAULT_CONFIG, config || {}) };
   const links = initializeLinks(graph.links, newConfig); // matrix of graph connections
   const nodes = tagOrphanNodes(initializeNodes(graph.nodes), links);
   const { links: d3Links, nodes: d3Nodes } = graph;
@@ -382,38 +374,42 @@ const initializeGraphState = (
     nodes,
     simulation,
     transform: 1
-  } as IGraphState;
+  };
 };
 
 /**
  * This function updates the highlighted value for a given node and also updates highlight props.
  */
 const updateNodeHighlightedValue = (
-  nodes: IGraphNodes,
+  nodes: IGraphNodesMatrix,
   links: IGraphLinksMatrix,
   config: IGraphConfig,
   id: string,
   value: string | boolean
-): { highlightedNode: string; nodes: IGraphNodes } => {
-  value = Boolean(value);
-  const highlightedNode = value ? id : '';
-  const node = Object.assign({}, nodes[id], {
-    highlighted: value
-  });
-  let updatedNodes = Object.assign({}, nodes, {
+): { highlightedNode: string; nodes: IGraphNodesMatrix } => {
+  const booleanValue = Boolean(value);
+  const highlightedNode = booleanValue ? id : '';
+  const node = {
+    ...nodes[id],
+    highlighted: booleanValue
+  };
+  let updatedNodes = {
+    ...nodes,
     [id]: node
-  });
+  };
 
   // when highlightDegree is 0 we want only to highlight selected node
   if (links[id] && config.highlightDegree !== 0) {
     updatedNodes = Object.keys(links[id]).reduce((acc, linkId) => {
-      const updatedNode = Object.assign({}, updatedNodes[linkId], {
-        highlighted: value
-      });
+      const updatedNode = {
+        ...updatedNodes[linkId],
+        highlighted: booleanValue
+      };
 
-      return Object.assign(acc, {
+      return {
+        ...acc,
         [linkId]: updatedNode
-      });
+      };
     }, updatedNodes);
   }
 

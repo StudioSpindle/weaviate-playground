@@ -2,9 +2,9 @@ import {
   IGraphConfig,
   IGraphD3Links,
   IGraphLeafConnections,
-  IGraphLink,
   IGraphLinksMatrix,
-  IGraphNodes
+  IGraphNode,
+  IGraphNodesMatrix
 } from './types';
 
 /**
@@ -44,7 +44,7 @@ const isLeafNotDirected = (inDegree: number, outDegree: number): boolean =>
  * Given in and out degree tells whether degrees indicate a leaf or non leaf scenario.
  */
 const isLeaf = (
-  nodeId: string,
+  nodeId: IGraphNode['id'],
   linksMatrix: IGraphLinksMatrix,
   directed: IGraphConfig['directed']
 ): boolean => {
@@ -59,7 +59,7 @@ const isLeaf = (
  * Calculates degree (in and out) of some provided node.
  */
 const computeNodeDegree = (
-  nodeId: string,
+  nodeId: IGraphNode['id'],
   linksMatrix: IGraphLinksMatrix
 ): { inDegree: number; outDegree: number } => {
   return Object.keys(linksMatrix).reduce(
@@ -101,14 +101,14 @@ const computeNodeDegree = (
  * where A has id equal to rootNodeId and B has inDegree 1 and outDegree 0 (or outDegree 1 but the connection is with A).
  */
 const getTargetLeafConnections = (
-  rootNodeId: string,
+  rootNodeId: IGraphNode['id'],
   linksMatrix: IGraphLinksMatrix,
   { directed }: { directed: IGraphConfig['directed'] }
 ): IGraphLeafConnections => {
   const rootConnectionsNodesIds = Object.keys(linksMatrix[rootNodeId]);
 
   return rootConnectionsNodesIds.reduce(
-    (leafConnections: IGraphLink[], target) => {
+    (leafConnections: IGraphLeafConnections, target) => {
       if (isLeaf(target, linksMatrix, directed)) {
         leafConnections.push({
           isActive: false,
@@ -131,8 +131,8 @@ const getTargetLeafConnections = (
  * always remember that *A leaf can, through time, be both a visible or an invisible node!*.
  */
 const isNodeVisible = (
-  nodeId: string,
-  nodes: IGraphNodes,
+  nodeId: IGraphNode['id'],
+  nodes: IGraphNodesMatrix,
   linksMatrix: IGraphLinksMatrix
 ): boolean => {
   const { inDegree, outDegree } = computeNodeDegree(nodeId, linksMatrix);

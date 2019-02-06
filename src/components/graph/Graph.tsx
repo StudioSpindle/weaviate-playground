@@ -1,5 +1,5 @@
 import { drag as d3Drag } from 'd3-drag';
-import { forceLink as d3ForceLink } from 'd3-force';
+import { forceLink as d3ForceLink, Simulation } from 'd3-force';
 import {
   event as d3Event,
   select as d3Select,
@@ -16,12 +16,15 @@ import * as graphHelper from './graph.helper';
 import * as graphRenderer from './graph.renderer';
 import {
   IGraphConfig,
+  IGraphD3Link,
   IGraphD3Links,
-  IGraphD3Node,
   IGraphD3Nodes,
   IGraphLink,
   IGraphLinkCallbacks,
-  IGraphNodes
+  IGraphLinks,
+  IGraphNode,
+  IGraphNodes,
+  IGraphNodesMatrix
 } from './types';
 
 /**
@@ -30,9 +33,9 @@ import {
 export interface IGraphProps {
   config: {};
   data: {
-    focusedNodeId: string;
-    links: IGraphLink[];
-    nodes: IGraphD3Node[];
+    focusedNodeId: IGraphNode['id'];
+    links: IGraphLinks;
+    nodes: IGraphNodes;
   };
   id: string;
   onClickGraph?(): void;
@@ -51,20 +54,15 @@ export interface IGraphState {
   d3Links: IGraphD3Links;
   d3Nodes: IGraphD3Nodes;
   enableFocusAnimation?: boolean;
-  focusedNodeId?: string;
-  focusTransformation?: boolean;
+  focusedNodeId?: IGraphNode['id'];
+  focusTransformation?: string;
   highlightedLink?: IGraphLink;
   highlightedNode?: string;
   id: string;
   links: Array<{}>;
   newGraphElements: boolean;
-  nodes: IGraphNodes;
-  simulation:
-    | {
-        force: any;
-        nodes(nodes: any): void;
-      }
-    | {};
+  nodes: IGraphNodesMatrix;
+  simulation: Simulation<any, any>;
   transform: number;
 }
 
@@ -129,9 +127,8 @@ export default class Graph extends React.Component<IGraphProps, IGraphState> {
       node => `${node.id}` === `${focusedNodeId}`
     );
     const focusTransformation = graphHelper.getCenterAndZoomTransformation(
-      // @ts-ignore
-      d3FocusedNode,
-      this.state.config
+      this.state.config,
+      d3FocusedNode
     );
     const enableFocusAnimation =
       this.props.data.focusedNodeId !== nextProps.data.focusedNodeId;
@@ -146,7 +143,7 @@ export default class Graph extends React.Component<IGraphProps, IGraphState> {
       focusedNodeId,
       newGraphElements,
       transform
-    } as IGraphState);
+    });
   }
 
   public componentDidUpdate() {
@@ -217,16 +214,13 @@ export default class Graph extends React.Component<IGraphProps, IGraphState> {
    * Sets d3 tick function and configures other d3 stuff such as forces and drag events.
    */
   public graphForcesConfig(): void {
-    // @ts-ignore
     this.state.simulation.nodes(this.state.d3Nodes).on('tick', this.tick);
 
     const forceLink = d3ForceLink(this.state.d3Links)
-      // @ts-ignore
-      .id(link => link.id)
+      .id((link: IGraphD3Link) => link.id)
       .distance(this.state.config.d3.linkLength)
       .strength(this.state.config.d3.linkStrength);
 
-    // @ts-ignore
     this.state.simulation.force(CONST.LINK_CLASS_NAME, forceLink);
 
     const customNodeDrag = d3Drag()
@@ -244,7 +238,6 @@ export default class Graph extends React.Component<IGraphProps, IGraphState> {
     !this.state.config.staticGraph &&
     this.state.config.automaticRearrangeAfterDropNode &&
     this.state.simulation
-      // @ts-ignore
       .alphaTarget(this.state.config.d3.alphaTarget)
       .restart();
 
@@ -280,7 +273,6 @@ export default class Graph extends React.Component<IGraphProps, IGraphState> {
         this.state.links,
         this.state.config,
         id,
-        // @ts-ignore
         value
       )
     );
@@ -322,7 +314,7 @@ export default class Graph extends React.Component<IGraphProps, IGraphState> {
     }
   };
 
-  public onClickGraph = (event: React.MouseEvent<SVGSVGElement>) => {
+  public onClickGraph = (event: any) => {
     if (this.state.enableFocusAnimation) {
       this.setState({ enableFocusAnimation: false });
     }
@@ -331,9 +323,7 @@ export default class Graph extends React.Component<IGraphProps, IGraphState> {
     // toUpperCase() is added as a precaution, as the documentation says tagName should always
     // return in UPPERCASE, but chrome returns lowercase
     if (
-      // @ts-ignore
       event.target.tagName.toUpperCase() === 'SVG' &&
-      // @ts-ignore
       event.target.attributes.name.value === `svg-container-${this.state.id}` &&
       this.props.onClickGraph
     ) {
@@ -344,7 +334,7 @@ export default class Graph extends React.Component<IGraphProps, IGraphState> {
   /**
    * Collapses the nodes, then calls the callback passed to the component.
    */
-  public onClickNode = (clickedNodeId: string): void => {
+  public onClickNode = (clickedNodeId: IGraphNode['id']): void => {
     const { onClickNode } = this.props;
     const { config } = this.state;
 
@@ -435,7 +425,7 @@ export default class Graph extends React.Component<IGraphProps, IGraphState> {
       this.tick();
     }
   };
-  // @ts-ignore
+
   public pauseSimulation = () => this.state.simulation.stop();
 
   /**
@@ -455,7 +445,6 @@ export default class Graph extends React.Component<IGraphProps, IGraphState> {
       }
 
       this.state.simulation
-        // @ts-ignore
         .alphaTarget(this.state.config.d3.alphaTarget)
         .restart();
 
@@ -464,7 +453,6 @@ export default class Graph extends React.Component<IGraphProps, IGraphState> {
   };
 
   public restartSimulation = () =>
-    // @ts-ignore
     !this.state.config.staticGraph && this.state.simulation.restart();
 
   public render() {
@@ -479,7 +467,6 @@ export default class Graph extends React.Component<IGraphProps, IGraphState> {
     } = this.state;
 
     const { nodes, links, defs } = graphRenderer.renderGraph(
-      // @ts-ignore
       this.state.nodes,
       {
         onClickNode: this.onClickNode,

@@ -10,7 +10,7 @@ import client from 'src/apollo/apolloClient';
 import { CanvasClass, Graph } from 'src/components';
 import { createGqlGet } from 'src/utils';
 import { META_TYPE_QUERY } from '../filters/queries';
-import { IGraphLink, IGraphNode } from '../graph/types';
+import { IGraphLinks, IGraphNode, IGraphNodes } from '../graph/types';
 import { SELECTED_CLASS_QUERY, SelectedClassQuery } from './queries';
 
 /**
@@ -28,9 +28,9 @@ interface ICanvasProps extends WithStyles<typeof styles> {
 
 interface ICanvasState {
   graph: {
-    focusedNodeId?: ClassId;
-    links: IGraphLink[];
-    nodes: IGraphNode[];
+    focusedNodeId?: IGraphNode['id'];
+    links: IGraphLinks;
+    nodes: IGraphNodes;
   };
 }
 

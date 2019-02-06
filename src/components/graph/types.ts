@@ -6,8 +6,8 @@ export interface IGraphD3LinkPart {
   id: string;
 }
 export interface IGraphD3Link {
-  id?: string;
-  index: number;
+  id: string;
+  index?: number;
   isActive: boolean;
   isHidden?: boolean;
   source: IGraphD3LinkPart;
@@ -49,6 +49,8 @@ export interface IGraphLinkConfig {
   strokeWidth: number;
   type: string;
 }
+
+export type IGraphLinks = IGraphLink[];
 
 export interface IGraphLinksMatrix {
   [key: string]: any;
@@ -92,7 +94,9 @@ export interface IGraphNodeCallbacks {
   onMouseOverNode(id: string): void;
 }
 
-export interface IGraphNodes {
+export type IGraphNodes = IGraphNode[];
+
+export interface IGraphNodesMatrix {
   [key: string]: IGraphNode;
 }
 

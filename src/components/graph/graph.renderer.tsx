@@ -13,11 +13,11 @@ import {
   IGraphLink,
   IGraphLinkCallbacks,
   IGraphNodeCallbacks,
-  IGraphNodes
+  IGraphNodesMatrix
 } from './types';
 
 const renderLinks = (
-  nodes: IGraphNodes,
+  nodes: IGraphNodesMatrix,
   links: IGraphD3Links,
   linksMatrix: Array<{}>,
   config: IGraphConfig,
@@ -57,7 +57,7 @@ const renderLinks = (
 };
 
 const renderNodes = (
-  nodes: IGraphNodes,
+  nodes: IGraphNodesMatrix,
   nodeCallbacks: IGraphNodeCallbacks,
   config: IGraphConfig,
   transform: number,
@@ -75,7 +75,7 @@ const renderNodes = (
 
   return outNodes.map(nodeId => {
     const props = buildNodeProps(
-      Object.assign({}, nodes[nodeId], { id: `${nodeId}` }),
+      { ...nodes[nodeId], id: nodeId },
       config,
       nodeCallbacks,
       transform,
@@ -125,7 +125,7 @@ const memoizedRenderDefs = renderDefs();
  * components.
  */
 function renderGraph(
-  nodes: IGraphNodes,
+  nodes: IGraphNodesMatrix,
   nodeCallbacks: IGraphNodeCallbacks,
   links: IGraphD3Link[],
   linksMatrix: Array<{}>,

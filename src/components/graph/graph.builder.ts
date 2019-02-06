@@ -13,7 +13,7 @@ import {
   IGraphLinksMatrix,
   IGraphNode,
   IGraphNodeCallbacks,
-  IGraphNodes
+  IGraphNodesMatrix
 } from './types';
 
 /**
@@ -51,7 +51,7 @@ const getNodeOpacity = (
  */
 const buildLinkProps = (
   link: IGraphLink,
-  nodes: IGraphNodes,
+  nodes: IGraphNodesMatrix,
   links: IGraphLinksMatrix,
   config: IGraphConfig,
   linkCallbacks: IGraphLinkCallbacks,

@@ -22,9 +22,9 @@ const renderLinks = (
   linksMatrix: Array<{}>,
   config: IGraphConfig,
   linkCallbacks: IGraphLinkCallbacks,
-  highlightedNode: string,
-  highlightedLink: IGraphLink,
-  transform: number
+  transform: number,
+  highlightedNode?: string,
+  highlightedLink?: IGraphLink
 ) => {
   let outLinks = links;
 
@@ -33,7 +33,7 @@ const renderLinks = (
   }
 
   return outLinks.map(link => {
-    const { source, target, value } = link;
+    const { source, target } = link;
     const sourceId = typeof source === 'string' ? source : source.id; // source.id;
     const targetId = typeof source === 'string' ? target : target.id; // target.id;
     const key = `${sourceId}${CONST.COORDS_SEPARATOR}${targetId}`;
@@ -41,16 +41,15 @@ const renderLinks = (
       {
         ...link,
         source: `${sourceId}`,
-        target: `${targetId}`,
-        value
+        target: `${targetId}`
       } as IGraphLink,
       nodes,
       linksMatrix,
       config,
       linkCallbacks,
-      `${highlightedNode}`,
-      highlightedLink,
-      transform
+      transform,
+      highlightedNode,
+      highlightedLink
     );
 
     return <Link key={key} {...props} />;
@@ -61,10 +60,10 @@ const renderNodes = (
   nodes: IGraphNodes,
   nodeCallbacks: IGraphNodeCallbacks,
   config: IGraphConfig,
-  highlightedNode: string,
-  highlightedLink: IGraphLink,
   transform: number,
-  linksMatrix: Array<{}>
+  linksMatrix: Array<{}>,
+  highlightedNode?: string,
+  highlightedLink?: IGraphLink
 ) => {
   let outNodes = Object.keys(nodes);
 
@@ -79,9 +78,9 @@ const renderNodes = (
       Object.assign({}, nodes[nodeId], { id: `${nodeId}` }),
       config,
       nodeCallbacks,
+      transform,
       highlightedNode,
-      highlightedLink,
-      transform
+      highlightedLink
     );
 
     return <Node key={nodeId} {...props} />;
@@ -132,9 +131,9 @@ function renderGraph(
   linksMatrix: Array<{}>,
   linkCallbacks: IGraphLinkCallbacks,
   config: IGraphConfig,
-  highlightedNode: string,
-  highlightedLink: IGraphLink,
-  transform: number
+  transform: number,
+  highlightedNode?: string,
+  highlightedLink?: IGraphLink
 ) {
   return {
     defs: memoizedRenderDefs(config),
@@ -144,18 +143,18 @@ function renderGraph(
       linksMatrix,
       config,
       linkCallbacks,
+      transform,
       highlightedNode,
-      highlightedLink,
-      transform
+      highlightedLink
     ),
     nodes: renderNodes(
       nodes,
       nodeCallbacks,
       config,
-      highlightedNode,
-      highlightedLink,
       transform,
-      linksMatrix
+      linksMatrix,
+      highlightedNode,
+      highlightedLink
     )
   };
 }

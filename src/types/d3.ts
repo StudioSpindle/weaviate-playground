@@ -5,6 +5,7 @@ export interface ID3Node {
 }
 
 export interface ID3Link {
+  isActive: boolean;
   source: string;
   target: string;
   value: number;

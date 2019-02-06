@@ -6,7 +6,9 @@ export interface IGraphD3LinkPart {
   id: string;
 }
 export interface IGraphD3Link {
-  id: string;
+  id?: string;
+  index: number;
+  isActive: boolean;
   isHidden?: boolean;
   source: IGraphD3LinkPart;
   target: IGraphD3LinkPart;
@@ -26,6 +28,7 @@ export interface IGraphLeafConnection {
 export type IGraphLeafConnections = IGraphLink[];
 
 export interface IGraphLink extends Partial<IGraphLinkConfig> {
+  isActive: boolean;
   source: string;
   target: string;
   value?: string;
@@ -53,6 +56,8 @@ export interface IGraphLinksMatrix {
 
 export interface IGraphNode extends Partial<IGraphNodeConfig> {
   id: string;
+  fx?: number;
+  fy?: number;
   highlighted: boolean;
   x: number;
   y: number;

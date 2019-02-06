@@ -7,7 +7,6 @@ import {
 } from 'd3-selection';
 import { zoom as d3Zoom } from 'd3-zoom';
 import * as React from 'react';
-import { ID3Link, ID3Node } from '../canvas/Canvas';
 import ERRORS from '../err';
 import utils from '../utils';
 import * as collapseHelper from './collapse.helper';
@@ -15,7 +14,15 @@ import DEFAULT_CONFIG from './graph.config';
 import CONST from './graph.const';
 import * as graphHelper from './graph.helper';
 import * as graphRenderer from './graph.renderer';
-import { IGraphConfig, IGraphD3Links, IGraphD3Nodes } from './types';
+import {
+  IGraphConfig,
+  IGraphD3Links,
+  IGraphD3Node,
+  IGraphD3Nodes,
+  IGraphLink,
+  IGraphLinkCallbacks,
+  IGraphNodes
+} from './types';
 
 /**
  * Types
@@ -24,8 +31,8 @@ export interface IGraphProps {
   config: {};
   data: {
     focusedNodeId: string;
-    links: ID3Link[];
-    nodes: ID3Node[];
+    links: IGraphLink[];
+    nodes: IGraphD3Node[];
   };
   id: string;
   onClickGraph?(): void;
@@ -40,28 +47,25 @@ export interface IGraphProps {
 export interface IGraphState {
   config: IGraphConfig;
   configUpdated: boolean;
-  d3ConfigUpdated: boolean;
+  d3ConfigUpdated?: boolean;
   d3Links: IGraphD3Links;
   d3Nodes: IGraphD3Nodes;
-  enableFocusAnimation: boolean;
-  focusedNodeId: string;
-  focusTransformation: boolean;
-  highlightedLink?: { source: string; target: string };
+  enableFocusAnimation?: boolean;
+  focusedNodeId?: string;
+  focusTransformation?: boolean;
+  highlightedLink?: IGraphLink;
   highlightedNode?: string;
   id: string;
   links: Array<{}>;
   newGraphElements: boolean;
-  nodes: Array<{
-    fx: number;
-    fy: number;
-    x: number;
-    y: number;
-  }>;
-  simulation: {
-    force: any;
-    nodes(nodes: any): void;
-  };
-  transform: string;
+  nodes: IGraphNodes;
+  simulation:
+    | {
+        force: any;
+        nodes(nodes: any): void;
+      }
+    | {};
+  transform: number;
 }
 
 /**
@@ -125,6 +129,7 @@ export default class Graph extends React.Component<IGraphProps, IGraphState> {
       node => `${node.id}` === `${focusedNodeId}`
     );
     const focusTransformation = graphHelper.getCenterAndZoomTransformation(
+      // @ts-ignore
       d3FocusedNode,
       this.state.config
     );
@@ -141,7 +146,7 @@ export default class Graph extends React.Component<IGraphProps, IGraphState> {
       focusedNodeId,
       newGraphElements,
       transform
-    });
+    } as IGraphState);
   }
 
   public componentDidUpdate() {
@@ -221,6 +226,7 @@ export default class Graph extends React.Component<IGraphProps, IGraphState> {
       .distance(this.state.config.d3.linkLength)
       .strength(this.state.config.d3.linkStrength);
 
+    // @ts-ignore
     this.state.simulation.force(CONST.LINK_CLASS_NAME, forceLink);
 
     const customNodeDrag = d3Drag()
@@ -486,11 +492,11 @@ export default class Graph extends React.Component<IGraphProps, IGraphState> {
         onClickLink,
         onMouseOutLink: this.onMouseOutLink,
         onMouseOverLink: this.onMouseOverLink
-      },
+      } as IGraphLinkCallbacks,
       config,
+      transform,
       highlightedNode,
-      highlightedLink,
-      transform
+      highlightedLink
     );
 
     const svgStyle = {

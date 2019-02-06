@@ -6,6 +6,7 @@ import React from 'react';
 export interface ILinkProps {
   className: string;
   d: string;
+  isActive?: boolean;
   markerId: string;
   mouseCursor: string;
   opacity: number;

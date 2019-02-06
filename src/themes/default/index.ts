@@ -291,6 +291,4 @@ const theme = createMuiTheme({
   spacing
 });
 
-/* tslint:enable:object-literal-sort-keys */
-
 export default { logo: undefined, theme };

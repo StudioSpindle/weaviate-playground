@@ -111,6 +111,7 @@ const getTargetLeafConnections = (
     (leafConnections: IGraphLink[], target) => {
       if (isLeaf(target, linksMatrix, directed)) {
         leafConnections.push({
+          isActive: false,
           source: rootNodeId,
           target
         });

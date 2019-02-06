@@ -21,9 +21,9 @@ import {
  */
 const getNodeOpacity = (
   node: IGraphNode,
-  highlightedNode: string,
-  highlightedLink: IGraphLink,
-  config: IGraphConfig
+  config: IGraphConfig,
+  highlightedNode?: string,
+  highlightedLink?: IGraphLink
 ): number => {
   const highlight =
     node.highlighted ||
@@ -55,11 +55,11 @@ const buildLinkProps = (
   links: IGraphLinksMatrix,
   config: IGraphConfig,
   linkCallbacks: IGraphLinkCallbacks,
-  highlightedNode: string,
-  highlightedLink: IGraphLink,
-  transform: number
+  transform: number,
+  highlightedNode?: string,
+  highlightedLink?: IGraphLink
 ): ILinkProps => {
-  const { source, target, value } = link;
+  const { isActive, source, target, value } = link;
   const x1 = (nodes[source] && nodes[source].x) || 0;
   const y1 = (nodes[source] && nodes[source].y) || 0;
   const x2 = (nodes[target] && nodes[target].x) || 0;
@@ -129,6 +129,7 @@ const buildLinkProps = (
   return {
     className: CONST.LINK_CLASS_NAME,
     d,
+    isActive,
     markerId,
     mouseCursor: config.link.mouseCursor,
     onClickLink: linkCallbacks.onClickLink,
@@ -150,9 +151,9 @@ const buildNodeProps = (
   node: IGraphNode,
   config: IGraphConfig,
   nodeCallbacks: IGraphNodeCallbacks,
-  highlightedNode: string,
-  highlightedLink: IGraphLink,
-  transform: number
+  transform: number,
+  highlightedNode?: string,
+  highlightedLink?: IGraphLink
 ): INodeProps => {
   const highlight =
     node.highlighted ||
@@ -160,9 +161,9 @@ const buildNodeProps = (
       node.id === (highlightedLink && highlightedLink.target));
   const opacity = getNodeOpacity(
     node,
+    config,
     highlightedNode,
-    highlightedLink,
-    config
+    highlightedLink
   );
   let fill = node.color || config.node.color;
 

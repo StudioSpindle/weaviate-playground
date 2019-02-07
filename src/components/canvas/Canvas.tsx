@@ -7,11 +7,16 @@ import gql from 'graphql-tag';
 import * as React from 'react';
 import { compose } from 'react-apollo';
 import client from 'src/apollo/apolloClient';
+import apolloClient from 'src/apollo/apolloClient';
 import { CanvasClass, Graph } from 'src/components';
 import { createGqlGet } from 'src/utils';
 import { META_TYPE_QUERY } from '../filters/queries';
 import { IGraphLinks, IGraphNode, IGraphNodes } from '../graph/types';
-import { SELECTED_CLASS_QUERY, SelectedClassQuery } from './queries';
+import {
+  SELECTED_CLASS_QUERY,
+  SelectedClassQuery,
+  UPDATE_LINKS_MUTATION
+} from './queries';
 
 /**
  * Types
@@ -106,6 +111,7 @@ class Canvas extends React.PureComponent<ICanvasProps, ICanvasState> {
     }));
 
   public getLinks = async (selectedClasses: ClassId[]): Promise<any[]> => {
+    const { graph } = this.state;
     const selectedClassesLinksPromises = selectedClasses.map(
       async (classId: string) => {
         const classIdParts = classId.split('-');
@@ -179,9 +185,17 @@ class Canvas extends React.PureComponent<ICanvasProps, ICanvasState> {
             // Create link when linking class is in canvas
             const classIdTarget = `${instance}-${classType}-${targetTypename}`;
 
+            const prevLink = graph.links.find(
+              link =>
+                link.source === classId &&
+                link.target === classIdTarget &&
+                link.value === fieldNameCapitalized
+            );
+
             if (selectedClasses.includes(classIdTarget)) {
               return {
                 color: 'blue',
+                isActive: prevLink ? prevLink.isActive : false,
                 source: classId,
                 target: classIdTarget,
                 value: fieldNameCapitalized
@@ -218,11 +232,18 @@ class Canvas extends React.PureComponent<ICanvasProps, ICanvasState> {
     });
 
     const selectedClasses = data.canvas.selectedClasses;
+    const links = await this.getLinks(selectedClasses);
 
     const graph = {
-      links: await this.getLinks(selectedClasses),
+      links,
       nodes: await this.getClasses(selectedClasses)
     };
+
+    // Push links to apollo cache
+    apolloClient.mutate({
+      mutation: UPDATE_LINKS_MUTATION,
+      variables: { links }
+    });
 
     this.setState({ graph });
   }
@@ -240,6 +261,13 @@ class Canvas extends React.PureComponent<ICanvasProps, ICanvasState> {
     };
 
     links[index] = updatedLink;
+
+    // Push links to apollo cache
+    apolloClient.mutate({
+      mutation: UPDATE_LINKS_MUTATION,
+      variables: { links }
+    });
+
     this.setState({
       graph: {
         ...this.state.graph,

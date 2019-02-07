@@ -2,6 +2,8 @@ const referFragment = (fragmentKey: string) => `...${fragmentKey}`;
 
 export default (fragments: any) => {
   const fragmentKeys = Object.keys(fragments);
+  const withoutParent = (fragmentKey: string) =>
+    !fragments[fragmentKey].hasParent;
 
   const localKeys = fragmentKeys.filter(fragmentKey =>
     fragmentKey.startsWith('local')
@@ -16,14 +18,14 @@ export default (fragments: any) => {
         ${
           localKeys.length
             ? `Local {
-                ${localKeys.map(referFragment)}
+                ${localKeys.filter(withoutParent).map(referFragment)}
               }`
             : ''
         }
         ${
           networkKeys.length
             ? `Network {
-                ${networkKeys.map(referFragment)}
+                ${networkKeys.filter(withoutParent).map(referFragment)}
               }`
             : ''
         }

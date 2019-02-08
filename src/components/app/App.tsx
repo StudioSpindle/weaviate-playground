@@ -7,15 +7,19 @@ import {
   ClassIntrospector,
   Filters,
   Footer,
+  GraphiQLContainer,
   Header,
   Library,
   ResultsContainer
 } from 'src/components';
+import { IThemeSpec } from 'src/themes';
 
 /**
  * Types
  */
-interface IAppProps extends WithStyles<typeof styles> {}
+interface IAppProps extends WithStyles<typeof styles> {
+  logo?: IThemeSpec['logo'];
+}
 
 /**
  * Styles
@@ -60,10 +64,16 @@ const styles = (theme: Theme) =>
  */
 class App extends React.Component<IAppProps> {
   public render() {
-    const { classes } = this.props;
+    const urlParams = new URLSearchParams(window.location.search);
+    const showGraphiQL = urlParams.get('graphiql');
+
+    if (showGraphiQL) {
+      return <GraphiQLContainer />;
+    }
+    const { classes, logo } = this.props;
     return (
       <React.Fragment>
-        <Header />
+        <Header logo={logo} />
         <main className={classes.main}>
           <ClassIntrospector>
             <aside className={classes.aside} style={{ left: '50px' }}>

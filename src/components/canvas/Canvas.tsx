@@ -6,11 +6,11 @@ import get from 'get-value';
 import gql from 'graphql-tag';
 import * as React from 'react';
 import { compose } from 'react-apollo';
-import { Graph } from 'react-d3-graph';
 import client from 'src/apollo/apolloClient';
-import { CanvasClass } from 'src/components';
+import { CanvasClass, Graph } from 'src/components';
 import { createGqlGet } from 'src/utils';
 import { META_TYPE_QUERY } from '../filters/queries';
+import { IGraphLinks, IGraphNode, IGraphNodes } from '../graph/types';
 import { SELECTED_CLASS_QUERY, SelectedClassQuery } from './queries';
 
 /**
@@ -18,17 +18,6 @@ import { SELECTED_CLASS_QUERY, SelectedClassQuery } from './queries';
  */
 
 export type ClassId = string;
-
-export interface ID3Link {
-  target: ClassId;
-  source: ClassId;
-  isActive?: boolean;
-}
-
-export interface ID3Node {
-  id: ClassId;
-  group: number;
-}
 
 interface ICanvasProps extends WithStyles<typeof styles> {
   width: number;
@@ -39,9 +28,9 @@ interface ICanvasProps extends WithStyles<typeof styles> {
 
 interface ICanvasState {
   graph: {
-    focusedNodeId?: ClassId;
-    links: ID3Link[];
-    nodes: ID3Node[];
+    focusedNodeId?: IGraphNode['id'];
+    links: IGraphLinks;
+    nodes: IGraphNodes;
   };
 }
 

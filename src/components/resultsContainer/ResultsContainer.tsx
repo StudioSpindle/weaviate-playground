@@ -131,7 +131,9 @@ class ResultsContainer extends React.Component<{}, IResultsContainerState> {
                               );
 
                               const links = linksQuery.data.canvas.links.filter(
-                                link => link.source === selectedClassId
+                                link =>
+                                  link.source === selectedClassId ||
+                                  link.target === selectedClassId
                               );
 
                               return (

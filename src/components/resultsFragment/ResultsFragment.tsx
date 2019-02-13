@@ -67,8 +67,6 @@ class ResultsFragment extends React.Component<IResultsFragmentProps> {
     }
     const path = [classType, name];
     const where = createGqlFilters(path, JSON.parse(filters));
-
-    const reference = cleanString(id);
     const typename = instance === 'Local' ? name : `${instance}${name}`;
     const metaQuery = await this.fetchMetaType(typename);
 
@@ -97,9 +95,9 @@ class ResultsFragment extends React.Component<IResultsFragmentProps> {
       classType,
       cleanString,
       hasParent,
+      id,
       links,
       properties,
-      reference,
       type: 'Get',
       where
     });

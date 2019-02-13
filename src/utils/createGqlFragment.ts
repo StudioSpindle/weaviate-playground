@@ -4,6 +4,7 @@ export interface ICreateGqlGetProps {
   classLocation: string;
   className: string;
   classType: string;
+  id: string;
   links: IGraphLinks;
   properties: string;
   reference?: string;
@@ -18,16 +19,23 @@ export default ({
   className,
   classType,
   cleanString,
+  hasParent,
+  id,
   links,
   properties,
-  reference,
   type,
-  where,
-  hasParent
+  where
 }: ICreateGqlGetProps) => {
   const isLocal = classLocation === 'local' || classLocation === 'Local';
-  const activeLinks = links.filter(link => link.isActive);
-  const hasActiveLinks = Boolean(activeLinks.length);
+  const activeSourceLinks = links.filter(
+    link => link.source === id && link.isActive
+  );
+  const activeTargetLinks = links.filter(
+    link => link.target === id && link.isActive
+  );
+  const hasActiveSourceLinks = Boolean(activeSourceLinks.length);
+  const hasActiveTargetLinks = Boolean(activeTargetLinks.length);
+  const reference = cleanString(id);
 
   const fullQuery = `
     ${type} {
@@ -35,7 +43,7 @@ export default ({
           ${classType} {
               ${className}${where ? `(where: ${where})` : ''} {
                   ${properties}
-                  ${activeLinks.map(
+                  ${activeSourceLinks.map(
                     link => `
                     ${link.value} {
                       ...${cleanString(link.target)}
@@ -48,18 +56,19 @@ export default ({
     }
   `;
 
-  // tslint:disable-next-line:no-console
-  console.log(hasActiveLinks);
+  if (!hasActiveSourceLinks && !hasActiveTargetLinks) {
+    return '';
+  }
 
   return `
     fragment ${reference} on ${
-    hasParent && hasActiveLinks
+    hasParent && hasActiveTargetLinks
       ? className
       : isLocal
       ? 'WeaviateLocalObj'
       : 'WeaviateNetworkObj'
   } {
-      ${hasParent && hasActiveLinks ? properties : fullQuery}
+      ${hasParent && hasActiveTargetLinks ? properties : fullQuery}
     }
   `;
 };

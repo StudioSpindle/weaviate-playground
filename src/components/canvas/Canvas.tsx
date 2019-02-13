@@ -70,13 +70,13 @@ const styles = (theme: Theme) =>
   });
 
 const onMouseOverLink = (source: any, target: any) => {
-  // tslint:disable-next-line:no-console
-  console.log(`Mouse over in link between ${source} and ${target}`);
+  // // tslint:disable-next-line:no-console
+  // console.log(`Mouse over in link between ${source} and ${target}`);
 };
 
 const onMouseOutLink = (source: any, target: any) => {
-  // tslint:disable-next-line:no-console
-  console.log(`Mouse out link between ${source} and ${target}`);
+  // // tslint:disable-next-line:no-console
+  // console.log(`Mouse out link between ${source} and ${target}`);
 };
 
 class Canvas extends React.PureComponent<ICanvasProps, ICanvasState> {

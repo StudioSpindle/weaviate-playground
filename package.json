@@ -9,6 +9,7 @@
     "@types/graphql": "^14.0.1",
     "@types/lodash": "^4.14.116",
     "@types/node-fetch": "^2.1.2",
+    "@types/prettier": "^1.16.0",
     "apollo-cache-inmemory": "^1.2.10",
     "apollo-client": "^2.4.2",
     "apollo-link": "^1.2.3",
@@ -21,6 +22,7 @@
     "graphql": "^14.0.2",
     "graphql-tag": "^2.9.2",
     "node-fetch": "^2.2.0",
+    "prismjs": "^1.15.0",
     "rc-slider": "^8.6.3",
     "react": "^16.5.2",
     "react-apollo": "^2.2.4",
@@ -31,8 +33,7 @@
     "standard-version": "^4.4.0"
   },
   "scripts": {
-    "precommit": "lint-staged && npm test",
-    "prepush": "npm test",
+    "precommit": "lint-staged",
     "start": "react-scripts-ts start",
     "build": "react-scripts-ts build",
     "analyze": "source-map-explorer build/static/js/main.*",
@@ -57,12 +58,13 @@
     "@types/get-value": "^3.0.0",
     "@types/jest": "^23.3.2",
     "@types/node": "^10.10.3",
+    "@types/prismjs": "^1.9.0",
     "@types/rc-slider": "^8.6.0",
     "@types/react": "^16.4.14",
     "@types/react-dom": "^16.0.7",
     "husky": "^1.0.0-rc.15",
     "lint-staged": "^7.3.0",
-    "prettier": "^1.14.3",
+    "prettier": "^1.16.4",
     "typescript": "^3.0.3"
   }
 }

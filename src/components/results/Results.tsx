@@ -27,8 +27,7 @@ const styles = (theme: Theme) =>
   createStyles({
     tabContainer: {
       border: `1px solid ${theme.palette.grey[100]}`,
-      margin: '1em',
-      padding: '1em'
+      margin: '1em'
     }
   });
 
@@ -91,7 +90,7 @@ class Results extends React.Component<IResultsProps, IResultsState> {
         {selectedTab === 2 && (
           <React.Fragment>
             <div className={classes.tabContainer}>
-              <ResultsJson data={queryString} />
+              <ResultsJson data={queryString} isGraphQL={true} />
             </div>
             <div className={classes.tabContainer}>
               <ResultsJson data={JSON.stringify(data, undefined, 4)} />

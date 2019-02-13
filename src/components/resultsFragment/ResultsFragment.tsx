@@ -104,7 +104,9 @@ class ResultsFragment extends React.Component<IResultsFragmentProps> {
       where
     });
 
-    addFragment(id, { hasParent, queryString });
+    const hasActiveLinks = Boolean(links.filter(link => link.isActive).length);
+
+    addFragment(id, { hasActiveLinks, hasParent, queryString });
 
     return null;
   }

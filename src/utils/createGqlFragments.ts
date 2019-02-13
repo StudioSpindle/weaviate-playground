@@ -3,7 +3,7 @@ const referFragment = (fragmentKey: string) => `...${fragmentKey}`;
 export default (fragments: any) => {
   const fragmentKeys = Object.keys(fragments);
   const withoutParent = (fragmentKey: string) =>
-    !fragments[fragmentKey].hasParent;
+    !fragments[fragmentKey].hasParent || !fragments[fragmentKey].hasActiveLinks;
 
   const localKeys = fragmentKeys.filter(fragmentKey =>
     fragmentKey.startsWith('local')

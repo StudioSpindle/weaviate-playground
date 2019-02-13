@@ -3,7 +3,6 @@
  */
 import { ILinkProps } from '../link/Link';
 import { buildLinkPathDefinition } from '../link/link.helper';
-import { getMarkerId } from '../marker/marker.helper';
 import { INodeProps } from '../node/Node';
 import CONST from './graph.const';
 import {
@@ -58,7 +57,7 @@ const buildLinkProps = (
   transform: number,
   highlightedNode?: string,
   highlightedLink?: IGraphLink
-): ILinkProps => {
+): Partial<ILinkProps> => {
   const { isActive, source, target, value } = link;
   const x1 = (nodes[source] && nodes[source].x) || 0;
   const y1 = (nodes[source] && nodes[source].y) || 0;
@@ -122,15 +121,10 @@ const buildLinkProps = (
     strokeWidth += (linkValue * strokeWidth) / 10;
   }
 
-  const markerId = config.directed
-    ? getMarkerId(highlight, transform, config)
-    : null;
-
   return {
     className: CONST.LINK_CLASS_NAME,
     d,
     isActive,
-    markerId,
     mouseCursor: config.link.mouseCursor,
     onClickLink: linkCallbacks.onClickLink,
     onMouseOutLink: linkCallbacks.onMouseOutLink,

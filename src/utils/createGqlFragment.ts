@@ -26,6 +26,8 @@ export default ({
   hasParent
 }: ICreateGqlGetProps) => {
   const isLocal = classLocation === 'local' || classLocation === 'Local';
+  const activeLinks = links.filter(link => link.isActive);
+  const hasActiveLinks = Boolean(activeLinks.length);
 
   const fullQuery = `
     ${type} {
@@ -33,7 +35,7 @@ export default ({
           ${classType} {
               ${className}${where ? `(where: ${where})` : ''} {
                   ${properties}
-                  ${links.filter(link => link.isActive).map(
+                  ${activeLinks.map(
                     link => `
                     ${link.value} {
                       ...${cleanString(link.target)}
@@ -46,11 +48,18 @@ export default ({
     }
   `;
 
+  // tslint:disable-next-line:no-console
+  console.log(hasActiveLinks);
+
   return `
     fragment ${reference} on ${
-    hasParent ? className : isLocal ? 'WeaviateLocalObj' : 'WeaviateNetworkObj'
+    hasParent && hasActiveLinks
+      ? className
+      : isLocal
+      ? 'WeaviateLocalObj'
+      : 'WeaviateNetworkObj'
   } {
-      ${hasParent ? properties : fullQuery}
+      ${hasParent && hasActiveLinks ? properties : fullQuery}
     }
   `;
 };

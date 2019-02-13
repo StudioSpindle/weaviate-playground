@@ -10,12 +10,13 @@ import {
 import { CLASS_QUERY, ClassQuery, LINKS_QUERY, LinksQuery } from './queries';
 
 export interface IFragment {
+  hasActiveLinks: boolean;
   hasParent: boolean;
   queryString: string;
 }
 
 interface IResultsContainerState {
-  fragments: { [key: string]: any };
+  fragments: { [key: string]: IFragment };
 }
 
 class ResultsContainer extends React.Component<{}, IResultsContainerState> {
@@ -62,6 +63,7 @@ class ResultsContainer extends React.Component<{}, IResultsContainerState> {
     const queryString = createGqlFragments(fragments);
 
     return {
+      hasActiveLinks: false,
       hasParent: false,
       queryString
     };

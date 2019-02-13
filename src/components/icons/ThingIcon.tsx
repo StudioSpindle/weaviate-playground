@@ -1,4 +1,3 @@
-import withTheme from '@material-ui/core/styles/withTheme';
 import SvgIcon, { SvgIconProps } from '@material-ui/core/SvgIcon';
 import * as React from 'react';
 
@@ -21,4 +20,4 @@ class ThingIcon extends React.PureComponent<IThingIconProps> {
   }
 }
 
-export default withTheme()(ThingIcon);
+export default ThingIcon;

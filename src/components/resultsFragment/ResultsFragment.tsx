@@ -3,6 +3,7 @@ import client from 'src/apollo/apolloClient';
 import { ClassId } from 'src/components/canvas/Canvas';
 import { createGqlFilters, createGqlFragment } from 'src/utils';
 import { META_TYPE_QUERY } from '../filters/queries';
+import { IGraphLinks } from '../graph/types';
 import { IFragment } from '../resultsContainer/ResultsContainer';
 
 interface IResultsFragmentProps {
@@ -14,6 +15,8 @@ interface IResultsFragmentProps {
     filters: string;
     name: string;
   };
+  hasParent: boolean;
+  links: IGraphLinks;
   selectedClassId: string;
   cleanString(textString: string): string;
   addFragment(classId: ClassId, fragment: IFragment): void;
@@ -33,8 +36,12 @@ class ResultsFragment extends React.Component<IResultsFragmentProps> {
   }
 
   public componentDidUpdate(prevProps: IResultsFragmentProps) {
-    const { classObj } = this.props;
-    if (classObj.filters !== prevProps.classObj.filters) {
+    const { classObj, hasParent, links } = this.props;
+    if (
+      classObj.filters !== prevProps.classObj.filters ||
+      JSON.stringify(links) !== JSON.stringify(prevProps.links) ||
+      hasParent !== prevProps.hasParent
+    ) {
       this.addFragment();
     }
   }
@@ -52,7 +59,7 @@ class ResultsFragment extends React.Component<IResultsFragmentProps> {
   }
 
   public async addFragment() {
-    const { addFragment, classObj, cleanString } = this.props;
+    const { addFragment, classObj, cleanString, hasParent, links } = this.props;
     const { classType, id, instance, filters, name } = classObj;
 
     if (!classObj) {
@@ -60,8 +67,6 @@ class ResultsFragment extends React.Component<IResultsFragmentProps> {
     }
     const path = [classType, name];
     const where = createGqlFilters(path, JSON.parse(filters));
-
-    const reference = cleanString(id);
     const typename = instance === 'Local' ? name : `${instance}${name}`;
     const metaQuery = await this.fetchMetaType(typename);
 
@@ -88,13 +93,18 @@ class ResultsFragment extends React.Component<IResultsFragmentProps> {
       classLocation: instance,
       className: name,
       classType,
+      cleanString,
+      hasParent,
+      id,
+      links,
       properties,
-      reference,
       type: 'Get',
       where
     });
 
-    addFragment(id, { queryString });
+    const hasActiveLinks = Boolean(links.filter(link => link.isActive).length);
+
+    addFragment(id, { hasActiveLinks, hasParent, queryString });
 
     return null;
   }

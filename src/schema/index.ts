@@ -9,10 +9,20 @@ const typeDefs = `
         filters: String!
     }
 
+    type Link {
+        id: String!
+        isActive: Boolean!
+        source: String!
+        target: String!
+        value: String!
+    }
+
     type Canvas {
         classIds: [String]
+        links: [Link]
         selectedClasses: [String]
         selectedClass: Class
+        queryString: String
         zoom: Int
     }
 
@@ -27,6 +37,7 @@ const typeDefs = `
         canvas: Canvas
         class(id: String!): Class
         classes: [Class]
+        queryString: string;
     }
 
     type Mutation {
@@ -35,6 +46,7 @@ const typeDefs = `
         updateClassSelectionCanvas(id: String!): Canvas
         updateClassesFilters(classLocation: String, classType: String, queryString: String): ClassesFilters
         updateClassSelection(typename: String!): Canvas
+        updateQueryString(queryString: String!): String!
     }
 `;
 

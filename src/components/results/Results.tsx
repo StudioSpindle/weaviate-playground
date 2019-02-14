@@ -17,6 +17,7 @@ interface IResultsProps extends WithStyles<typeof styles> {
 
 interface IResultsState {
   data: any;
+  errors?: any[];
   selectedTab?: number;
 }
 
@@ -27,8 +28,7 @@ const styles = (theme: Theme) =>
   createStyles({
     tabContainer: {
       border: `1px solid ${theme.palette.grey[100]}`,
-      margin: '1em',
-      padding: '1em'
+      margin: '1em'
     }
   });
 
@@ -37,6 +37,7 @@ class Results extends React.Component<IResultsProps, IResultsState> {
     super(props);
     this.state = {
       data: {},
+      errors: undefined,
       selectedTab: 2
     };
   }
@@ -54,11 +55,16 @@ class Results extends React.Component<IResultsProps, IResultsState> {
 
   public async fetchData() {
     const { queryString } = this.props;
-    const { data }: any = await client.query({
+
+    if (queryString === '') {
+      return;
+    }
+
+    const { data, errors }: any = await client.query({
       query: gql(queryString)
     });
 
-    this.setState({ data });
+    this.setState({ data, errors });
   }
 
   public changeTab = (event: any, value: number) => {
@@ -66,7 +72,7 @@ class Results extends React.Component<IResultsProps, IResultsState> {
   };
 
   public render() {
-    const { data, selectedTab } = this.state;
+    const { data, errors, selectedTab } = this.state;
     const { classes, queryString } = this.props;
 
     return (
@@ -91,10 +97,16 @@ class Results extends React.Component<IResultsProps, IResultsState> {
         {selectedTab === 2 && (
           <React.Fragment>
             <div className={classes.tabContainer}>
-              <ResultsJson data={queryString} />
+              <ResultsJson data={queryString} isGraphQL={true} />
             </div>
             <div className={classes.tabContainer}>
-              <ResultsJson data={JSON.stringify(data, undefined, 4)} />
+              <ResultsJson
+                data={
+                  errors && errors.length
+                    ? JSON.stringify(errors[0], undefined, 4)
+                    : JSON.stringify(data, undefined, 4)
+                }
+              />
             </div>
           </React.Fragment>
         )}

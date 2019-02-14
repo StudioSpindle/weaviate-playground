@@ -1,4 +1,6 @@
+import { Theme, withTheme } from '@material-ui/core/styles';
 import React from 'react';
+import { compose } from 'react-apollo';
 
 /**
  * Types
@@ -7,13 +9,13 @@ export interface ILinkProps {
   className: string;
   d: string;
   isActive?: boolean;
-  markerId: string;
   mouseCursor: string;
   opacity: number;
   stroke: string;
   strokeWidth: number;
   source: any;
   target: any;
+  theme: Theme;
   value?: string;
   onClickLink(source: any, target: any): void;
   onMouseOutLink(source: any, target: any): void;
@@ -23,7 +25,7 @@ export interface ILinkProps {
 /**
  * Component
  */
-export default class Link extends React.Component<ILinkProps> {
+class Link extends React.Component<ILinkProps> {
   public handleOnClickLink = () =>
     this.props.onClickLink(this.props.source, this.props.target);
 
@@ -37,25 +39,26 @@ export default class Link extends React.Component<ILinkProps> {
     const {
       className,
       d,
-      markerId,
+      isActive,
       mouseCursor,
       opacity,
       stroke,
       strokeWidth,
       source,
       target,
+      theme,
       value
     } = this.props;
     const textValue = value || 'Unkown link';
-    const markerWidth = textValue.length * 15;
+    const markerWidth = 120;
     const markerHeight = 60;
-    const fontSize = 30;
+    const fontSize = '100%';
 
     const lineStyle = {
       cursor: mouseCursor,
       fill: 'none',
       opacity,
-      stroke,
+      stroke: isActive ? theme.palette.primary.main : stroke,
       strokeWidth
     };
 
@@ -63,7 +66,7 @@ export default class Link extends React.Component<ILinkProps> {
       cursor: mouseCursor,
       fill: 'white',
       opacity,
-      stroke,
+      stroke: isActive ? theme.palette.primary.main : stroke,
       strokeWidth
     };
 
@@ -72,6 +75,7 @@ export default class Link extends React.Component<ILinkProps> {
     const lineProps: any = {
       className,
       d,
+      markerEnd: `url(#${randomId}-marker)`,
       markerMid: `url(#${randomId})`,
       onClick: this.handleOnClickLink,
       onMouseOut: this.handleOnMouseOutLink,
@@ -79,13 +83,28 @@ export default class Link extends React.Component<ILinkProps> {
       style: lineStyle
     };
 
-    if (markerId) {
-      lineProps.markerEnd = `url(#${markerId})`;
-    }
+    const rectProps: any = {
+      onClick: this.handleOnClickLink,
+      onMouseOut: this.handleOnMouseOutLink,
+      onMouseOver: this.handleOnMouseOverLink
+    };
 
     return (
       <React.Fragment>
         <defs>
+          <marker
+            className="marker"
+            id={`${randomId}-marker`}
+            viewBox="0 -5 10 10"
+            refX="42" // {this.props.refX}
+            refY="0"
+            markerWidth="12"
+            markerHeight="12"
+            orient="auto"
+            fill={isActive ? theme.palette.primary.main : stroke}
+          >
+            <path d="M0,-5L10,0L0,5" />
+          </marker>
           <marker
             id={randomId}
             viewBox={`0 0 ${markerHeight} ${markerWidth}`}
@@ -93,6 +112,8 @@ export default class Link extends React.Component<ILinkProps> {
             refY={markerHeight / 2}
             markerWidth={markerWidth}
             markerHeight={markerHeight}
+            pointerEvents={true}
+            {...rectProps}
           >
             <rect
               x={strokeWidth}
@@ -106,12 +127,10 @@ export default class Link extends React.Component<ILinkProps> {
             <text
               x={(markerWidth - 2 * strokeWidth) / 2}
               y={(markerHeight - 2 * strokeWidth) / 2}
-              width={markerWidth - 2 * strokeWidth}
-              height={markerHeight - 2 * strokeWidth}
-              fontFamily="Alegreya Sans"
+              fill={theme.palette.common.black}
+              fontFamily={theme.typography.fontFamily}
+              fontSize={fontSize}
               fontWeight="bold"
-              fontSize={fontSize / 1.5}
-              fill="black"
               textAnchor="middle"
               alignmentBaseline="central"
             >
@@ -124,3 +143,5 @@ export default class Link extends React.Component<ILinkProps> {
     );
   }
 }
+
+export default compose(withTheme())(Link);

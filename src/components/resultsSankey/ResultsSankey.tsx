@@ -3,7 +3,7 @@ import withTheme from '@material-ui/core/styles/withTheme';
 import * as React from 'react';
 // import { Sankey } from 'react-vis';
 
-interface IResultsSankey {
+interface IResultsSankeyProps {
   data: any;
   theme: Theme;
 }
@@ -26,7 +26,7 @@ interface ISankeyLink {
   key?: string;
 }
 
-class ResultsSankey extends React.Component<IResultsSankey> {
+class ResultsSankey extends React.Component<IResultsSankeyProps> {
   public getNodes() {
     const { data, theme } = this.props;
     const nodes: ISankeyNode[] = [];

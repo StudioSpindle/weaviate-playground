@@ -7,14 +7,16 @@ import {
   SELECTED_CLASSES_QUERY,
   SelectedClassesQuery
 } from '../library/queries';
-import { CLASS_QUERY, ClassQuery } from './queries';
+import { CLASS_QUERY, ClassQuery, LINKS_QUERY, LinksQuery } from './queries';
 
 export interface IFragment {
+  hasActiveLinks: boolean;
+  hasParent: boolean;
   queryString: string;
 }
 
 interface IResultsContainerState {
-  fragments: { [key: string]: any };
+  fragments: { [key: string]: IFragment };
 }
 
 class ResultsContainer extends React.Component<{}, IResultsContainerState> {
@@ -61,6 +63,8 @@ class ResultsContainer extends React.Component<{}, IResultsContainerState> {
     const queryString = createGqlFragments(fragments);
 
     return {
+      hasActiveLinks: false,
+      hasParent: false,
       queryString
     };
   }
@@ -108,15 +112,43 @@ class ResultsContainer extends React.Component<{}, IResultsContainerState> {
                         ) {
                           return null;
                         }
-
                         return (
-                          <ResultsFragment
-                            classObj={classQuery.data.class}
-                            cleanString={this.cleanString}
-                            selectedClassId={selectedClassId}
-                            addFragment={this.addFragment}
-                            removeFragment={this.removeFragment}
-                          />
+                          <LinksQuery query={LINKS_QUERY}>
+                            {linksQuery => {
+                              if (
+                                linksQuery.loading ||
+                                linksQuery.error ||
+                                !classQuery.data ||
+                                !linksQuery.data
+                              ) {
+                                return null;
+                              }
+
+                              const hasParent = Boolean(
+                                linksQuery.data.canvas.links.find(
+                                  link => link.target === selectedClassId
+                                )
+                              );
+
+                              const links = linksQuery.data.canvas.links.filter(
+                                link =>
+                                  link.source === selectedClassId ||
+                                  link.target === selectedClassId
+                              );
+
+                              return (
+                                <ResultsFragment
+                                  classObj={classQuery.data.class}
+                                  cleanString={this.cleanString}
+                                  hasParent={hasParent}
+                                  links={links}
+                                  selectedClassId={selectedClassId}
+                                  addFragment={this.addFragment}
+                                  removeFragment={this.removeFragment}
+                                />
+                              );
+                            }}
+                          </LinksQuery>
                         );
                       }}
                     </ClassQuery>

@@ -4,6 +4,7 @@ declare module 'react-d3-graph';
 declare module 'rc-slider';
 declare module 'react-vis';
 declare module 'graphiql';
+declare module 'prettier/standalone';
 declare module '*.svg' {
   import React = require('react');
   export const ReactComponent: React.SFC<React.SVGProps<SVGSVGElement>>;

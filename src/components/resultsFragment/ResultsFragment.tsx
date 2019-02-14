@@ -15,7 +15,8 @@ interface IResultsFragmentProps {
     filters: string;
     name: string;
   };
-  hasParent: boolean;
+  hasActiveSourceLinks: boolean;
+  hasActiveTargetLinks: boolean;
   links: IGraphLinks;
   selectedClassId: string;
   cleanString(textString: string): string;
@@ -36,11 +37,17 @@ class ResultsFragment extends React.Component<IResultsFragmentProps> {
   }
 
   public componentDidUpdate(prevProps: IResultsFragmentProps) {
-    const { classObj, hasParent, links } = this.props;
+    const {
+      classObj,
+      hasActiveSourceLinks,
+      hasActiveTargetLinks,
+      links
+    } = this.props;
     if (
       classObj.filters !== prevProps.classObj.filters ||
       JSON.stringify(links) !== JSON.stringify(prevProps.links) ||
-      hasParent !== prevProps.hasParent
+      hasActiveSourceLinks !== prevProps.hasActiveSourceLinks ||
+      hasActiveTargetLinks !== prevProps.hasActiveTargetLinks
     ) {
       this.addFragment();
     }
@@ -59,7 +66,14 @@ class ResultsFragment extends React.Component<IResultsFragmentProps> {
   }
 
   public async addFragment() {
-    const { addFragment, classObj, cleanString, hasParent, links } = this.props;
+    const {
+      addFragment,
+      classObj,
+      cleanString,
+      hasActiveSourceLinks,
+      hasActiveTargetLinks,
+      links
+    } = this.props;
     const { classType, id, instance, filters, name } = classObj;
 
     if (!classObj) {
@@ -94,7 +108,6 @@ class ResultsFragment extends React.Component<IResultsFragmentProps> {
       className: name,
       classType,
       cleanString,
-      hasParent,
       id,
       links,
       properties,
@@ -102,9 +115,11 @@ class ResultsFragment extends React.Component<IResultsFragmentProps> {
       where
     });
 
-    const hasActiveLinks = Boolean(links.filter(link => link.isActive).length);
-
-    addFragment(id, { hasActiveLinks, hasParent, queryString });
+    addFragment(id, {
+      hasActiveSourceLinks,
+      hasActiveTargetLinks,
+      queryString
+    });
 
     return null;
   }

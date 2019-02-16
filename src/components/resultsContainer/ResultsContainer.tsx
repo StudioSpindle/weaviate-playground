@@ -10,8 +10,8 @@ import {
 import { CLASS_QUERY, ClassQuery, LINKS_QUERY, LinksQuery } from './queries';
 
 export interface IFragment {
-  hasActiveLinks: boolean;
-  hasParent: boolean;
+  hasActiveSourceLinks: boolean;
+  hasActiveTargetLinks: boolean;
   queryString: string;
 }
 
@@ -63,8 +63,8 @@ class ResultsContainer extends React.Component<{}, IResultsContainerState> {
     const queryString = createGqlFragments(fragments);
 
     return {
-      hasActiveLinks: false,
-      hasParent: false,
+      hasActiveSourceLinks: false,
+      hasActiveTargetLinks: false,
       queryString
     };
   }
@@ -124,23 +124,35 @@ class ResultsContainer extends React.Component<{}, IResultsContainerState> {
                                 return null;
                               }
 
-                              const hasParent = Boolean(
-                                linksQuery.data.canvas.links.find(
-                                  link => link.target === selectedClassId
-                                )
-                              );
-
                               const links = linksQuery.data.canvas.links.filter(
                                 link =>
                                   link.source === selectedClassId ||
                                   link.target === selectedClassId
                               );
 
+                              const activeSourceLinks = links.filter(
+                                link =>
+                                  link.source === selectedClassId &&
+                                  link.isActive
+                              );
+                              const activeTargetLinks = links.filter(
+                                link =>
+                                  link.target === selectedClassId &&
+                                  link.isActive
+                              );
+                              const hasActiveSourceLinks = Boolean(
+                                activeSourceLinks.length
+                              );
+                              const hasActiveTargetLinks = Boolean(
+                                activeTargetLinks.length
+                              );
+
                               return (
                                 <ResultsFragment
                                   classObj={classQuery.data.class}
                                   cleanString={this.cleanString}
-                                  hasParent={hasParent}
+                                  hasActiveSourceLinks={hasActiveSourceLinks}
+                                  hasActiveTargetLinks={hasActiveTargetLinks}
                                   links={links}
                                   selectedClassId={selectedClassId}
                                   addFragment={this.addFragment}

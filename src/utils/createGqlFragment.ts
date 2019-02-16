@@ -10,7 +10,6 @@ export interface ICreateGqlGetProps {
   reference?: string;
   type: 'Get' | 'GetMeta';
   where?: string;
-  hasParent?: boolean;
   cleanString(textString: string): string;
 }
 
@@ -19,7 +18,6 @@ export default ({
   className,
   classType,
   cleanString,
-  hasParent,
   id,
   links,
   properties,
@@ -37,19 +35,21 @@ export default ({
   const hasActiveTargetLinks = Boolean(activeTargetLinks.length);
   const reference = cleanString(id);
 
+  const propertiesLinks = `
+    ${properties}
+    ${activeSourceLinks.map(
+      link => `${link.value} {
+        ...${cleanString(link.target)}
+      }`
+    )}
+  `;
+
   const fullQuery = `
     ${type} {
       ${isLocal ? '' : `${classLocation} {`}
           ${classType} {
               ${className}${where ? `(where: ${where})` : ''} {
-                  ${properties}
-                  ${activeSourceLinks.map(
-                    link => `
-                    ${link.value} {
-                      ...${cleanString(link.target)}
-                    }
-                  `
-                  )}
+                  ${propertiesLinks}
               }
           }
       ${isLocal ? '' : '}'}
@@ -62,13 +62,13 @@ export default ({
 
   return `
     fragment ${reference} on ${
-    hasParent && hasActiveTargetLinks
+    hasActiveTargetLinks
       ? className
       : isLocal
       ? 'WeaviateLocalObj'
       : 'WeaviateNetworkObj'
   } {
-      ${hasParent && hasActiveTargetLinks ? properties : fullQuery}
+      ${hasActiveTargetLinks ? propertiesLinks : fullQuery}
     }
   `;
 };

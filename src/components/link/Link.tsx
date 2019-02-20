@@ -120,7 +120,6 @@ class Link extends React.Component<ILinkProps> {
             refY={markerHeight / 2}
             markerWidth={markerWidth}
             markerHeight={markerHeight}
-            pointerEvents={true}
             {...rectProps}
           >
             <rect

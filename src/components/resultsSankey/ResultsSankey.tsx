@@ -1,90 +1,78 @@
 import { Theme } from '@material-ui/core/styles/createMuiTheme';
 import withTheme from '@material-ui/core/styles/withTheme';
+import get from 'get-value';
 import * as React from 'react';
-// import { Sankey } from 'react-vis';
+import Chart from 'react-google-charts';
 
 interface IResultsSankeyProps {
   data: any;
   theme: Theme;
 }
 
-interface ISankeyNode {
-  name: string;
-  class: string;
-  color?: string;
-  opacity?: number;
-  key?: string;
-  rotation?: number;
-}
+type ISankeyConnection = any[];
 
-interface ISankeyLink {
-  source: number;
-  target: number;
-  value: number;
-  color?: string;
-  opacity?: number;
-  key?: string;
-}
-
-class ResultsSankey extends React.Component<IResultsSankeyProps> {
-  public getNodes() {
-    const { data, theme } = this.props;
-    const nodes: ISankeyNode[] = [];
-    const classes = { ...data.Local.Get.Things, ...data.Local.Get.Actions };
-
-    Object.keys(classes)
-      .filter(className => className !== '__typename')
-      .forEach(className =>
-        classes[className].forEach((node: any) => {
-          nodes.push({
-            class: className,
-            name: node.name
-          });
-        })
-      );
-
-    return nodes.map(node => {
-      if (!node.color) {
-        node.color = theme.palette.primary.main;
-      }
-      if (!node.rotation) {
-        node.rotation = 0;
-      }
-      return node;
-    });
+const getLabel = (node: any) => {
+  if (node.name && typeof node.name === 'string') {
+    return node.name;
+  } else if (node.title && typeof node.title === 'string') {
+    return node.title;
+  } else if (node.uuid && typeof node.uuid === 'string') {
+    return node.uuid;
   }
 
-  public getLinks() {
-    const { theme } = this.props;
+  return 'Unknown label';
+};
 
-    const links: ISankeyLink[] = [
-      { source: 0, target: 1, value: 20 },
-      { source: 0, target: 2, value: 20 },
-      { source: 1, target: 2, value: 20 }
-    ];
+class ResultsSankey extends React.Component<IResultsSankeyProps> {
+  public getConnections(): ISankeyConnection {
+    const { data } = this.props;
+    if (data) {
+      const LocalThings = get(data, 'Local.Get.Things');
+      const LocalActions = get(data, 'Local.Get.Actions');
+      const rootClasses = {
+        ...LocalThings,
+        ...LocalActions
+      };
+      const rootNodes = Object.keys(rootClasses)
+        .filter(className => className !== '__typename')
+        .map(className => rootClasses[className])
+        .flat(1);
+      const connections: ISankeyConnection = [];
 
-    return links.map(link => {
-      if (!link.color) {
-        link.color = theme.palette.grey[100];
-      }
-      return link;
-    });
+      const createConnections = (node: any) => {
+        const source = getLabel(node);
+
+        Object.keys(node).forEach(key => {
+          const property = node[key];
+
+          if (property !== null && typeof property === 'object') {
+            const target = getLabel(property);
+
+            if (source !== 'Unknown label' && target !== 'Unknown label') {
+              connections.push([source, target, 1]);
+            }
+
+            createConnections(property);
+          }
+        });
+      };
+
+      rootNodes.forEach(createConnections);
+
+      return connections;
+    }
+    return [];
   }
 
   public render() {
-    // const links = this.getLinks();
-    // const nodes = this.getNodes();
+    const connections = this.getConnections();
 
-    // return (
-    //   <Sankey
-    //     nodes={nodes}
-    //     links={links}
-    //     width={400}
-    //     height={200}
-    //     labelRotation={45}
-    //   />
-    // );
-    return null;
+    return (
+      <Chart
+        chartType="Sankey"
+        data={[['From', 'To', 'Weight'], ...connections]}
+      />
+    );
   }
 }
 

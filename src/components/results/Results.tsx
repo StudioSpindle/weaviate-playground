@@ -5,6 +5,7 @@ import createStyles from '@material-ui/core/styles/createStyles';
 import withStyles, { WithStyles } from '@material-ui/core/styles/withStyles';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
+import Typography from '@material-ui/core/Typography';
 import gql from 'graphql-tag';
 import * as React from 'react';
 import client from 'src/apollo/apolloClient';
@@ -29,6 +30,9 @@ const styles = (theme: Theme) =>
     tabContainer: {
       border: `1px solid ${theme.palette.grey[100]}`,
       margin: '1em'
+    },
+    warning: {
+      padding: '1em'
     }
   });
 
@@ -74,6 +78,7 @@ class Results extends React.Component<IResultsProps, IResultsState> {
   public render() {
     const { data, errors, selectedTab } = this.state;
     const { classes, queryString } = this.props;
+    const hasQueryString = queryString !== '';
 
     return (
       <React.Fragment>
@@ -82,32 +87,41 @@ class Results extends React.Component<IResultsProps, IResultsState> {
             <Tab icon={<SankeyIcon />} />
             <Tab icon={<SwarmIcon />} />
             <Tab icon={<JsonIcon />} />
-            <Tab icon={<JsonIcon />} />
           </Tabs>
         </AppBar>
         <Divider />
-        {selectedTab === 0 && (
-          <div className={classes.tabContainer}>
-            <ResultsSankey data={data} />
+        {!hasQueryString ? (
+          <div className={`${classes.tabContainer} ${classes.warning}`}>
+            <Typography color="error">
+              No link or multiple link paths selected
+            </Typography>
           </div>
-        )}
-        {selectedTab === 1 && (
-          <div className={classes.tabContainer}>Swarm diagram</div>
-        )}
-        {selectedTab === 2 && (
+        ) : (
           <React.Fragment>
-            <div className={classes.tabContainer}>
-              <ResultsJson data={queryString} isGraphQL={true} />
-            </div>
-            <div className={classes.tabContainer}>
-              <ResultsJson
-                data={
-                  errors && errors.length
-                    ? JSON.stringify(errors[0], undefined, 4)
-                    : JSON.stringify(data, undefined, 4)
-                }
-              />
-            </div>
+            {selectedTab === 0 && (
+              <div className={classes.tabContainer}>
+                <ResultsSankey data={data} />
+              </div>
+            )}
+            {selectedTab === 1 && (
+              <div className={classes.tabContainer}>Swarm diagram</div>
+            )}
+            {selectedTab === 2 && (
+              <React.Fragment>
+                <div className={classes.tabContainer}>
+                  <ResultsJson data={queryString} isGraphQL={true} />
+                </div>
+                <div className={classes.tabContainer}>
+                  <ResultsJson
+                    data={
+                      errors && errors.length
+                        ? JSON.stringify(errors[0], undefined, 4)
+                        : JSON.stringify(data, undefined, 4)
+                    }
+                  />
+                </div>
+              </React.Fragment>
+            )}
           </React.Fragment>
         )}
       </React.Fragment>

@@ -77,10 +77,18 @@ class Link extends React.Component<ILinkProps> {
       d,
       markerEnd: `url(#${randomId}-marker)`,
       markerMid: `url(#${randomId})`,
+      style: lineStyle
+    };
+
+    const bgLineProps: any = {
+      d,
       onClick: this.handleOnClickLink,
       onMouseOut: this.handleOnMouseOutLink,
       onMouseOver: this.handleOnMouseOverLink,
-      style: lineStyle
+      stroke: 'blue',
+      strokeOpacity: 0,
+      strokeWidth: 50,
+      style: { cursor: 'pointer' }
     };
 
     const rectProps: any = {
@@ -112,7 +120,6 @@ class Link extends React.Component<ILinkProps> {
             refY={markerHeight / 2}
             markerWidth={markerWidth}
             markerHeight={markerHeight}
-            pointerEvents={true}
             {...rectProps}
           >
             <rect
@@ -139,6 +146,7 @@ class Link extends React.Component<ILinkProps> {
           </marker>
         </defs>
         <path {...lineProps} />
+        <path {...bgLineProps} />
       </React.Fragment>
     );
   }

@@ -60,3 +60,18 @@ This will create a release by bumping the semver version number and optimizing c
 #### Code quality
 
 We try to maintain code quality with testing and formatting. A precommit and prepush hook will run all tests. The hooks don't format code because this will interfere with commits that have change selections. It is the responsibility of the developer to run Prettier. Many code editors can run Prettier automatically when saving code.
+
+## Docker
+
+The Weaviate playground is available as Docker container here: https://hub.docker.com/r/creativesoftwarefdn/weaviate-playground
+
+You can run the stable (master branch) and unstable (develop branch) as follows:
+- STABLE: `docker run -d -p 8080:80 creativesoftwarefdn/weaviate-playground:stable`
+- UNSTABLE: `docker run -d -p 8080:80 creativesoftwarefdn/weaviate-playground:unstable`
+
+## Build Status
+
+| Branch   | Status        |
+| -------- |:-------------:|
+| Master   | [![Build Status](https://api.travis-ci.org/SeMI-network/playground.svg?branch=master)](https://travis-ci.org/SeMI-network/playground/branches)
+| Develop  | [![Build Status](https://api.travis-ci.org/SeMI-network/playground.svg?branch=develop)](https://travis-ci.org/SeMI-network/playground/branches)

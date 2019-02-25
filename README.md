@@ -73,5 +73,5 @@ You can run the stable (master branch) and unstable (develop branch) as follows:
 
 | Branch   | Status        |
 | -------- |:-------------:|
-| Master   | [![Build Status](https://api.travis-ci.org/SeMI-network/playground.svg?branch=master)](https://travis-ci.org/SeMI-network/playground/branches)
-| Develop  | [![Build Status](https://api.travis-ci.org/SeMI-network/playground.svg?branch=develop)](https://travis-ci.org/SeMI-network/playground/branches)
+| Master   | [![Build Status](https://api.travis-ci.com/SeMI-network/playground.svg?branch=master)](https://travis-ci.com/SeMI-network/playground/branches)
+| Develop  | [![Build Status](https://api.travis-ci.com/SeMI-network/playground.svg?branch=develop)](https://travis-ci.com/SeMI-network/playground/branches)

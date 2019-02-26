@@ -1,5 +1,9 @@
+import Button from '@material-ui/core/Button';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import FormControl from '@material-ui/core/FormControl';
 import Grid from '@material-ui/core/Grid';
+import Input from '@material-ui/core/Input';
+import InputLabel from '@material-ui/core/InputLabel';
 import Typography from '@material-ui/core/Typography';
 import React from 'react';
 import apolloClient from 'src/apollo/apolloClient';
@@ -28,10 +32,34 @@ const StateMessage = ({
     alignItems="center"
   >
     {state === 'loading' && <CircularProgress />}
-    {message && (
-      <Typography color={state === 'error' ? state : undefined}>
-        {message}
-      </Typography>
+    {state === 'error' && (
+      <React.Fragment>
+        <Typography component="h1" variant="h5">
+          We could not load a Weaviate instance. Please enter a valid Weaviate
+          url.
+        </Typography>
+        <form>
+          <FormControl margin="normal" required={true} fullWidth={true}>
+            <InputLabel htmlFor="weaviateUri">Weaviate URL</InputLabel>
+            <Input
+              name="weaviateUri"
+              type="text"
+              id="weaviateUri"
+              autoComplete="weaviateUri"
+            />
+          </FormControl>
+
+          <Button
+            type="submit"
+            fullWidth={true}
+            variant="contained"
+            color="primary"
+            size="small"
+          >
+            Connect Weaviate
+          </Button>
+        </form>
+      </React.Fragment>
     )}
   </Grid>
 );

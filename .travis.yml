@@ -1,0 +1,28 @@
+language: node_js
+dist: xenial
+services: 
+  - docker
+node_js:
+  - "7"
+cache:
+  yarn: true
+  directories:
+    - node_modules
+script:
+  # download deps yarn
+  - yarn
+  # build yarn
+  - yarn build
+  # Login to dockerhub
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  # build & push the dockerfile
+  - |
+    if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then
+      if [ $TRAVIS_BRANCH = "master" ]; then
+        LATESTVERSION=stable
+      elif [ $TRAVIS_BRANCH = "develop" ]; then
+        LATESTVERSION=unstable
+      fi
+      docker build -t creativesoftwarefdn/weaviate-playground:$LATESTVERSION .
+      docker push creativesoftwarefdn/weaviate-playground:$LATESTVERSION
+    fi

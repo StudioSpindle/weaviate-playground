@@ -13,7 +13,10 @@ const defaults = {
   canvas: {
     __typename: 'Canvas',
     classIds: [],
+    hasActiveSourceLinks: false,
+    hasActiveTargetLinks: false,
     links: [],
+    queryString: '',
     selectedClass: defaultClass,
     selectedClasses: [],
     zoom: 1

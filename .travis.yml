@@ -3,7 +3,7 @@ dist: xenial
 services: 
   - docker
 node_js:
-  - "7"
+  - "6.2.2"
 cache:
   yarn: false
 script:

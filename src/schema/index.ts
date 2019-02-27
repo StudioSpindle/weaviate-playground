@@ -19,6 +19,8 @@ const typeDefs = `
 
     type Canvas {
         classIds: [String]
+        hasActiveSourceLinks: Boolean
+        hasActiveTargetLinks: Boolean
         links: [Link]
         selectedClasses: [String]
         selectedClass: Class
@@ -46,7 +48,7 @@ const typeDefs = `
         updateClassSelectionCanvas(id: String!): Canvas
         updateClassesFilters(classLocation: String, classType: String, queryString: String): ClassesFilters
         updateClassSelection(typename: String!): Canvas
-        updateQueryString(queryString: String!): String!
+        updateQueryString(hasActiveSourceLinks: Boolean!, hasActiveTargetLinks: Boolean!, queryString: String!): String
     }
 `;
 

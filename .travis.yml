@@ -3,12 +3,12 @@ dist: xenial
 services: 
   - docker
 node_js:
-  - "7"
+  - "6.2.2"
 cache:
-  yarn: true
-  directories:
-    - node_modules
+  yarn: false
 script:
+  # rm package-lock.json if available
+  - rm -f package-lock.json
   # download deps yarn
   - yarn
   # build yarn

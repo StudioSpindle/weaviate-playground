@@ -78,7 +78,7 @@ class Results extends React.Component<IResultsProps, IResultsState> {
   public render() {
     const { data, errors, selectedTab } = this.state;
     const { classes, queryString } = this.props;
-    const hasQueryString = queryString !== '';
+    const hasValidQueryString = queryString !== '';
 
     return (
       <React.Fragment>
@@ -90,7 +90,7 @@ class Results extends React.Component<IResultsProps, IResultsState> {
           </Tabs>
         </AppBar>
         <Divider />
-        {!hasQueryString ? (
+        {!hasValidQueryString ? (
           <div className={`${classes.tabContainer} ${classes.warning}`}>
             <Typography color="error">
               No link or multiple link paths selected

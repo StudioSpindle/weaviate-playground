@@ -1,5 +1,6 @@
 import Typography from '@material-ui/core/Typography';
 import React from 'react';
+import apolloClient from 'src/apollo/apolloClient';
 import { Results, ResultsFragment, Section } from 'src/components';
 import { createGqlFragments } from 'src/utils';
 import { ClassId } from '../canvas/Canvas';
@@ -7,7 +8,13 @@ import {
   SELECTED_CLASSES_QUERY,
   SelectedClassesQuery
 } from '../library/queries';
-import { CLASS_QUERY, ClassQuery, LINKS_QUERY, LinksQuery } from './queries';
+import {
+  CLASS_QUERY,
+  ClassQuery,
+  LINKS_QUERY,
+  LinksQuery,
+  UPDATE_QUERY_MUTATION
+} from './queries';
 
 export interface IFragment {
   hasActiveSourceLinks: boolean;
@@ -62,11 +69,19 @@ class ResultsContainer extends React.Component<{}, IResultsContainerState> {
 
     const queryString = createGqlFragments(fragments);
 
-    return {
+    const queryObj = {
       hasActiveSourceLinks: false,
       hasActiveTargetLinks: false,
       queryString
     };
+
+    // Push links to apollo cache
+    apolloClient.mutate({
+      mutation: UPDATE_QUERY_MUTATION,
+      variables: queryObj
+    });
+
+    return queryObj;
   }
 
   public render() {

@@ -7,6 +7,8 @@ node_js:
 cache:
   yarn: false
 script:
+  # rm package-lock.json if available
+  - rm -f package-lock.json
   # download deps yarn
   - yarn
   # build yarn

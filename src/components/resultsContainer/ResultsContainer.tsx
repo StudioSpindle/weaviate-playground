@@ -86,7 +86,7 @@ class ResultsContainer extends React.Component<{}, IResultsContainerState> {
 
   public render() {
     return (
-      <Section title="Results" shortTitle="Rsl">
+      <Section title="Results">
         <SelectedClassesQuery query={SELECTED_CLASSES_QUERY}>
           {selectedClassesQuery => {
             if (selectedClassesQuery.loading) {

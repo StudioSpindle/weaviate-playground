@@ -34,9 +34,25 @@ const StateMessage = ({
     {state === 'loading' && <CircularProgress />}
     {state === 'error' && (
       <React.Fragment>
-        <Typography component="h1" variant="h5">
-          We could not load a Weaviate instance. Please enter a valid Weaviate
-          url.
+        <Typography component="h1" variant="h1">
+          Welcome to the Weaviate-Playground!
+        </Typography>
+        <Typography>
+          This is the GUI on top of the decentralised knowledge graph{' '}
+          <a
+            href="https://github.com/creativesoftwarefdn/weaviate"
+            target="_blank"
+          >
+            Weaviate
+          </a>
+          . For more information or documentation visit the Weaviate Playground{' '}
+          <a
+            href="https://github.com/creativesoftwarefdn/weaviate/blob/develop/docs/en/use/weaviate-playground.md"
+            target="_blank"
+          >
+            documentation
+          </a>{' '}
+          on Github.
         </Typography>
         <form>
           <FormControl margin="normal" required={true} fullWidth={true}>

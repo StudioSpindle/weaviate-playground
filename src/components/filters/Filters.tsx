@@ -46,7 +46,7 @@ const Filters: React.SFC<IFiltersProps> = ({ classes }) => (
 
       if (selectedClassQuery.error || !selectedClassQuery.data) {
         return (
-          <Section title={`Filters`}>
+          <Section title="Filters" shortTitle="Flt">
             <div className={classes.textContainer}>
               <Typography color="error">
                 {(selectedClassQuery.error &&
@@ -63,7 +63,7 @@ const Filters: React.SFC<IFiltersProps> = ({ classes }) => (
 
       if (name === '') {
         return (
-          <Section title={`Filters`}>
+          <Section title="Filters" shortTitle="Flt">
             <div className={classes.textContainer}>
               <Typography className={classes.inactiveText}>
                 Please select a class from the canvas to display filters
@@ -77,7 +77,7 @@ const Filters: React.SFC<IFiltersProps> = ({ classes }) => (
        * Get the meta information for the selected Class
        */
       return (
-        <Section title={`Filters for ${name} on ${instance}`}>
+        <Section title={`Filters for ${name} on ${instance}`} shortTitle="Flt">
           <MetaTypeQuery query={META_TYPE_QUERY} variables={{ typename }}>
             {metaTypeQuery => {
               if (metaTypeQuery.loading) {

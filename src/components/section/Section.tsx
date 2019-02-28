@@ -13,6 +13,7 @@ import * as React from 'react';
  */
 export interface ISectionProps extends WithStyles<typeof styles> {
   title: string;
+  shortTitle: string;
 }
 
 export interface ISectionState {
@@ -28,6 +29,7 @@ const styles = (theme: Theme) =>
       flexDirection: 'column',
       padding: '0px'
     },
+    expanded: { width: '500px !important' },
     heading: {
       color: theme.palette.primary.contrastText,
       fontSize: '1rem',
@@ -38,12 +40,13 @@ const styles = (theme: Theme) =>
       color: theme.palette.common.white
     },
     root: {
-      width: '500px'
+      width: '50px'
     },
     summary: {
       backgroundColor: theme.palette.grey[800],
       maxHeight: '48px !important',
-      minHeight: '48px !important'
+      minHeight: '48px !important',
+      padding: '0 0 0 30px'
     }
   });
 
@@ -64,20 +67,24 @@ class Section extends React.Component<ISectionProps, ISectionState> {
   };
 
   public render() {
-    const { children, classes, title } = this.props;
+    const { children, classes, title, shortTitle } = this.props;
     const { isOpen } = this.state;
     return (
       <ExpansionPanel
         expanded={isOpen}
         elevation={1}
         onChange={this.toggleSection}
-        classes={{ root: classes.root }}
+        classes={{ expanded: classes.expanded, root: classes.root }}
       >
         <ExpansionPanelSummary
-          expandIcon={<ExpandMoreIcon classes={{ root: classes.icon }} />}
+          expandIcon={
+            isOpen && <ExpandMoreIcon classes={{ root: classes.icon }} />
+          }
           classes={{ root: classes.summary }}
         >
-          <Typography className={classes.heading}>{title}</Typography>
+          <Typography className={classes.heading}>
+            {isOpen ? title : shortTitle}
+          </Typography>
         </ExpansionPanelSummary>
         <ExpansionPanelDetails classes={{ root: classes.details }}>
           {children}

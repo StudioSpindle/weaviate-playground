@@ -55,5 +55,6 @@ export { default as ResultsJson } from 'src/components/resultsJson/ResultsJson';
 export {
   default as ResultsSankey
 } from 'src/components/resultsSankey/ResultsSankey';
+export { default as ScreenSizer } from 'src/components/screenSizer/ScreenSizer';
 export { default as Section } from 'src/components/section/Section';
 export { default as Tag } from 'src/components/tag/Tag';

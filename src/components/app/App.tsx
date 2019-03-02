@@ -10,7 +10,8 @@ import {
   GraphiQLContainer,
   Header,
   Library,
-  ResultsContainer
+  ResultsContainer,
+  ScreenSizer
 } from 'src/components';
 import { IThemeSpec } from 'src/themes';
 
@@ -73,6 +74,7 @@ class App extends React.Component<IAppProps> {
     const { classes, logo } = this.props;
     return (
       <React.Fragment>
+        <ScreenSizer />
         <Header logo={logo} />
         <main className={classes.main}>
           <ClassIntrospector>

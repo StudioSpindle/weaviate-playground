@@ -36,7 +36,7 @@ const styles = (theme: Theme) =>
  * Library component: renders class selection with filter options
  */
 const Library: React.SFC<ILibraryProps> = ({ classes }) => (
-  <Section title="Library">
+  <Section title="Library" shortTitle="Lib">
     <ClassesFiltersQuery query={CLASSES_FILTERS_QUERY}>
       {classesFiltersQuery => {
         if (classesFiltersQuery.loading) {

@@ -103,11 +103,19 @@ const initializeNodes = (graphNodes: IGraphD3Nodes): IGraphNodesMatrix => {
 
     node.highlighted = false;
 
+    const targetNode = document.getElementById('root');
+    // @ts-ignore
+    const centerX = targetNode.offsetLeft + targetNode.offsetWidth / 3;
+    // @ts-ignore
+    const centerY = targetNode.offsetTop + targetNode.offsetHeight / 3;
+    const offsetX = Math.floor(centerX * Math.random());
+    const offsetY = Math.floor(centerY * Math.random());
+
     if (!node.hasOwnProperty('x')) {
-      node.x = 0;
+      node.x = centerX + offsetX;
     }
     if (!node.hasOwnProperty('y')) {
-      node.y = 0;
+      node.y = centerY + offsetY;
     }
 
     nodes[node.id.toString()] = node;
@@ -331,14 +339,13 @@ const initializeGraphState = (
     links: data.links.map((l, index) => mapDataLinkToD3Link(l, index)),
     nodes:
       state && state.nodes
-        ? data.nodes.map(
-            n =>
-              state.nodes[n.id]
-                ? {
-                    ...n,
-                    ...utils.pick(state.nodes[n.id], NODE_PROPS_WHITELIST)
-                  }
-                : n
+        ? data.nodes.map(n =>
+            state.nodes[n.id]
+              ? {
+                  ...n,
+                  ...utils.pick(state.nodes[n.id], NODE_PROPS_WHITELIST)
+                }
+              : n
           )
         : data.nodes
   };

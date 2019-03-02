@@ -1,3 +1,9 @@
+import {
+  createStyles,
+  Theme,
+  withStyles,
+  WithStyles
+} from '@material-ui/core/styles';
 import { drag as d3Drag } from 'd3-drag';
 import { forceLink as d3ForceLink, Simulation } from 'd3-force';
 import {
@@ -30,7 +36,7 @@ import {
 /**
  * Types
  */
-export interface IGraphProps {
+export interface IGraphProps extends WithStyles<typeof styles> {
   config: {};
   data: {
     focusedNodeId: IGraphNode['id'];
@@ -67,9 +73,21 @@ export interface IGraphState {
 }
 
 /**
+ * Styles
+ */
+const styles = (theme: Theme) =>
+  createStyles({
+    container: {
+      display: 'flex',
+      flex: 1,
+      height: '100%'
+    }
+  });
+
+/**
  * Component
  */
-export default class Graph extends React.Component<IGraphProps, IGraphState> {
+class Graph extends React.Component<IGraphProps, IGraphState> {
   public focusAnimationTimeout: any;
   constructor(props: IGraphProps) {
     super(props);
@@ -456,7 +474,7 @@ export default class Graph extends React.Component<IGraphProps, IGraphState> {
     !this.state.config.staticGraph && this.state.simulation.restart();
 
   public render() {
-    const { onClickLink } = this.props;
+    const { classes, onClickLink } = this.props;
     const {
       config,
       d3Links,
@@ -486,18 +504,13 @@ export default class Graph extends React.Component<IGraphProps, IGraphState> {
       highlightedLink
     );
 
-    const svgStyle = {
-      height: config.height,
-      width: config.width
-    };
-
     const containerProps = this.generateFocusAnimationProps();
 
     return (
-      <div id={`${id}-${CONST.GRAPH_WRAPPER_ID}`}>
+      <div id={`${id}-${CONST.GRAPH_WRAPPER_ID}`} className={classes.container}>
         <svg
+          className={classes.container}
           name={`svg-container-${id}`}
-          style={svgStyle}
           onClick={this.onClickGraph}
         >
           {defs}
@@ -510,3 +523,5 @@ export default class Graph extends React.Component<IGraphProps, IGraphState> {
     );
   }
 }
+
+export default withStyles(styles)(Graph);

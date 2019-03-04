@@ -32,51 +32,54 @@ const StateMessage = ({
     alignItems="center"
   >
     {state === 'loading' && <CircularProgress />}
-    {state === 'error' && (
-      <React.Fragment>
-        <Typography component="h1" variant="h1">
-          Welcome to the Weaviate-Playground!
-        </Typography>
-        <Typography>
-          This is the GUI on top of the decentralised knowledge graph{' '}
-          <a
-            href="https://github.com/creativesoftwarefdn/weaviate"
-            target="_blank"
-          >
-            Weaviate
-          </a>
-          . For more information or documentation visit the Weaviate Playground{' '}
-          <a
-            href="https://github.com/creativesoftwarefdn/weaviate/blob/develop/docs/en/use/weaviate-playground.md"
-            target="_blank"
-          >
-            documentation
-          </a>{' '}
-          on Github.
-        </Typography>
-        <form>
-          <FormControl margin="normal" required={true} fullWidth={true}>
-            <InputLabel htmlFor="weaviateUri">Weaviate URL</InputLabel>
-            <Input
-              name="weaviateUri"
-              type="text"
-              id="weaviateUri"
-              autoComplete="weaviateUri"
-            />
-          </FormControl>
+    {state === 'error' &&
+      // tslint:disable-next-line:no-console
+      console.log(message) && (
+        <React.Fragment>
+          <Typography component="h1" variant="h1">
+            Welcome to the Weaviate-Playground!
+          </Typography>
+          <Typography>
+            This is the GUI on top of the decentralised knowledge graph{' '}
+            <a
+              href="https://github.com/creativesoftwarefdn/weaviate"
+              target="_blank"
+            >
+              Weaviate
+            </a>
+            . For more information or documentation visit the Weaviate
+            Playground{' '}
+            <a
+              href="https://github.com/creativesoftwarefdn/weaviate/blob/develop/docs/en/use/weaviate-playground.md"
+              target="_blank"
+            >
+              documentation
+            </a>{' '}
+            on Github.
+          </Typography>
+          <form>
+            <FormControl margin="normal" required={true} fullWidth={true}>
+              <InputLabel htmlFor="weaviateUri">Weaviate URL</InputLabel>
+              <Input
+                name="weaviateUri"
+                type="text"
+                id="weaviateUri"
+                autoComplete="weaviateUri"
+              />
+            </FormControl>
 
-          <Button
-            type="submit"
-            fullWidth={true}
-            variant="contained"
-            color="primary"
-            size="small"
-          >
-            Connect Weaviate
-          </Button>
-        </form>
-      </React.Fragment>
-    )}
+            <Button
+              type="submit"
+              fullWidth={true}
+              variant="contained"
+              color="primary"
+              size="small"
+            >
+              Connect Weaviate
+            </Button>
+          </form>
+        </React.Fragment>
+      )}
   </Grid>
 );
 
@@ -111,36 +114,29 @@ const ClassIntrospector: React.SFC = ({ children }) => (
               );
             }
 
-            if (!localClassesQuery.data) {
-              return (
-                <StateMessage
-                  state="error"
-                  message={translations.defaultError}
-                />
+            if (localClassesQuery.data && localClassesQuery.data.__type) {
+              localClassesQuery.data.__type.fields.forEach(
+                localGetCLASSTYPEObj => {
+                  const classType = localGetCLASSTYPEObj.name;
+                  localGetCLASSTYPEObj.type.fields.forEach(CLASS => {
+                    /**
+                     * Store class information on client
+                     */
+                    apolloClient.mutate({
+                      mutation: UPDATE_CLASS_MUTATION,
+                      variables: {
+                        classLocation: 'Local',
+                        classType,
+                        filters: '{}',
+                        id: `local-${classType}-${CLASS.name}`,
+                        instance: 'Local',
+                        name: CLASS.name
+                      }
+                    });
+                  });
+                }
               );
             }
-
-            localClassesQuery.data.__type.fields.forEach(
-              localGetCLASSTYPEObj => {
-                const classType = localGetCLASSTYPEObj.name;
-                localGetCLASSTYPEObj.type.fields.forEach(CLASS => {
-                  /**
-                   * Store class information on client
-                   */
-                  apolloClient.mutate({
-                    mutation: UPDATE_CLASS_MUTATION,
-                    variables: {
-                      classLocation: 'Local',
-                      classType,
-                      filters: '{}',
-                      id: `local-${classType}-${CLASS.name}`,
-                      instance: 'Local',
-                      name: CLASS.name
-                    }
-                  });
-                });
-              }
-            );
 
             return (
               <NetworkClassesQuery
@@ -165,7 +161,52 @@ const ClassIntrospector: React.SFC = ({ children }) => (
                     );
                   }
 
-                  if (!networkClassesQuery.data) {
+                  if (
+                    networkClassesQuery.data &&
+                    networkClassesQuery.data.__type
+                  ) {
+                    networkClassesQuery.data.__type.fields.forEach(
+                      networkGetINSTANCEObj => {
+                        const instance = networkGetINSTANCEObj.name;
+                        networkGetINSTANCEObj.type.fields.forEach(
+                          networkGetINSTANCECLASSTYPEObj => {
+                            const classType =
+                              networkGetINSTANCECLASSTYPEObj.name;
+                            networkGetINSTANCECLASSTYPEObj.type.fields.forEach(
+                              CLASS => {
+                                /**
+                                 * Store class information on client
+                                 */
+                                apolloClient.mutate({
+                                  mutation: UPDATE_CLASS_MUTATION,
+                                  variables: {
+                                    classLocation:
+                                      instance === 'Local'
+                                        ? instance
+                                        : 'Network',
+                                    classType,
+                                    filters: '{}',
+                                    id: `${instance}-${classType}-${
+                                      CLASS.name
+                                    }`,
+                                    instance,
+                                    name: CLASS.name
+                                  }
+                                });
+                              }
+                            );
+                          }
+                        );
+                      }
+                    );
+                  }
+
+                  if (
+                    (!localClassesQuery.data ||
+                      !localClassesQuery.data.__type) &&
+                    (!networkClassesQuery.data ||
+                      !networkClassesQuery.data.__type)
+                  ) {
                     return (
                       <StateMessage
                         state="error"
@@ -173,36 +214,6 @@ const ClassIntrospector: React.SFC = ({ children }) => (
                       />
                     );
                   }
-
-                  networkClassesQuery.data.__type.fields.forEach(
-                    networkGetINSTANCEObj => {
-                      const instance = networkGetINSTANCEObj.name;
-                      networkGetINSTANCEObj.type.fields.forEach(
-                        networkGetINSTANCECLASSTYPEObj => {
-                          const classType = networkGetINSTANCECLASSTYPEObj.name;
-                          networkGetINSTANCECLASSTYPEObj.type.fields.forEach(
-                            CLASS => {
-                              /**
-                               * Store class information on client
-                               */
-                              apolloClient.mutate({
-                                mutation: UPDATE_CLASS_MUTATION,
-                                variables: {
-                                  classLocation:
-                                    instance === 'Local' ? instance : 'Network',
-                                  classType,
-                                  filters: '{}',
-                                  id: `${instance}-${classType}-${CLASS.name}`,
-                                  instance,
-                                  name: CLASS.name
-                                }
-                              });
-                            }
-                          );
-                        }
-                      );
-                    }
-                  );
 
                   return children;
                 }}

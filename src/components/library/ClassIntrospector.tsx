@@ -32,54 +32,51 @@ const StateMessage = ({
     alignItems="center"
   >
     {state === 'loading' && <CircularProgress />}
-    {state === 'error' &&
-      // tslint:disable-next-line:no-console
-      console.log(message) && (
-        <React.Fragment>
-          <Typography component="h1" variant="h1">
-            Welcome to the Weaviate-Playground!
-          </Typography>
-          <Typography>
-            This is the GUI on top of the decentralised knowledge graph{' '}
-            <a
-              href="https://github.com/creativesoftwarefdn/weaviate"
-              target="_blank"
-            >
-              Weaviate
-            </a>
-            . For more information or documentation visit the Weaviate
-            Playground{' '}
-            <a
-              href="https://github.com/creativesoftwarefdn/weaviate/blob/develop/docs/en/use/weaviate-playground.md"
-              target="_blank"
-            >
-              documentation
-            </a>{' '}
-            on Github.
-          </Typography>
-          <form>
-            <FormControl margin="normal" required={true} fullWidth={true}>
-              <InputLabel htmlFor="weaviateUri">Weaviate URL</InputLabel>
-              <Input
-                name="weaviateUri"
-                type="text"
-                id="weaviateUri"
-                autoComplete="weaviateUri"
-              />
-            </FormControl>
+    {state === 'error' && (
+      <React.Fragment>
+        <Typography component="h1" variant="h1">
+          Welcome to the Weaviate-Playground!
+        </Typography>
+        <Typography>
+          This is the GUI on top of the decentralised knowledge graph{' '}
+          <a
+            href="https://github.com/creativesoftwarefdn/weaviate"
+            target="_blank"
+          >
+            Weaviate
+          </a>
+          . For more information or documentation visit the Weaviate Playground{' '}
+          <a
+            href="https://github.com/creativesoftwarefdn/weaviate/blob/develop/docs/en/use/weaviate-playground.md"
+            target="_blank"
+          >
+            documentation
+          </a>{' '}
+          on Github.
+        </Typography>
+        <form>
+          <FormControl margin="normal" required={true} fullWidth={true}>
+            <InputLabel htmlFor="weaviateUri">Weaviate URL</InputLabel>
+            <Input
+              name="weaviateUri"
+              type="text"
+              id="weaviateUri"
+              autoComplete="weaviateUri"
+            />
+          </FormControl>
 
-            <Button
-              type="submit"
-              fullWidth={true}
-              variant="contained"
-              color="primary"
-              size="small"
-            >
-              Connect Weaviate
-            </Button>
-          </form>
-        </React.Fragment>
-      )}
+          <Button
+            type="submit"
+            fullWidth={true}
+            variant="contained"
+            color="primary"
+            size="small"
+          >
+            Connect Weaviate
+          </Button>
+        </form>
+      </React.Fragment>
+    )}
   </Grid>
 );
 

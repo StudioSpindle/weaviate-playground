@@ -111,36 +111,29 @@ const ClassIntrospector: React.SFC = ({ children }) => (
               );
             }
 
-            if (!localClassesQuery.data) {
-              return (
-                <StateMessage
-                  state="error"
-                  message={translations.defaultError}
-                />
+            if (localClassesQuery.data && localClassesQuery.data.__type) {
+              localClassesQuery.data.__type.fields.forEach(
+                localGetCLASSTYPEObj => {
+                  const classType = localGetCLASSTYPEObj.name;
+                  localGetCLASSTYPEObj.type.fields.forEach(CLASS => {
+                    /**
+                     * Store class information on client
+                     */
+                    apolloClient.mutate({
+                      mutation: UPDATE_CLASS_MUTATION,
+                      variables: {
+                        classLocation: 'Local',
+                        classType,
+                        filters: '{}',
+                        id: `local-${classType}-${CLASS.name}`,
+                        instance: 'Local',
+                        name: CLASS.name
+                      }
+                    });
+                  });
+                }
               );
             }
-
-            localClassesQuery.data.__type.fields.forEach(
-              localGetCLASSTYPEObj => {
-                const classType = localGetCLASSTYPEObj.name;
-                localGetCLASSTYPEObj.type.fields.forEach(CLASS => {
-                  /**
-                   * Store class information on client
-                   */
-                  apolloClient.mutate({
-                    mutation: UPDATE_CLASS_MUTATION,
-                    variables: {
-                      classLocation: 'Local',
-                      classType,
-                      filters: '{}',
-                      id: `local-${classType}-${CLASS.name}`,
-                      instance: 'Local',
-                      name: CLASS.name
-                    }
-                  });
-                });
-              }
-            );
 
             return (
               <NetworkClassesQuery
@@ -165,7 +158,52 @@ const ClassIntrospector: React.SFC = ({ children }) => (
                     );
                   }
 
-                  if (!networkClassesQuery.data) {
+                  if (
+                    networkClassesQuery.data &&
+                    networkClassesQuery.data.__type
+                  ) {
+                    networkClassesQuery.data.__type.fields.forEach(
+                      networkGetINSTANCEObj => {
+                        const instance = networkGetINSTANCEObj.name;
+                        networkGetINSTANCEObj.type.fields.forEach(
+                          networkGetINSTANCECLASSTYPEObj => {
+                            const classType =
+                              networkGetINSTANCECLASSTYPEObj.name;
+                            networkGetINSTANCECLASSTYPEObj.type.fields.forEach(
+                              CLASS => {
+                                /**
+                                 * Store class information on client
+                                 */
+                                apolloClient.mutate({
+                                  mutation: UPDATE_CLASS_MUTATION,
+                                  variables: {
+                                    classLocation:
+                                      instance === 'Local'
+                                        ? instance
+                                        : 'Network',
+                                    classType,
+                                    filters: '{}',
+                                    id: `${instance}-${classType}-${
+                                      CLASS.name
+                                    }`,
+                                    instance,
+                                    name: CLASS.name
+                                  }
+                                });
+                              }
+                            );
+                          }
+                        );
+                      }
+                    );
+                  }
+
+                  if (
+                    (!localClassesQuery.data ||
+                      !localClassesQuery.data.__type) &&
+                    (!networkClassesQuery.data ||
+                      !networkClassesQuery.data.__type)
+                  ) {
                     return (
                       <StateMessage
                         state="error"
@@ -173,36 +211,6 @@ const ClassIntrospector: React.SFC = ({ children }) => (
                       />
                     );
                   }
-
-                  networkClassesQuery.data.__type.fields.forEach(
-                    networkGetINSTANCEObj => {
-                      const instance = networkGetINSTANCEObj.name;
-                      networkGetINSTANCEObj.type.fields.forEach(
-                        networkGetINSTANCECLASSTYPEObj => {
-                          const classType = networkGetINSTANCECLASSTYPEObj.name;
-                          networkGetINSTANCECLASSTYPEObj.type.fields.forEach(
-                            CLASS => {
-                              /**
-                               * Store class information on client
-                               */
-                              apolloClient.mutate({
-                                mutation: UPDATE_CLASS_MUTATION,
-                                variables: {
-                                  classLocation:
-                                    instance === 'Local' ? instance : 'Network',
-                                  classType,
-                                  filters: '{}',
-                                  id: `${instance}-${classType}-${CLASS.name}`,
-                                  instance,
-                                  name: CLASS.name
-                                }
-                              });
-                            }
-                          );
-                        }
-                      );
-                    }
-                  );
 
                   return children;
                 }}

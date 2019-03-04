@@ -30,7 +30,7 @@ export default (path: string[], filters: any) => {
   if (keys.length) {
     keys.map(key => {
       const filter = filters[key];
-      const newPath = [...path, key];
+      const newPath = [key];
       let operator = 'Equal';
 
       if (Array.isArray(filter)) {

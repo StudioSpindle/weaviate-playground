@@ -12,6 +12,7 @@ import {
   selectAll as d3SelectAll
 } from 'd3-selection';
 import { zoom as d3Zoom } from 'd3-zoom';
+import get from 'get-value';
 import * as React from 'react';
 import ERRORS from '../err';
 import utils from '../utils';
@@ -342,7 +343,8 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
     // return in UPPERCASE, but chrome returns lowercase
     if (
       event.target.tagName.toUpperCase() === 'SVG' &&
-      event.target.attributes.name.value === `svg-container-${this.state.id}` &&
+      get(event, `target.attributes.name.value`) ===
+        `svg-container-${this.state.id}` &&
       this.props.onClickGraph
     ) {
       this.props.onClickGraph();

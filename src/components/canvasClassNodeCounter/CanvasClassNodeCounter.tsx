@@ -87,8 +87,7 @@ class CanvasClassNodeCounter extends React.PureComponent<
           } = classQuery.data.class;
 
           const isNetwork = classLocation !== instance;
-          const path = [classType, name];
-          const where = createGqlFilters(path, JSON.parse(filters));
+          const where = createGqlFilters(JSON.parse(filters));
 
           const queryString = createGqlGet({
             className: name,

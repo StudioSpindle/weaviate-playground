@@ -174,9 +174,11 @@ class Canvas extends React.PureComponent<ICanvasProps, ICanvasState> {
                 fieldX.type.ofType.possibleTypes
             );
 
-            const possibleTypenames = field[0].type.ofType.possibleTypes.map(
-              (possibleType: any) => possibleType.name
-            );
+            const possibleTypenames = field.length
+              ? field[0].type.ofType.possibleTypes.map(
+                  (possibleType: any) => possibleType.name
+                )
+              : [];
 
             possibleTypenames.forEach((targetTypename: string) => {
               // Create link when linking class is in canvas

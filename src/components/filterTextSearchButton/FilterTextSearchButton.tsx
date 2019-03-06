@@ -17,6 +17,7 @@ import {
 export interface IFilterTextSearchListItemProps
   extends WithStyles<typeof styles>,
     IDefaultFilterProps {
+  path?: string[];
   value: string;
 }
 const handleToggle = (handleToggleMutation: any) => {
@@ -51,6 +52,7 @@ const FilterTextSearchListItem: React.SFC<IFilterTextSearchListItemProps> = ({
   filterName,
   filterType,
   filterValue = [],
+  path,
   value
 }) => (
   <ToggleFilterTextSearchButtonMutation
@@ -59,6 +61,7 @@ const FilterTextSearchListItem: React.SFC<IFilterTextSearchListItemProps> = ({
       classId,
       filterName,
       filterType,
+      path,
       value
     }}
   >

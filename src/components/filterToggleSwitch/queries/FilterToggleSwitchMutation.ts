@@ -11,6 +11,7 @@ export interface IFilterToggleSwitchVariables {
   classId: string;
   filterName: string;
   filterType: string;
+  path?: string[];
   value?: string | boolean | object;
 }
 

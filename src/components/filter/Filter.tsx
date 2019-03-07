@@ -36,6 +36,7 @@ import {
 export interface IFilterProps extends WithStyles<typeof styles> {
   classNameAlt?: string;
   name: string;
+  path?: string[];
   typename: string;
 }
 
@@ -96,7 +97,7 @@ const createProperties = (parentTypename: string, fields: any[]) => {
  */
 class Filter extends React.Component<IFilterProps> {
   public render() {
-    const { classes, classNameAlt, name, typename } = this.props;
+    const { classes, classNameAlt, name, path, typename } = this.props;
 
     return (
       <ExpansionPanel classes={{ root: classes.root }}>
@@ -240,7 +241,10 @@ class Filter extends React.Component<IFilterProps> {
                                 const filters = JSON.parse(
                                   classFiltersQuery.data.class.filters
                                 );
-                                const filterValue = filters[name];
+                                const key = path
+                                  ? JSON.stringify([...path, name])
+                                  : name;
+                                const filterValue = filters[key];
 
                                 const defaultFilterProps = {
                                   classId: id,
@@ -265,6 +269,7 @@ class Filter extends React.Component<IFilterProps> {
                                               {...defaultFilterProps}
                                               items={metaData.topOccurrences}
                                               name={name}
+                                              path={path}
                                             />
                                           );
                                         case 'number':
@@ -290,6 +295,10 @@ class Filter extends React.Component<IFilterProps> {
                                               classNameAlt={
                                                 metaData.pointingTo[0]
                                               }
+                                              path={[
+                                                name,
+                                                metaData.pointingTo[0]
+                                              ]}
                                               name={'name'}
                                               typename={`Meta${
                                                 metaData.pointingTo[0]

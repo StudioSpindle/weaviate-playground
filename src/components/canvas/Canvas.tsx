@@ -9,9 +9,9 @@ import { compose } from 'react-apollo';
 import client from 'src/apollo/apolloClient';
 import apolloClient from 'src/apollo/apolloClient';
 import { CanvasClass, Graph } from 'src/components';
-import { createGqlGet } from 'src/utils';
 import { META_TYPE_QUERY } from '../filters/queries';
 import { IGraphLinks, IGraphNode, IGraphNodes } from '../graph/types';
+import { POSSIBLE_TYPES_QUERY } from '../introspection/queries/PossibleTypesQuery';
 import {
   SELECTED_CLASS_QUERY,
   SelectedClassQuery,
@@ -152,57 +152,56 @@ class Canvas extends React.PureComponent<ICanvasProps, ICanvasState> {
         );
 
         // Get the id of the linking class
-        const links = await Promise.all(
+        const links: any = [];
+        await Promise.all(
           metaDataLinkingClassFields.map(async (linkingField: any) => {
             const fieldName = linkingField.__type.name;
             const fieldNameCapitalized =
               fieldName.charAt(0).toUpperCase() + fieldName.slice(1);
-            const isLocal = instance === 'local';
 
-            const queryString = createGqlGet({
-              className,
-              classType,
-              instance,
-              properties: `${fieldNameCapitalized} { __typename }`,
-              reference: 'GetTypeName',
-              type: 'Get'
+            const possibleTypenamesQuery = await client.query({
+              query: POSSIBLE_TYPES_QUERY,
+              variables: { typename: className }
             });
 
-            const queryResult: any = await client.query({
-              query: gql(queryString)
-            });
+            const fields = get(possibleTypenamesQuery, 'data.__type.fields');
 
-            const targetTypename = isLocal
-              ? get(
-                  queryResult,
-                  `data.Local.Get.${classType}.${className}.0.${fieldNameCapitalized}.__typename`
-                )
-              : get(
-                  queryResult,
-                  `data.Network.Get.${instance}.${classType}.${className}.0.${fieldNameCapitalized}.__typename`
-                );
-
-            // Create link when linking class is in canvas
-            const classIdTarget = `${instance}-${classType}-${targetTypename}`;
-
-            const prevLink = graph.links.find(
-              link =>
-                link.source === classId &&
-                link.target === classIdTarget &&
-                link.value === fieldNameCapitalized
+            const field = fields.filter(
+              (fieldX: any) =>
+                fieldX.name === fieldNameCapitalized &&
+                fieldX.type &&
+                fieldX.type.ofType &&
+                fieldX.type.ofType.possibleTypes
             );
 
-            if (selectedClasses.includes(classIdTarget)) {
-              return {
-                color: 'blue',
-                isActive: prevLink ? prevLink.isActive : false,
-                source: classId,
-                target: classIdTarget,
-                value: fieldNameCapitalized
-              };
-            }
+            const possibleTypenames = field.length
+              ? field[0].type.ofType.possibleTypes.map(
+                  (possibleType: any) => possibleType.name
+                )
+              : [];
 
-            return null;
+            possibleTypenames.forEach((targetTypename: string) => {
+              // Create link when linking class is in canvas
+              const classIdTarget = `${instance}-${classType}-${targetTypename}`;
+
+              const prevLink = graph.links.find(
+                link =>
+                  link.source === classId &&
+                  link.target === classIdTarget &&
+                  link.value === fieldNameCapitalized
+              );
+
+              if (selectedClasses.includes(classIdTarget)) {
+                links.push({
+                  color: 'blue',
+                  isActive: prevLink ? prevLink.isActive : false,
+                  source: classId,
+                  target: classIdTarget,
+                  value: fieldNameCapitalized
+                });
+              }
+              return null;
+            });
           })
         );
 

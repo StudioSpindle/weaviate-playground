@@ -11,6 +11,7 @@ export interface IToggleFilterTextSearchButtonVariables {
   classId: string;
   filterName: string;
   filterType: string;
+  path?: string[];
   value: string | boolean | object;
 }
 
@@ -30,12 +31,14 @@ export const TOGGLE_FILTER_TEXT_SEARCH_MUTATION = gql`
     $classId: String!
     $filterName: String!
     $filterType: String!
+    $path: String!
     $value: String!
   ) {
     updateClassFilters(
       classId: $classId
       filterName: $filterName
       filterType: $filterType
+      path: $path
       value: $value
     ) @client
   }

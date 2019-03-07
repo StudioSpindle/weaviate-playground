@@ -79,8 +79,7 @@ class ResultsFragment extends React.Component<IResultsFragmentProps> {
     if (!classObj) {
       return null;
     }
-    const path = [classType, name];
-    const where = createGqlFilters(path, JSON.parse(filters));
+    const where = createGqlFilters(JSON.parse(filters));
     const typename = instance === 'Local' ? name : `${instance}${name}`;
     const metaQuery = await this.fetchMetaType(typename);
 

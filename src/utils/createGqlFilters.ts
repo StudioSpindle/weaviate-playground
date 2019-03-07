@@ -24,13 +24,13 @@ export const createOperand = (path: string[], value: any, operator: string) => {
   return null;
 };
 
-export default (path: string[], filters: any) => {
+export default (filters: any) => {
   const keys = Object.keys(filters);
   let operands: any[] = [];
   if (keys.length) {
     keys.map(key => {
       const filter = filters[key];
-      const newPath = [key];
+      const newPath = key.includes('[') ? JSON.parse(key) : [key];
       let operator = 'Equal';
 
       if (Array.isArray(filter)) {

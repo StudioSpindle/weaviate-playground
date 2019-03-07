@@ -22,7 +22,10 @@ const updateClassFilters = (
 
   const filtersString = classQuery.class.filters;
   const filters = JSON.parse(filtersString);
-  let value = filters[variables.filterName];
+  const key = variables.path
+    ? JSON.stringify([...variables.path, variables.filterName])
+    : variables.filterName;
+  let value = filters[key];
 
   if (variables.filterType === 'string') {
     if (!value) {
@@ -42,7 +45,7 @@ const updateClassFilters = (
   const data = {
     filters: JSON.stringify({
       ...filters,
-      [variables.filterName]: value
+      [key]: value
     })
   };
 

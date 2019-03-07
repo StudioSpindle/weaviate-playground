@@ -16,6 +16,7 @@ export interface IFilterTextSearchProps
   filter?: string[];
   items: [{ occurs: number; value: string }];
   name: string;
+  path?: string[];
 }
 
 export interface IFilterTextSearchState {
@@ -79,10 +80,10 @@ class FilterTextSearch extends React.Component<
       filterValue,
       classes,
       items,
-      name
+      name,
+      path
     } = this.props;
     const { value } = this.state;
-
     return (
       <div className={classes.container}>
         <TextField
@@ -109,6 +110,7 @@ class FilterTextSearch extends React.Component<
                 filterName={filterName}
                 filterType={filterType}
                 filterValue={filterValue}
+                path={path}
                 value={item.value}
               />
             ))}

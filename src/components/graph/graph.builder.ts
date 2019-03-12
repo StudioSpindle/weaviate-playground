@@ -63,7 +63,29 @@ const buildLinkProps = (
   const y1 = (nodes[source] && nodes[source].y) || 0;
   const x2 = (nodes[target] && nodes[target].x) || 0;
   const y2 = (nodes[target] && nodes[target].y) || 0;
+
+  const sameTotal = links[source][target] && links[target][source] ? 2 : 1;
+  // Render multiple links for same source and target
+  // Object.keys(links[source][target]).length + Object.keys(links[target][source]).length;
+  const sameTotalHalf = sameTotal / 2;
+  const sameIndex = 0 + 1;
+  const sameUneven = sameTotal % 2 !== 0;
+  const sameMiddleLink =
+    sameUneven === true && Math.ceil(sameTotalHalf) === sameIndex;
+  const sameLowerHalf = sameIndex <= sameTotalHalf;
+  const sameArcDirection = sameLowerHalf ? 0 : 1;
+  const sameIndexCorrected = sameLowerHalf
+    ? sameIndex
+    : sameIndex - Math.ceil(sameTotalHalf);
+  const maxSame = 3;
+  const maxSameHalf = Math.floor(maxSame / 3);
+
   const d = buildLinkPathDefinition({
+    maxSameHalf,
+    sameArcDirection,
+    sameIndexCorrected,
+    sameMiddleLink,
+    sameUneven,
     source: {
       x: x1,
       y: y1

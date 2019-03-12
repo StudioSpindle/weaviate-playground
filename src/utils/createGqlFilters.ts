@@ -30,6 +30,7 @@ export default (filters: any) => {
   if (keys.length) {
     keys.map(key => {
       const filter = filters[key];
+      // Key with '[' is an stringified array with a path for a nested filter
       const newPath = key.includes('[') ? JSON.parse(key) : [key];
       let operator = 'Equal';
 

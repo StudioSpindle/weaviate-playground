@@ -82,6 +82,7 @@ class Link extends React.Component<ILinkProps> {
 
     const bgLineProps: any = {
       d,
+      fill: 'none',
       onClick: this.handleOnClickLink,
       onMouseOut: this.handleOnMouseOutLink,
       onMouseOver: this.handleOnMouseOverLink,

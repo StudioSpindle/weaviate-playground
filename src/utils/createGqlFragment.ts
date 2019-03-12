@@ -35,6 +35,7 @@ export default ({
   const hasActiveTargetLinks = Boolean(activeTargetLinks.length);
   const reference = cleanString(id);
 
+  // Include regular properties and fragment references for active links
   const propertiesLinks = `
     ${properties}
     ${activeSourceLinks.map(
@@ -56,10 +57,12 @@ export default ({
     }
   `;
 
+  // Only classes with active links are included in the query
   if (!hasActiveSourceLinks && !hasActiveTargetLinks) {
     return '';
   }
 
+  // Fragment is included with reference in the source if there are active target links
   return `
     fragment ${reference} on ${
     hasActiveTargetLinks

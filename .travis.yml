@@ -23,7 +23,7 @@ script:
       # login to Dockerhub
       echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
       if [ $TRAVIS_BRANCH = "master" ]; then
-        LATESTVERSION=stable
+        LATESTVERSION=latest
       elif [ $TRAVIS_BRANCH = "develop" ]; then
         LATESTVERSION=unstable
       fi

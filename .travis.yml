@@ -22,11 +22,12 @@ script:
     if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then
       # login to Dockerhub
       echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-      if [ $TRAVIS_BRANCH = "master" ]; then
-        LATESTVERSION=latest
-      elif [ $TRAVIS_BRANCH = "develop" ]; then
-        LATESTVERSION=unstable
-      fi
+      #if [ $TRAVIS_BRANCH = "master" ]; then
+      #  LATESTVERSION=latest
+      #elif [ $TRAVIS_BRANCH = "develop" ]; then
+      #  LATESTVERSION=unstable
+      #fi
+      LATESTVERSION=latest
       # build & push
       docker build -t creativesoftwarefdn/weaviate-playground:$LATESTVERSION .
       docker push creativesoftwarefdn/weaviate-playground:$LATESTVERSION

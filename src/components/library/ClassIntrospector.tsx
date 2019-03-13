@@ -5,6 +5,7 @@ import Grid from '@material-ui/core/Grid';
 import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
 import Typography from '@material-ui/core/Typography';
+import get from 'get-value';
 import React from 'react';
 import apolloClient from 'src/apollo/apolloClient';
 import translations from 'src/translations/en';
@@ -17,6 +18,15 @@ import {
   NetworkClassesQuery,
   UPDATE_CLASS_MUTATION
 } from '../introspection/queries';
+
+// tslint:disable-next-line:no-empty-interface
+interface IClassIntrospectorProps {}
+
+interface IClassIntrospectorState {
+  empty: boolean;
+  error: boolean;
+  loading: boolean;
+}
 
 const StateMessage = ({
   message,
@@ -54,6 +64,7 @@ const StateMessage = ({
           </a>{' '}
           on Github.
         </Typography>
+        {message && <Typography color="error">{message}</Typography>}
         <form>
           <FormControl margin="normal" required={true} fullWidth={true}>
             <InputLabel htmlFor="weaviateUri">Weaviate URL</InputLabel>
@@ -80,11 +91,7 @@ const StateMessage = ({
   </Grid>
 );
 
-/**
- * ClassIntrospector: introspects and stores classes to client
- * classIds are being queried to create the empty slot on the client
- */
-const ClassIntrospector: React.SFC = ({ children }) => (
+const ClassFetcher: React.SFC = ({ children }) => (
   <ClassIdsQuery query={CLASS_IDS_QUERY}>
     {classIdsQuery => {
       return (
@@ -222,5 +229,77 @@ const ClassIntrospector: React.SFC = ({ children }) => (
     }}
   </ClassIdsQuery>
 );
+
+/**
+ * ClassIntrospector: introspects and stores classes to client
+ * classIds are being queried to create the empty slot on the client
+ */
+class ClassIntrospector extends React.Component<
+  IClassIntrospectorProps,
+  IClassIntrospectorState
+> {
+  constructor(props: IClassIntrospectorProps) {
+    super(props);
+    this.state = {
+      empty: true,
+      error: false,
+      loading: true
+    };
+  }
+
+  public componentDidMount() {
+    this.fetchClasses();
+  }
+
+  public fetchClasses() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const uri = urlParams.get('weaviateUri') || '';
+    const uriMeta = uri.replace('graphql', 'meta');
+
+    // TODO: Remove RESTful request when integrated in GraphQL
+    fetch(uriMeta)
+      .then(r => r.json())
+      .then(data => {
+        const actionClasses = get(data, 'actionSchema.classes');
+        const thingsClasses = get(data, 'thingsSchema.classes');
+        const empty =
+          !Boolean(actionClasses && actionClasses.length) &&
+          !Boolean(thingsClasses && thingsClasses.length);
+        this.setState({ error: false, empty, loading: false });
+      })
+      .catch(err => {
+        this.setState({ error: true, loading: false });
+      });
+  }
+
+  public render() {
+    const { empty, error, loading } = this.state;
+    const { children } = this.props;
+    if (loading) {
+      return (
+        <StateMessage
+          state="loading"
+          message={translations.loadingLocalClasses}
+        />
+      );
+    } else if (error) {
+      return (
+        <StateMessage
+          state="error"
+          message="The provided url doesn't provide access to a Weaviate instance."
+        />
+      );
+    } else if (empty) {
+      return (
+        <StateMessage
+          state="error"
+          message="The provided Weaviate instance is empty."
+        />
+      );
+    }
+
+    return <ClassFetcher children={children} />;
+  }
+}
 
 export default ClassIntrospector;

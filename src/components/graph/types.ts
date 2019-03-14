@@ -28,6 +28,7 @@ export interface IGraphLeafConnection {
 export type IGraphLeafConnections = IGraphLink[];
 
 export interface IGraphLink extends Partial<IGraphLinkConfig> {
+  id?: string;
   isActive: boolean;
   source: string;
   target: string;

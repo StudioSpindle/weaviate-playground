@@ -23,6 +23,7 @@ const buildLinkPathDefinition = ({
   const dy = ty - sy;
   const dr = Math.sqrt(dx * dx + dy * dy);
   const unevenCorrection = sameUneven ? 0 : 0.5;
+  // Add arc for multiple links
   const arc = (dr * maxSameHalf) / (sameIndexCorrected - unevenCorrection);
   const d = sameMiddleLink
     ? `M${sx},${sy}L${midx},${midy},${tx},${ty}`

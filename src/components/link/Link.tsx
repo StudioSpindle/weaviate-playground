@@ -8,6 +8,7 @@ import { compose } from 'react-apollo';
 export interface ILinkProps {
   className: string;
   d: string;
+  id: string;
   isActive?: boolean;
   mouseCursor: string;
   opacity: number;
@@ -17,7 +18,7 @@ export interface ILinkProps {
   target: any;
   theme: Theme;
   value?: string;
-  onClickLink(source: any, target: any): void;
+  onClickLink(id: string): void;
   onMouseOutLink(source: any, target: any): void;
   onMouseOverLink(source: any, target: any): void;
 }
@@ -26,8 +27,7 @@ export interface ILinkProps {
  * Component
  */
 class Link extends React.Component<ILinkProps> {
-  public handleOnClickLink = () =>
-    this.props.onClickLink(this.props.source, this.props.target);
+  public handleOnClickLink = () => this.props.onClickLink(this.props.id);
 
   public handleOnMouseOverLink = () =>
     this.props.onMouseOverLink(this.props.source, this.props.target);
@@ -39,13 +39,12 @@ class Link extends React.Component<ILinkProps> {
     const {
       className,
       d,
+      id,
       isActive,
       mouseCursor,
       opacity,
       stroke,
       strokeWidth,
-      source,
-      target,
       theme,
       value
     } = this.props;
@@ -70,13 +69,11 @@ class Link extends React.Component<ILinkProps> {
       strokeWidth
     };
 
-    const randomId = `${source}-${target}`;
-
     const lineProps: any = {
       className,
       d,
-      markerEnd: `url(#${randomId}-marker)`,
-      markerMid: `url(#${randomId})`,
+      markerEnd: `url(#${id}-marker)`,
+      markerMid: `url(#${id})`,
       style: lineStyle
     };
 
@@ -103,7 +100,7 @@ class Link extends React.Component<ILinkProps> {
         <defs>
           <marker
             className="marker"
-            id={`${randomId}-marker`}
+            id={`${id}-marker`}
             viewBox="0 -5 10 10"
             refX="42" // {this.props.refX}
             refY="0"
@@ -115,7 +112,7 @@ class Link extends React.Component<ILinkProps> {
             <path d="M0,-5L10,0L0,5" />
           </marker>
           <marker
-            id={randomId}
+            id={id}
             viewBox={`0 0 ${markerHeight} ${markerWidth}`}
             refX={markerWidth / 2}
             refY={markerHeight / 2}

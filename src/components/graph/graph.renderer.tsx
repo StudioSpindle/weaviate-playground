@@ -5,7 +5,6 @@ import { MARKERS } from '../marker/marker.const';
 import Node from '../node/Node';
 import { isNodeVisible } from './collapse.helper';
 import { buildLinkProps, buildNodeProps } from './graph.builder';
-import CONST from './graph.const';
 import {
   IGraphConfig,
   IGraphD3Link,
@@ -36,7 +35,30 @@ const renderLinks = (
     const { source, target } = link;
     const sourceId = typeof source === 'string' ? source : source.id; // source.id;
     const targetId = typeof source === 'string' ? target : target.id; // target.id;
-    const key = `${sourceId}${CONST.COORDS_SEPARATOR}${targetId}`;
+
+    // Find all links that match source and target and sort in alphabetical order
+    const sameLinks = links
+      .filter(
+        linkObj =>
+          linkObj.id.includes(sourceId) &&
+          linkObj.id.includes(targetId as string)
+      )
+      .map(linkObj => linkObj.id)
+      .sort();
+
+    const sameLinksLength = sameLinks.length;
+    const sameLinksPosition = sameLinks.indexOf(link.id);
+    const initialSource = sameLinks[0].includes(`${sourceId}-${targetId}`)
+      ? `${sourceId}-${targetId}`
+      : `${targetId}-${sourceId}`;
+    const initialSourceLinksLength = sameLinks.filter(linkId =>
+      linkId.includes(initialSource)
+    ).length;
+    const adjSameLinksPostion =
+      sameLinksPosition < initialSourceLinksLength
+        ? sameLinksPosition
+        : sameLinksPosition + sameLinksLength - initialSourceLinksLength;
+
     const props = buildLinkProps(
       {
         ...link,
@@ -48,11 +70,13 @@ const renderLinks = (
       config,
       linkCallbacks,
       transform,
+      sameLinksLength,
+      adjSameLinksPostion,
       highlightedNode,
       highlightedLink
     );
 
-    return <Link key={key} {...props} />;
+    return <Link key={link.id} id={link.id} {...props} />;
   });
 };
 

@@ -21,7 +21,6 @@
     "graphiql": "^0.12.0",
     "graphql": "^14.0.2",
     "graphql-tag": "^2.9.2",
-    "node-fetch": "^2.2.0",
     "prismjs": "^1.15.0",
     "rc-slider": "^8.6.3",
     "react": "^16.5.2",

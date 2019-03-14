@@ -191,9 +191,12 @@ class Canvas extends React.PureComponent<ICanvasProps, ICanvasState> {
                   link.value === fieldNameCapitalized
               );
 
+              const id = `${classId}-${classIdTarget}-${fieldNameCapitalized}`;
+
               if (selectedClasses.includes(classIdTarget)) {
                 links.push({
                   color: 'blue',
+                  id,
                   isActive: prevLink ? prevLink.isActive : false,
                   source: classId,
                   target: classIdTarget,
@@ -247,11 +250,9 @@ class Canvas extends React.PureComponent<ICanvasProps, ICanvasState> {
     this.setState({ graph });
   }
 
-  public onClickLink = (source: any, target: any) => {
+  public onClickLink = (id: string) => {
     const { links } = this.state.graph;
-    const index = links.findIndex(
-      link => link.source === source && link.target === target
-    );
+    const index = links.findIndex(link => link.id === id);
     const targetLink = links[index];
     const updatedLink = {
       ...targetLink,

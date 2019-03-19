@@ -1,15 +1,17 @@
+import Checkbox from '@material-ui/core/Checkbox';
+import IconButton from '@material-ui/core/IconButton';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
+import ListItemText from '@material-ui/core/ListItemText';
 import { Theme } from '@material-ui/core/styles/createMuiTheme';
 import createStyles from '@material-ui/core/styles/createStyles';
 import withStyles, { WithStyles } from '@material-ui/core/styles/withStyles';
 import Typography from '@material-ui/core/Typography';
+import CreateIcon from '@material-ui/icons/Create';
 import React from 'react';
 import { Tag } from 'src/components';
-import {
-  ActionIcon,
-  AddIcon,
-  CheckIcon,
-  ThingIcon
-} from 'src/components/icons';
+import { ActionIcon, ThingIcon } from 'src/components/icons';
 import {
   LIBRARY_CLASS_BUTTON_QUERY,
   LibraryClassButtonQuery,
@@ -47,16 +49,16 @@ const styles = (theme: Theme) =>
       paddingTop: '1em',
       width: '100%'
     },
-    buttonText: {
-      fontWeight: 'bold'
+    checkbox: {
+      padding: 0,
+      paddingRight: '0.5em'
     },
-    iconContainer: {
-      display: 'flex',
-      marginLeft: '24px',
-      marginRight: '1em'
+    listItem: {
+      paddingLeft: '16px',
+      paddingRight: '16px'
     },
-    iconNameContainer: {
-      display: 'flex'
+    listItemIcon: {
+      marginRight: 0
     }
   });
 
@@ -148,34 +150,38 @@ const LibraryClassButton: React.SFC<ILibraryClassProps> = ({
           variables={{ id }}
         >
           {(updateSelectedClasses: any) => (
-            <li>
-              <button
-                className={classes.button}
-                onClick={updateSelection.bind(null, updateSelectedClasses, id)}
-              >
-                <div className={classes.iconNameContainer}>
-                  <div className={classes.iconContainer}>
-                    {classType === 'Things' && (
-                      <ThingIcon viewBox={viewBox.classType} />
-                    )}
-                    {classType === 'Actions' && (
-                      <ActionIcon viewBox={viewBox.classType} />
-                    )}
-                  </div>
-                  <Typography className={classes.buttonText}>
-                    {name} <Tag>{instance}</Tag>
-                  </Typography>
-                </div>
+            <ListItem
+              key={id}
+              role={undefined}
+              dense={true}
+              button={true}
+              onClick={updateSelection.bind(null, updateSelectedClasses, id)}
+              classes={{ root: classes.listItem }}
+            >
+              <Checkbox
+                checked={isSelected}
+                classes={{
+                  root: classes.checkbox
+                }}
+                tabIndex={-1}
+                disableRipple={true}
+              />
+              <ListItemIcon classes={{ root: classes.listItemIcon }}>
+                {classType === 'Things' ? (
+                  <ThingIcon viewBox={viewBox.classType} />
+                ) : (
+                  <ActionIcon viewBox={viewBox.classType} />
+                )}
+              </ListItemIcon>
 
-                <div className={classes.iconContainer}>
-                  {isSelected ? (
-                    <CheckIcon viewBox={viewBox.selection} />
-                  ) : (
-                    <AddIcon viewBox={viewBox.selection} />
-                  )}
-                </div>
-              </button>
-            </li>
+              <ListItemText primary={name} />
+              <ListItemSecondaryAction>
+                <Tag>{instance}</Tag>
+                <IconButton aria-label="Edit thing or action">
+                  <CreateIcon />
+                </IconButton>
+              </ListItemSecondaryAction>
+            </ListItem>
           )}
         </SelectedClassesMutation>
       );

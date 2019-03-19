@@ -15,6 +15,7 @@
     "apollo-link": "^1.2.3",
     "apollo-link-error": "^1.1.1",
     "apollo-link-http": "^1.5.5",
+    "apollo-link-rest": "^0.7.0",
     "apollo-link-state": "^0.4.2",
     "d3": "^5.7.0",
     "get-value": "^3.0.1",

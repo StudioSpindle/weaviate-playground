@@ -1,3 +1,4 @@
+import Divider from '@material-ui/core/Divider';
 import { Theme } from '@material-ui/core/styles/createMuiTheme';
 import createStyles from '@material-ui/core/styles/createStyles';
 import withStyles, { WithStyles } from '@material-ui/core/styles/withStyles';
@@ -7,6 +8,7 @@ import {
   LibraryClassSelection,
   LibraryFilters,
   LibraryTextSearch,
+  OntologyEditor,
   Section
 } from 'src/components';
 import {
@@ -85,6 +87,8 @@ const Library: React.SFC<ILibraryProps> = ({ classes }) => (
                   <div className={classes.classContainer}>
                     <LibraryClassSelection selectedClasses={selectedClasses} />
                     <LibraryClasses />
+                    <Divider />
+                    <OntologyEditor />
                   </div>
                 );
               }}

@@ -6,8 +6,10 @@ import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
 import Typography from '@material-ui/core/Typography';
 import get from 'get-value';
+import gql from 'graphql-tag';
 import React from 'react';
 import apolloClient from 'src/apollo/apolloClient';
+import client from 'src/apollo/apolloClient';
 import translations from 'src/translations/en';
 import {
   CLASS_IDS_QUERY,
@@ -252,16 +254,27 @@ class ClassIntrospector extends React.Component<
   }
 
   public fetchClasses() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const uri = urlParams.get('weaviateUri') || '';
-    const uriMeta = uri.replace('graphql', 'meta');
-
     // TODO: Remove RESTful request when integrated in GraphQL
-    fetch(uriMeta)
-      .then(r => r.json())
-      .then(data => {
-        const actionClasses = get(data, 'actionSchema.classes');
-        const thingsClasses = get(data, 'thingsSchema.classes');
+    const query = gql`
+      query classSchemas {
+        classSchemas @rest(type: "ClassSchemas", path: "meta") {
+          actionSchema
+          thingsSchema
+        }
+      }
+    `;
+
+    client
+      .query({ query })
+      .then(classSchemasQuery => {
+        const actionClasses = get(
+          classSchemasQuery,
+          'data.classSchemas.actionSchema.classes'
+        );
+        const thingsClasses = get(
+          classSchemasQuery,
+          'data.classSchemas.thingsSchema.classes'
+        );
         const empty =
           !Boolean(actionClasses && actionClasses.length) &&
           !Boolean(thingsClasses && thingsClasses.length);

@@ -44,6 +44,13 @@ export {
 } from 'src/components/libraryTextSearch/LibraryTextSearch';
 export { default as Link } from './link/Link';
 export { default as Node } from './node/Node';
+export { default as OntologyEditor } from './ontologyEditor/OntologyEditor';
+export {
+  default as OntologyEditorClass
+} from './ontologyEditorClass/OntologyEditorClass';
+export {
+  default as OntologyEditorProperty
+} from './ontologyEditorProperty/OntologyEditorProperty';
 export { default as Results } from 'src/components/results/Results';
 export {
   default as ResultsContainer

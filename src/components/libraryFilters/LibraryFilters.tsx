@@ -136,77 +136,86 @@ const LibraryFilters: React.SFC<ILibraryFiltersProps> = ({
 
   return (
     <div className={classes.container}>
-      <UpdateClassesFiltersMutation mutation={UPDATE_CLASSES_FILTERS}>
-        {updateClassesFilters => (
-          <ToggleButtonGroup
-            classes={{ root: classes.root }}
-            value={selectedClassLocation}
-            exclusive={true}
-            onChange={updateClassesFiltersLocation.bind(
-              null,
-              updateClassesFilters
-            )}
-          >
-            {Object.keys(classLocations).map((classLocationKey, i) => {
-              const classLocation: ClassLocation =
-                classLocations[classLocationKey];
-              const isSelected = classLocation === selectedClassLocation;
-              return (
-                <ToggleButton
-                  key={i}
-                  value={classLocation}
-                  selected={isSelected}
-                  classes={{
-                    root: classes.button,
-                    selected: classes.buttonSelected
-                  }}
-                >
-                  <span className={classes.iconContainer}>
-                    {getIcon(classLocation, isSelected)}{' '}
-                  </span>
-                  <Typography classes={{ root: classes.typography }}>
-                    {classLocation}
-                  </Typography>
-                </ToggleButton>
-              );
-            })}
-          </ToggleButtonGroup>
-        )}
-      </UpdateClassesFiltersMutation>
+      <div>
+        <Typography>Show schema type</Typography>
+        <UpdateClassesFiltersMutation mutation={UPDATE_CLASSES_FILTERS}>
+          {updateClassesFilters => (
+            <ToggleButtonGroup
+              classes={{ root: classes.root }}
+              value={selectedClassType}
+              exclusive={true}
+              onChange={updateClassesFiltersType.bind(
+                null,
+                updateClassesFilters
+              )}
+            >
+              {Object.keys(classTypes).map((classTypeKey, i) => {
+                const classType: ClassType = classTypes[classTypeKey];
+                const isSelected = classType === selectedClassType;
+                return (
+                  <ToggleButton
+                    key={i}
+                    value={classType}
+                    selected={isSelected}
+                    classes={{
+                      root: classes.button,
+                      selected: classes.buttonSelected
+                    }}
+                  >
+                    <span className={classes.iconContainer}>
+                      {getIcon(classType, isSelected)}{' '}
+                    </span>
+                    <Typography classes={{ root: classes.typography }}>
+                      {classType}
+                    </Typography>
+                  </ToggleButton>
+                );
+              })}
+            </ToggleButtonGroup>
+          )}
+        </UpdateClassesFiltersMutation>
+      </div>
 
-      <UpdateClassesFiltersMutation mutation={UPDATE_CLASSES_FILTERS}>
-        {updateClassesFilters => (
-          <ToggleButtonGroup
-            classes={{ root: classes.root }}
-            value={selectedClassType}
-            exclusive={true}
-            onChange={updateClassesFiltersType.bind(null, updateClassesFilters)}
-          >
-            {Object.keys(classTypes).map((classTypeKey, i) => {
-              const classType: ClassType = classTypes[classTypeKey];
-              const isSelected = classType === selectedClassType;
-              return (
-                <ToggleButton
-                  key={i}
-                  value={classType}
-                  selected={isSelected}
-                  classes={{
-                    root: classes.button,
-                    selected: classes.buttonSelected
-                  }}
-                >
-                  <span className={classes.iconContainer}>
-                    {getIcon(classType, isSelected)}{' '}
-                  </span>
-                  <Typography classes={{ root: classes.typography }}>
-                    {classType}
-                  </Typography>
-                </ToggleButton>
-              );
-            })}
-          </ToggleButtonGroup>
-        )}
-      </UpdateClassesFiltersMutation>
+      <div>
+        <Typography>Located in</Typography>
+        <UpdateClassesFiltersMutation mutation={UPDATE_CLASSES_FILTERS}>
+          {updateClassesFilters => (
+            <ToggleButtonGroup
+              classes={{ root: classes.root }}
+              value={selectedClassLocation}
+              exclusive={true}
+              onChange={updateClassesFiltersLocation.bind(
+                null,
+                updateClassesFilters
+              )}
+            >
+              {Object.keys(classLocations).map((classLocationKey, i) => {
+                const classLocation: ClassLocation =
+                  classLocations[classLocationKey];
+                const isSelected = classLocation === selectedClassLocation;
+                return (
+                  <ToggleButton
+                    key={i}
+                    value={classLocation}
+                    selected={isSelected}
+                    classes={{
+                      root: classes.button,
+                      selected: classes.buttonSelected
+                    }}
+                  >
+                    <span className={classes.iconContainer}>
+                      {getIcon(classLocation, isSelected)}{' '}
+                    </span>
+                    <Typography classes={{ root: classes.typography }}>
+                      {classLocation}
+                    </Typography>
+                  </ToggleButton>
+                );
+              })}
+            </ToggleButtonGroup>
+          )}
+        </UpdateClassesFiltersMutation>
+      </div>
     </div>
   );
 };

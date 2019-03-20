@@ -6,7 +6,6 @@ import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
 import Typography from '@material-ui/core/Typography';
 import get from 'get-value';
-import gql from 'graphql-tag';
 import React from 'react';
 import apolloClient from 'src/apollo/apolloClient';
 import client from 'src/apollo/apolloClient';
@@ -20,6 +19,7 @@ import {
   NetworkClassesQuery,
   UPDATE_CLASS_MUTATION
 } from '../introspection/queries';
+import { CLASS_SCHEMA_QUERY } from './queries';
 
 // tslint:disable-next-line:no-empty-interface
 interface IClassIntrospectorProps {}
@@ -254,18 +254,8 @@ class ClassIntrospector extends React.Component<
   }
 
   public fetchClasses() {
-    // TODO: Remove RESTful request when integrated in GraphQL
-    const query = gql`
-      query classSchemas {
-        classSchemas @rest(type: "ClassSchemas", path: "meta") {
-          actionSchema
-          thingsSchema
-        }
-      }
-    `;
-
     client
-      .query({ query })
+      .query({ query: CLASS_SCHEMA_QUERY })
       .then(classSchemasQuery => {
         const actionClasses = get(
           classSchemasQuery,

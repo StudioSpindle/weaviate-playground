@@ -13,14 +13,19 @@ import {
 import TextField from '@material-ui/core/TextField';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
+import gql from 'graphql-tag';
 import * as React from 'react';
+import { Mutation } from 'react-apollo';
 
 /**
  * Types
  */
 // tslint:disable-next-line:no-empty-interface
 export interface IOntologyEditorPropertyProps
-  extends WithStyles<typeof styles> {}
+  extends WithStyles<typeof styles> {
+  className?: string;
+  classType?: string;
+}
 
 export interface IOntologyEditorPropertyState {
   dataType: 'string' | 'thing';
@@ -128,13 +133,45 @@ class OntologyEditorProperty extends React.Component<
     });
   };
 
+  public savePropertyMutation = (savePropertyMutation: any) => {
+    const { className, classType } = this.props;
+
+    savePropertyMutation({
+      variables: {
+        body: {
+          '@dataType': ['string'],
+          cardinality: 'atMostOne',
+          description: 'string',
+          keywords: [
+            {
+              keyword: 'string',
+              weight: 0
+            }
+          ],
+          name: 'string'
+        },
+        className,
+        classType
+      }
+    })
+      .then(() => {
+        this.setState({ isDrawerOpen: false });
+      })
+      // tslint:disable-next-line:no-console
+      .catch(console.log);
+  };
+
   public render() {
     const { dataType, isDrawerOpen } = this.state;
-    const { classes } = this.props;
+    const { classes, className } = this.props;
 
     return (
       <div className={classes.ontologyActionsContainer}>
-        <Button variant="outlined" onClick={this.toggleDrawer}>
+        <Button
+          variant="outlined"
+          onClick={this.toggleDrawer}
+          disabled={!className}
+        >
           <Typography>Add property</Typography>
         </Button>
 
@@ -234,15 +271,36 @@ class OntologyEditorProperty extends React.Component<
                 >
                   Cancel
                 </Button>
-                <Button
-                  variant="contained"
-                  size="small"
-                  color="primary"
-                  onClick={this.toggleDrawer}
-                  className={classes.button}
+                <Mutation
+                  mutation={gql`
+                    mutation createClass($classType: String!, $body: Body!) {
+                      saveProperty(classType: $classType, body: $body)
+                        @rest(
+                          type: "Class"
+                          path: "schema/{args.classType}/{args.className}/properties"
+                          method: "POST"
+                          bodyKey: "body"
+                        ) {
+                        NoResponse
+                      }
+                    }
+                  `}
                 >
-                  Save property
-                </Button>
+                  {(savePropertyMutation, result) => (
+                    <Button
+                      variant="contained"
+                      size="small"
+                      color="primary"
+                      className={classes.button}
+                      onClick={this.savePropertyMutation.bind(
+                        null,
+                        savePropertyMutation
+                      )}
+                    >
+                      Save property
+                    </Button>
+                  )}
+                </Mutation>
               </div>
             </Paper>
           </div>

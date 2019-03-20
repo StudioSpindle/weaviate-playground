@@ -9,6 +9,11 @@ const onErrorLink = onError(({ graphQLErrors, networkError }) => {
       );
     });
   }
+
+  if (networkError) {
+    // tslint:disable-next-line:no-console
+    console.log(networkError);
+  }
 });
 
 export default onErrorLink;

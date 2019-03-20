@@ -16,12 +16,17 @@ import Typography from '@material-ui/core/Typography';
 import gql from 'graphql-tag';
 import * as React from 'react';
 import { Mutation } from 'react-apollo';
+import client from 'src/apollo/apolloClient';
+import { ClassId } from '../canvas/Canvas';
+import { UPDATE_CLASS_MUTATION } from '../introspection/queries';
 
 /**
  * Types
  */
-// tslint:disable-next-line:no-empty-interface
-export interface IOntologyEditorClassProps extends WithStyles<typeof styles> {}
+export interface IOntologyEditorClassProps extends WithStyles<typeof styles> {
+  classId?: ClassId;
+  setClassId(classId: string, className: string, classType: string): void;
+}
 
 export interface IOntologyEditorClassState {
   className: string;
@@ -113,6 +118,11 @@ class OntologyEditorClass extends React.Component<
 
   public saveClassMutation = (saveClassMutation: any) => {
     const { className, classType, description, keywords } = this.state;
+    const { setClassId } = this.props;
+
+    const classTypeCapitalized =
+      classType.charAt(0).toUpperCase() + classType.slice(1);
+    const classId = `local-${classTypeCapitalized}-${className}`;
 
     saveClassMutation({
       variables: {
@@ -123,7 +133,28 @@ class OntologyEditorClass extends React.Component<
         },
         classType
       }
-    });
+    })
+      .then(() => {
+        return client.mutate({
+          mutation: UPDATE_CLASS_MUTATION,
+          variables: {
+            classLocation: 'Local',
+            classType,
+            filters: '{}',
+            id: classId,
+            instance: 'Local',
+            name: className
+          }
+        });
+      })
+      .then(() => {
+        return setClassId(classId, className, classType);
+      })
+      .then(() => {
+        this.setState({ isDrawerOpen: false });
+      })
+      // tslint:disable-next-line:no-console
+      .catch(console.log);
   };
 
   public render() {
@@ -141,7 +172,7 @@ class OntologyEditorClass extends React.Component<
     return (
       <div className={classes.ontologyActionsContainer}>
         <Button variant="outlined" onClick={this.toggleDrawer}>
-          <Typography>Configure class</Typography>
+          <Typography>{className ? 'Edit' : 'Configure class'}</Typography>
         </Button>
 
         <Drawer
@@ -241,23 +272,20 @@ class OntologyEditorClass extends React.Component<
                 </Button>
                 <Mutation
                   mutation={gql`
-                    mutation createClass(
-                      $classType: String!
-                      $body: PublishablePostInput!
-                    ) {
-                      saveClas(classType: $classType, body: $body)
+                    mutation createClass($classType: String!, $body: Body!) {
+                      saveClass(classType: $classType, body: $body)
                         @rest(
                           type: "Class"
                           path: "schema/{args.classType}"
                           method: "POST"
                           bodyKey: "body"
                         ) {
-                        id
+                        NoResponse
                       }
                     }
                   `}
                 >
-                  {(saveClassMutation, { data }) => (
+                  {(saveClassMutation, result) => (
                     <Button
                       variant="contained"
                       size="small"
@@ -269,7 +297,11 @@ class OntologyEditorClass extends React.Component<
                       )}
                       className={classes.button}
                     >
-                      Save class
+                      {result.loading
+                        ? 'Submitting...'
+                        : result.error
+                        ? 'Error'
+                        : 'Save class'}
                     </Button>
                   )}
                 </Mutation>

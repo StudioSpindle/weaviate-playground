@@ -3,6 +3,7 @@ import Button from '@material-ui/core/Button';
 import Divider from '@material-ui/core/Divider';
 import Drawer from '@material-ui/core/Drawer';
 import Grid from '@material-ui/core/Grid';
+import IconButton from '@material-ui/core/IconButton';
 import Paper from '@material-ui/core/Paper';
 import {
   createStyles,
@@ -17,26 +18,26 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
+import CreateIcon from '@material-ui/icons/Create';
 import get from 'get-value';
 import * as React from 'react';
 import { Query } from 'react-apollo';
 import { OntologyEditorClass, OntologyEditorProperty } from 'src/components';
+import { ClassType } from 'src/types';
 import { CLASS_SCHEMA_QUERY } from '../library/queries';
-import {
-  ONTOLOGY_EDITOR_CLASS_NAME_QUERY,
-  OntologyEditorClassNameQuery
-} from './queries';
 
 /**
  * Types
  */
-// tslint:disable-next-line:no-empty-interface
-export interface IOntologyEditorProps extends WithStyles<typeof styles> {}
+export interface IOntologyEditorProps extends WithStyles<typeof styles> {
+  className?: string;
+  classType?: ClassType;
+}
 
 export interface IOntologyEditorState {
   classId?: string;
   className?: string;
-  classType?: string;
+  classType?: ClassType;
   isDrawerOpen: boolean;
 }
 
@@ -81,6 +82,13 @@ class OntologyEditor extends React.Component<
     };
   }
 
+  public componentWillMount() {
+    const { className, classType } = this.props;
+    if (className && classType) {
+      this.setState({ className, classType });
+    }
+  }
+
   public toggleDrawer = () => {
     const { isDrawerOpen } = this.state;
 
@@ -92,7 +100,7 @@ class OntologyEditor extends React.Component<
   public setClassId = (
     classId: string,
     className: string,
-    classType: string
+    classType: ClassType
   ) => {
     this.setState({
       classId,
@@ -106,10 +114,19 @@ class OntologyEditor extends React.Component<
     const { classes } = this.props;
 
     return (
-      <div className={classes.ontologyActionsContainer}>
-        <Button variant="outlined" onClick={this.toggleDrawer}>
-          <Typography>Create schema item</Typography>
-        </Button>
+      <React.Fragment>
+        {this.props.className && this.props.classType ? (
+          <IconButton
+            aria-label="Edit thing or action"
+            onClick={this.toggleDrawer}
+          >
+            <CreateIcon />
+          </IconButton>
+        ) : (
+          <Button variant="outlined" onClick={this.toggleDrawer}>
+            <Typography>Create schema item</Typography>
+          </Button>
+        )}
 
         <Drawer
           open={isDrawerOpen}
@@ -118,30 +135,10 @@ class OntologyEditor extends React.Component<
         >
           <AppBar position="static" elevation={1}>
             <Toolbar variant="dense">
-              {classId ? (
-                <OntologyEditorClassNameQuery
-                  query={ONTOLOGY_EDITOR_CLASS_NAME_QUERY}
-                  variables={{ id: classId }}
-                >
-                  {classNameQuery => {
-                    if (
-                      classNameQuery.loading ||
-                      classNameQuery.error ||
-                      !classNameQuery.data
-                    ) {
-                      return null;
-                    }
+              <Typography color="inherit">
+                {className || 'Untitled schema item'}
+              </Typography>
 
-                    return (
-                      <Typography color="inherit">
-                        {classNameQuery.data.class.name}
-                      </Typography>
-                    );
-                  }}
-                </OntologyEditorClassNameQuery>
-              ) : (
-                <Typography color="inherit">Untitled schema item</Typography>
-              )}
               <div className={classes.grow} />
               <Button
                 variant="contained"
@@ -154,46 +151,43 @@ class OntologyEditor extends React.Component<
           </AppBar>
 
           <div className={classes.paperContainer}>
-            <Paper className={classes.paper}>
-              <div className={classes.paperBody}>
-                <Typography variant="h6">Class definition</Typography>
-              </div>
-              <Divider />
-              <div className={classes.paperBody}>
-                {className && classType && (
-                  <Query
-                    query={CLASS_SCHEMA_QUERY}
-                    fetchPolicy="cache-and-network"
-                  >
-                    {classSchemaQuery => {
-                      if (
-                        classSchemaQuery.loading ||
-                        classSchemaQuery.error ||
-                        !classSchemaQuery.data
-                      ) {
-                        return null;
-                      }
+            <Query query={CLASS_SCHEMA_QUERY} fetchPolicy="cache-and-network">
+              {classSchemaQuery => {
+                if (
+                  classSchemaQuery.loading ||
+                  classSchemaQuery.error ||
+                  !classSchemaQuery.data
+                ) {
+                  return null;
+                }
 
-                      const classesSchema =
-                        get(
-                          classSchemaQuery,
-                          `data.classSchemas.${classType.toLowerCase()}Schema.classes`
-                        ) || [];
+                const classesSchema =
+                  get(
+                    classSchemaQuery,
+                    `data.classSchemas.${(
+                      classType || ''
+                    ).toLowerCase()}Schema.classes`
+                  ) || [];
 
-                      const classSchema = classesSchema.find(
-                        (schema: any) => schema.class === className
-                      );
+                const classSchema = classesSchema.find(
+                  (schema: any) => schema.class === className
+                );
 
-                      const description = get(classSchema, 'description');
-                      const keywords = get(classSchema, 'keywords') || [];
+                const description = get(classSchema, 'description');
+                const keywords = get(classSchema, 'keywords') || [];
+                const properties = get(classSchema, 'properties');
 
-                      // tslint:disable-next-line:no-console
-                      console.log(classSchema, keywords);
+                return (
+                  <React.Fragment>
+                    <Paper className={classes.paper}>
+                      <div className={classes.paperBody}>
+                        <Typography variant="h6">Class definition</Typography>
+                      </div>
+                      <Divider />
+                      <div className={classes.paperBody}>
+                        <Typography variant="h6">Class definition</Typography>
 
-                      return (
-                        <React.Fragment>
-                          <Typography variant="h6">Class definition</Typography>
-
+                        {className && classType && (
                           <Grid container={true} spacing={8}>
                             <Grid item={true} xs={12}>
                               <Typography color="textSecondary">
@@ -216,49 +210,66 @@ class OntologyEditor extends React.Component<
                               </Typography>
                             </Grid>
                           </Grid>
+                        )}
 
-                          <Table>
-                            <TableHead>
-                              <TableRow>
-                                <TableCell>Keyword</TableCell>
-                                <TableCell>Weight</TableCell>
+                        <Table>
+                          <TableHead>
+                            <TableRow>
+                              <TableCell>Keyword</TableCell>
+                              <TableCell>Weight</TableCell>
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {keywords.map((keyword: any, i: number) => (
+                              <TableRow key={i}>
+                                <TableCell>{keyword.keyword}</TableCell>
+                                <TableCell>{keyword.weight}</TableCell>
                               </TableRow>
-                            </TableHead>
-                            <TableBody>
-                              {keywords.map((keyword: any, i: number) => (
-                                <TableRow key={i}>
-                                  <TableCell>{keyword.keyword}</TableCell>
-                                  <TableCell>{keyword.weight}</TableCell>
-                                </TableRow>
-                              ))}
-                            </TableBody>
-                          </Table>
-                        </React.Fragment>
-                      );
-                    }}
-                  </Query>
-                )}
-                <OntologyEditorClass
-                  classId={classId}
-                  setClassId={this.setClassId}
-                />
-              </div>
-            </Paper>
-            <Paper className={classes.paper}>
-              <div className={classes.paperBody}>
-                <Typography variant="h6">Properties</Typography>
-              </div>
-              <Divider />
-              <div className={classes.paperBody}>
-                <OntologyEditorProperty
-                  className={className}
-                  classType={classType}
-                />
-              </div>
-            </Paper>
+                            ))}
+                          </TableBody>
+                        </Table>
+
+                        <OntologyEditorClass
+                          classId={classId}
+                          className={className}
+                          classType={classType}
+                          keywords={keywords}
+                          setClassId={this.setClassId}
+                        />
+                      </div>
+                    </Paper>
+
+                    <Paper className={classes.paper}>
+                      <div className={classes.paperBody}>
+                        <Typography variant="h6">Properties</Typography>
+                      </div>
+                      <Divider />
+
+                      <Table>
+                        <TableBody>
+                          {properties.map((property: any, i: number) => (
+                            <TableRow key={i}>
+                              <TableCell>{property.name}</TableCell>
+                              <TableCell>{property.description}</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+
+                      <div className={classes.paperBody}>
+                        <OntologyEditorProperty
+                          className={className}
+                          classType={classType}
+                        />
+                      </div>
+                    </Paper>
+                  </React.Fragment>
+                );
+              }}
+            </Query>
           </div>
         </Drawer>
-      </div>
+      </React.Fragment>
     );
   }
 }

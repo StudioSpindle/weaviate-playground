@@ -16,6 +16,7 @@ import Typography from '@material-ui/core/Typography';
 import gql from 'graphql-tag';
 import * as React from 'react';
 import { Mutation } from 'react-apollo';
+import { Keywords } from 'src/types';
 
 /**
  * Types
@@ -28,8 +29,14 @@ export interface IOntologyEditorPropertyProps
 }
 
 export interface IOntologyEditorPropertyState {
-  dataType: 'string' | 'thing';
+  cardinality: string;
+  dataType: any;
+  description: string;
+  isDisabled: boolean;
   isDrawerOpen: boolean;
+  keywords: Keywords;
+  propertyName: string;
+  propertyNameError: boolean;
 }
 
 /**
@@ -116,13 +123,34 @@ class OntologyEditorProperty extends React.Component<
   constructor(props: IOntologyEditorPropertyProps) {
     super(props);
     this.state = {
+      cardinality: 'atMostOne',
       dataType: 'string',
-      isDrawerOpen: false
+      description: '',
+      isDisabled: true,
+      isDrawerOpen: false,
+      keywords: [],
+      propertyName: '',
+      propertyNameError: false
     };
   }
 
-  public setDataType = (e: any) => {
-    this.setState({ dataType: e.target.value });
+  public setFormField = (name: string) => (event: any) => {
+    // @ts-ignore
+    this.setState({ [name]: event.target.value });
+  };
+
+  public validateFormField = (name: string) => (event: any) => {
+    const { propertyName } = this.state;
+    if (name === 'className') {
+      if (propertyName === '') {
+        this.setState({
+          isDisabled: true,
+          propertyNameError: true
+        });
+      } else {
+        this.setState({ isDisabled: false, propertyNameError: false });
+      }
+    }
   };
 
   public toggleDrawer = () => {
@@ -134,24 +162,26 @@ class OntologyEditorProperty extends React.Component<
   };
 
   public savePropertyMutation = (savePropertyMutation: any) => {
+    const {
+      cardinality,
+      dataType,
+      description,
+      keywords,
+      propertyName
+    } = this.state;
     const { className, classType } = this.props;
 
     savePropertyMutation({
       variables: {
         body: {
-          '@dataType': ['string'],
-          cardinality: 'atMostOne',
-          description: 'string',
-          keywords: [
-            {
-              keyword: 'string',
-              weight: 0
-            }
-          ],
-          name: 'string'
+          '@dataType': [dataType],
+          cardinality,
+          description,
+          keywords,
+          name: propertyName
         },
         className,
-        classType
+        classType: (classType || '').toLowerCase()
       }
     })
       .then(() => {
@@ -162,7 +192,7 @@ class OntologyEditorProperty extends React.Component<
   };
 
   public render() {
-    const { dataType, isDrawerOpen } = this.state;
+    const { dataType, description, isDrawerOpen, propertyName } = this.state;
     const { classes, className } = this.props;
 
     return (
@@ -197,6 +227,8 @@ class OntologyEditorProperty extends React.Component<
                     name="propertyName"
                     label="Property name"
                     helperText="Helper text"
+                    value={propertyName}
+                    onChange={this.setFormField('propertyName')}
                     fullWidth={true}
                     autoComplete="ontologyEditorProperty propertyName"
                   />
@@ -208,7 +240,7 @@ class OntologyEditorProperty extends React.Component<
                     label="Select"
                     fullWidth={true}
                     value={dataType}
-                    onChange={this.setDataType}
+                    onChange={this.setFormField('dataType')}
                     helperText="Helper text"
                     margin="normal"
                   >
@@ -225,6 +257,8 @@ class OntologyEditorProperty extends React.Component<
                     name="description"
                     label="Description"
                     helperText="Helper text"
+                    value={description}
+                    onChange={this.setFormField('description')}
                     fullWidth={true}
                     autoComplete="ontologyEditorProperty description"
                   />
@@ -232,12 +266,12 @@ class OntologyEditorProperty extends React.Component<
                 <Grid item={true} xs={12} sm={6}>
                   <TextField
                     required={true}
-                    id="keywords"
-                    name="keywords"
-                    label="Keywords"
+                    id="keyword"
+                    name="keyword"
+                    label="Keyword"
                     helperText="Helper text"
                     fullWidth={true}
-                    autoComplete="ontologyEditorProperty keywords"
+                    autoComplete="ontologyEditorProperty keyword"
                   />
                 </Grid>
                 <Grid item={true} xs={12} sm={4}>
@@ -273,8 +307,16 @@ class OntologyEditorProperty extends React.Component<
                 </Button>
                 <Mutation
                   mutation={gql`
-                    mutation createClass($classType: String!, $body: Body!) {
-                      saveProperty(classType: $classType, body: $body)
+                    mutation createClass(
+                      $classType: String!
+                      $className: String!
+                      $body: Body!
+                    ) {
+                      saveProperty(
+                        classType: $classType
+                        className: $className
+                        body: $body
+                      )
                         @rest(
                           type: "Class"
                           path: "schema/{args.classType}/{args.className}/properties"

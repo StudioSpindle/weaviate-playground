@@ -10,32 +10,47 @@ import {
   WithStyles,
   withStyles
 } from '@material-ui/core/styles';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
 import TextField from '@material-ui/core/TextField';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
-import gql from 'graphql-tag';
 import * as React from 'react';
-import { Mutation } from 'react-apollo';
 import client from 'src/apollo/apolloClient';
+import { ClassType, IKeyword, Keywords } from 'src/types';
 import { ClassId } from '../canvas/Canvas';
 import { UPDATE_CLASS_MUTATION } from '../introspection/queries';
+import {
+  CREATE_CLASS_MUTATION,
+  CreateClassMutation,
+  UPDATE_CLASS_SCHEMA_MUTATION,
+  UpdateClassSchemaMutation
+} from './queries';
 
 /**
  * Types
  */
 export interface IOntologyEditorClassProps extends WithStyles<typeof styles> {
   classId?: ClassId;
+  className?: string;
+  classType?: ClassType;
+  keywords?: Keywords;
   setClassId(classId: string, className: string, classType: string): void;
 }
 
 export interface IOntologyEditorClassState {
   className: string;
   classNameError: boolean;
-  classType: 'actions' | 'things';
+  classType: ClassType;
   description: string;
   isDisabled: boolean;
   isDrawerOpen: boolean;
-  keywords: string[];
+  keyword: IKeyword['keyword'];
+  weight: IKeyword['weight'];
+  keywords: Keywords;
 }
 
 /**
@@ -81,12 +96,28 @@ class OntologyEditorClass extends React.Component<
     this.state = {
       className: '',
       classNameError: false,
-      classType: 'things',
+      classType: 'Things',
       description: '',
       isDisabled: true,
       isDrawerOpen: false,
-      keywords: []
+      keyword: '',
+      keywords: [],
+      weight: 0
     };
+  }
+
+  public componentWillMount() {
+    const { className, classType } = this.props;
+    if (className && classType) {
+      this.setState({ className, classType });
+    }
+  }
+
+  public componentWillUpdate(nextProps: IOntologyEditorClassProps) {
+    const { keywords } = this.state;
+    if (nextProps.keywords !== keywords && nextProps.keywords) {
+      this.setState({ keywords: nextProps.keywords });
+    }
   }
 
   public setFormField = (name: string) => (event: any) => {
@@ -119,10 +150,7 @@ class OntologyEditorClass extends React.Component<
   public saveClassMutation = (saveClassMutation: any) => {
     const { className, classType, description, keywords } = this.state;
     const { setClassId } = this.props;
-
-    const classTypeCapitalized =
-      classType.charAt(0).toUpperCase() + classType.slice(1);
-    const classId = `local-${classTypeCapitalized}-${className}`;
+    const classId = `local-${classType}-${className}`;
 
     saveClassMutation({
       variables: {
@@ -157,6 +185,26 @@ class OntologyEditorClass extends React.Component<
       .catch(console.log);
   };
 
+  public updateClassSchemaMutation = (updateClassSchemaMutation: any) => {
+    const { className, classType, keyword, keywords, weight } = this.state;
+    const newKeywords = [...keywords, { keyword, weight: Number(weight) }];
+
+    updateClassSchemaMutation({
+      variables: {
+        body: {
+          keywords: newKeywords
+        },
+        className,
+        classType: classType.toLowerCase()
+      }
+    })
+      .then(() => {
+        this.setState({ keyword: '', keywords: newKeywords, weight: 0 });
+      })
+      // tslint:disable-next-line:no-console
+      .catch(console.log);
+  };
+
   public render() {
     const {
       className,
@@ -165,9 +213,12 @@ class OntologyEditorClass extends React.Component<
       description,
       isDisabled,
       isDrawerOpen,
-      keywords
+      keyword,
+      keywords,
+      weight
     } = this.state;
     const { classes } = this.props;
+    const isNewClass = !this.props.className;
 
     return (
       <div className={classes.ontologyActionsContainer}>
@@ -182,16 +233,17 @@ class OntologyEditorClass extends React.Component<
         >
           <AppBar position="static" elevation={1}>
             <Toolbar variant="dense">
-              <Typography color="inherit">New class</Typography>
+              <Typography color="inherit">
+                {isNewClass ? 'New' : 'Edit'} class
+              </Typography>
             </Toolbar>
           </AppBar>
           <form className={classes.paperContainer}>
             <Paper className={classes.paper}>
-              <Typography variant="h6">Class definition</Typography>
-
               <Grid container={true} spacing={8}>
                 <Grid item={true} xs={12}>
                   <TextField
+                    disabled={!isNewClass}
                     id="class-type"
                     select={true}
                     label="Select"
@@ -201,12 +253,13 @@ class OntologyEditorClass extends React.Component<
                     helperText="Helper text"
                     margin="normal"
                   >
-                    <MenuItem value="things">Thing</MenuItem>
-                    <MenuItem value="actions">Action</MenuItem>
+                    <MenuItem value="Things">Thing</MenuItem>
+                    <MenuItem value="Actions">Action</MenuItem>
                   </TextField>
                 </Grid>
                 <Grid item={true} xs={12}>
                   <TextField
+                    disabled={!isNewClass}
                     required={true}
                     id="className"
                     name="className"
@@ -222,6 +275,7 @@ class OntologyEditorClass extends React.Component<
                 </Grid>
                 <Grid item={true} xs={12}>
                   <TextField
+                    disabled={!isNewClass}
                     id="description"
                     name="description"
                     label="Description"
@@ -234,30 +288,64 @@ class OntologyEditorClass extends React.Component<
                 </Grid>
                 <Grid item={true} xs={12} sm={6}>
                   <TextField
-                    id="keywords"
-                    name="keywords"
-                    label="Keywords"
+                    id="keyword"
+                    name="keyword"
+                    label="Keyword"
                     helperText="Helper text"
-                    value={keywords}
-                    onChange={this.setFormField('keywords')}
+                    value={keyword}
+                    onChange={this.setFormField('keyword')}
                     fullWidth={true}
-                    autoComplete="ontologyEditorClass keywords"
+                    autoComplete="ontologyEditorClass keyword"
                   />
                 </Grid>
                 <Grid item={true} xs={12} sm={4}>
                   <TextField
+                    inputProps={{ min: 0, max: 1, step: 0.01 }}
+                    type="number"
                     id="weight"
                     name="weight"
                     label="Weight"
                     helperText="Helper text"
+                    value={weight}
+                    onChange={this.setFormField('weight')}
                     fullWidth={true}
                     autoComplete="ontologyEditorClass weight"
                   />
                 </Grid>
                 <Grid item={true} xs={12} sm={2}>
-                  <Button variant="text" onClick={this.toggleDrawer}>
-                    <Typography>Add</Typography>
-                  </Button>
+                  <UpdateClassSchemaMutation
+                    mutation={UPDATE_CLASS_SCHEMA_MUTATION}
+                  >
+                    {(updateClassSchemaMutation, result) => (
+                      <Button
+                        variant="text"
+                        onClick={this.updateClassSchemaMutation.bind(
+                          null,
+                          updateClassSchemaMutation
+                        )}
+                      >
+                        Add
+                      </Button>
+                    )}
+                  </UpdateClassSchemaMutation>
+                </Grid>
+                <Grid item={true} xs={12}>
+                  <Table>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Keyword</TableCell>
+                        <TableCell>Weight</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {keywords.map((keywordItem, i: number) => (
+                        <TableRow key={i}>
+                          <TableCell>{keywordItem.keyword}</TableCell>
+                          <TableCell>{keywordItem.weight}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
                 </Grid>
               </Grid>
 
@@ -270,21 +358,7 @@ class OntologyEditorClass extends React.Component<
                 >
                   Cancel
                 </Button>
-                <Mutation
-                  mutation={gql`
-                    mutation createClass($classType: String!, $body: Body!) {
-                      saveClass(classType: $classType, body: $body)
-                        @rest(
-                          type: "Class"
-                          path: "schema/{args.classType}"
-                          method: "POST"
-                          bodyKey: "body"
-                        ) {
-                        NoResponse
-                      }
-                    }
-                  `}
-                >
+                <CreateClassMutation mutation={CREATE_CLASS_MUTATION}>
                   {(saveClassMutation, result) => (
                     <Button
                       variant="contained"
@@ -304,7 +378,7 @@ class OntologyEditorClass extends React.Component<
                         : 'Save class'}
                     </Button>
                   )}
-                </Mutation>
+                </CreateClassMutation>
               </div>
             </Paper>
           </form>

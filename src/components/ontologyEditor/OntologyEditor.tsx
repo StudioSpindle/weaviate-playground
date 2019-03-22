@@ -93,6 +93,7 @@ class OntologyEditor extends React.Component<
     const { isDrawerOpen } = this.state;
 
     this.setState({
+      classId: undefined,
       isDrawerOpen: !isDrawerOpen
     });
   };
@@ -175,7 +176,7 @@ class OntologyEditor extends React.Component<
 
                 const description = get(classSchema, 'description');
                 const keywords = get(classSchema, 'keywords') || [];
-                const properties = get(classSchema, 'properties');
+                const properties = get(classSchema, 'properties') || [];
 
                 return (
                   <React.Fragment>
@@ -185,8 +186,6 @@ class OntologyEditor extends React.Component<
                       </div>
                       <Divider />
                       <div className={classes.paperBody}>
-                        <Typography variant="h6">Class definition</Typography>
-
                         {className && classType && (
                           <Grid container={true} spacing={8}>
                             <Grid item={true} xs={12}>
@@ -212,27 +211,30 @@ class OntologyEditor extends React.Component<
                           </Grid>
                         )}
 
-                        <Table>
-                          <TableHead>
-                            <TableRow>
-                              <TableCell>Keyword</TableCell>
-                              <TableCell>Weight</TableCell>
-                            </TableRow>
-                          </TableHead>
-                          <TableBody>
-                            {keywords.map((keyword: any, i: number) => (
-                              <TableRow key={i}>
-                                <TableCell>{keyword.keyword}</TableCell>
-                                <TableCell>{keyword.weight}</TableCell>
+                        {Boolean(keywords.length) && (
+                          <Table>
+                            <TableHead>
+                              <TableRow>
+                                <TableCell>Keyword</TableCell>
+                                <TableCell>Weight</TableCell>
                               </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
+                            </TableHead>
+                            <TableBody>
+                              {keywords.map((keyword: any, i: number) => (
+                                <TableRow key={i}>
+                                  <TableCell>{keyword.keyword}</TableCell>
+                                  <TableCell>{keyword.weight}</TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        )}
 
                         <OntologyEditorClass
                           classId={classId}
                           className={className}
                           classType={classType}
+                          description={description}
                           keywords={keywords}
                           setClassId={this.setClassId}
                         />
@@ -260,6 +262,8 @@ class OntologyEditor extends React.Component<
                         <OntologyEditorProperty
                           className={className}
                           classType={classType}
+                          classesSchema={classesSchema}
+                          classSchemaQuery={classSchemaQuery}
                         />
                       </div>
                     </Paper>

@@ -37,6 +37,7 @@ export interface IOntologyEditorClassProps extends WithStyles<typeof styles> {
   classId?: ClassId;
   className?: string;
   classType?: ClassType;
+  description?: string;
   keywords?: Keywords;
   setClassId(classId: string, className: string, classType: string): void;
 }
@@ -107,16 +108,28 @@ class OntologyEditorClass extends React.Component<
   }
 
   public componentWillMount() {
-    const { className, classType } = this.props;
+    const { className, classType, description, keywords } = this.props;
     if (className && classType) {
-      this.setState({ className, classType });
+      this.setState({
+        className,
+        classType,
+        description: description || '',
+        keywords: keywords || []
+      });
     }
   }
 
   public componentWillUpdate(nextProps: IOntologyEditorClassProps) {
     const { keywords } = this.state;
-    if (nextProps.keywords !== keywords && nextProps.keywords) {
-      this.setState({ keywords: nextProps.keywords });
+    if (
+      this.props.keywords !== nextProps.keywords &&
+      nextProps.keywords !== keywords &&
+      nextProps.keywords
+    ) {
+      this.setState({
+        description: nextProps.description || '',
+        keywords: nextProps.keywords
+      });
     }
   }
 
@@ -147,6 +160,18 @@ class OntologyEditorClass extends React.Component<
     });
   };
 
+  public addKeyword = () => {
+    const { keyword, keywords, weight } = this.state;
+
+    if (keyword) {
+      this.setState({
+        keyword: '',
+        keywords: [...keywords, { keyword, weight: Number(weight) }],
+        weight: 0
+      });
+    }
+  };
+
   public saveClassMutation = (saveClassMutation: any) => {
     const { className, classType, description, keywords } = this.state;
     const { setClassId } = this.props;
@@ -159,11 +184,11 @@ class OntologyEditorClass extends React.Component<
           description,
           keywords
         },
-        classType
+        classType: classType.toLowerCase()
       }
     })
       .then(() => {
-        return client.mutate({
+        client.mutate({
           mutation: UPDATE_CLASS_MUTATION,
           variables: {
             classLocation: 'Local',
@@ -176,7 +201,7 @@ class OntologyEditorClass extends React.Component<
         });
       })
       .then(() => {
-        return setClassId(classId, className, classType);
+        setClassId(classId, className, classType);
       })
       .then(() => {
         this.setState({ isDrawerOpen: false });
@@ -319,10 +344,14 @@ class OntologyEditorClass extends React.Component<
                     {(updateClassSchemaMutation, result) => (
                       <Button
                         variant="text"
-                        onClick={this.updateClassSchemaMutation.bind(
-                          null,
-                          updateClassSchemaMutation
-                        )}
+                        onClick={
+                          isNewClass
+                            ? this.addKeyword
+                            : this.updateClassSchemaMutation.bind(
+                                null,
+                                updateClassSchemaMutation
+                              )
+                        }
                       >
                         Add
                       </Button>

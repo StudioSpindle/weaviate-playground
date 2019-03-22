@@ -1,5 +1,4 @@
 import Checkbox from '@material-ui/core/Checkbox';
-import IconButton from '@material-ui/core/IconButton';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
@@ -8,9 +7,9 @@ import { Theme } from '@material-ui/core/styles/createMuiTheme';
 import createStyles from '@material-ui/core/styles/createStyles';
 import withStyles, { WithStyles } from '@material-ui/core/styles/withStyles';
 import Typography from '@material-ui/core/Typography';
-import CreateIcon from '@material-ui/icons/Create';
+
 import React from 'react';
-import { Tag } from 'src/components';
+import { OntologyEditor, Tag } from 'src/components';
 import { ActionIcon, ThingIcon } from 'src/components/icons';
 import {
   LIBRARY_CLASS_BUTTON_QUERY,
@@ -177,9 +176,9 @@ const LibraryClassButton: React.SFC<ILibraryClassProps> = ({
               <ListItemText primary={name} />
               <ListItemSecondaryAction>
                 <Tag>{instance}</Tag>
-                <IconButton aria-label="Edit thing or action">
-                  <CreateIcon />
-                </IconButton>
+                {classLocation === 'Local' && (
+                  <OntologyEditor className={name} classType={classType} />
+                )}
               </ListItemSecondaryAction>
             </ListItem>
           )}

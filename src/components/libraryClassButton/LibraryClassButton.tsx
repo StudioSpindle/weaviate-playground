@@ -176,7 +176,9 @@ const LibraryClassButton: React.SFC<ILibraryClassProps> = ({
               <ListItemText primary={name} />
               <ListItemSecondaryAction>
                 <Tag>{instance}</Tag>
-                <OntologyEditor className={name} classType={classType} />
+                {classLocation === 'Local' && (
+                  <OntologyEditor className={name} classType={classType} />
+                )}
               </ListItemSecondaryAction>
             </ListItem>
           )}

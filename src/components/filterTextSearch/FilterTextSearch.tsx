@@ -99,21 +99,22 @@ class FilterTextSearch extends React.Component<
           margin="normal"
         />
         <List dense={true}>
-          {items
-            .filter(item =>
-              item.value.toLowerCase().includes(value.toLowerCase())
-            )
-            .map(item => (
-              <FilterTextSearchButton
-                key={item.value}
-                classId={classId}
-                filterName={filterName}
-                filterType={filterType}
-                filterValue={filterValue}
-                path={path}
-                value={item.value}
-              />
-            ))}
+          {items &&
+            items
+              .filter(item =>
+                item.value.toLowerCase().includes(value.toLowerCase())
+              )
+              .map(item => (
+                <FilterTextSearchButton
+                  key={item.value}
+                  classId={classId}
+                  filterName={filterName}
+                  filterType={filterType}
+                  filterValue={filterValue}
+                  path={path}
+                  value={item.value}
+                />
+              ))}
         </List>
       </div>
     );

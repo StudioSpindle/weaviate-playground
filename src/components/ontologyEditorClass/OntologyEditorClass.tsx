@@ -18,17 +18,22 @@ import TableRow from '@material-ui/core/TableRow';
 import TextField from '@material-ui/core/TextField';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
+import get from 'get-value';
 import * as React from 'react';
+import { QueryResult } from 'react-apollo';
 import client from 'src/apollo/apolloClient';
 import { ClassType, IKeyword, Keywords } from 'src/types';
+import { camelize } from 'src/utils';
 import { ClassId } from '../canvas/Canvas';
 import { UPDATE_CLASS_MUTATION } from '../introspection/queries';
+import { CLASS_IDS_QUERY } from '../libraryClasses/queries';
 import {
   CREATE_CLASS_MUTATION,
   CreateClassMutation,
   UPDATE_CLASS_SCHEMA_MUTATION,
   UpdateClassSchemaMutation
 } from './queries';
+import { VALIDATE_WORDS_CONTEXTIONARY_QUERY } from './queries/ValidateClassName';
 
 /**
  * Types
@@ -37,6 +42,7 @@ export interface IOntologyEditorClassProps extends WithStyles<typeof styles> {
   classId?: ClassId;
   className?: string;
   classType?: ClassType;
+  classSchemaQuery: QueryResult;
   description?: string;
   keywords?: Keywords;
   setClassId(classId: string, className: string, classType: string): void;
@@ -103,7 +109,7 @@ class OntologyEditorClass extends React.Component<
       isDrawerOpen: false,
       keyword: '',
       keywords: [],
-      weight: 0
+      weight: 1
     };
   }
 
@@ -140,6 +146,7 @@ class OntologyEditorClass extends React.Component<
 
   public validateFormField = (name: string) => (event: any) => {
     const { className } = this.state;
+
     if (name === 'className') {
       if (className === '') {
         this.setState({
@@ -147,7 +154,29 @@ class OntologyEditorClass extends React.Component<
           isDisabled: true
         });
       } else {
-        this.setState({ isDisabled: false, classNameError: false });
+        client
+          .query({
+            query: VALIDATE_WORDS_CONTEXTIONARY_QUERY,
+            variables: {
+              words: camelize(className)
+            }
+          })
+          .then((result: any) => {
+            const individualWords = get(
+              result,
+              'data.validateWordsContextionary.individualWords'
+            );
+            const notInC11y = individualWords.some((word: any) => !word.inC11y);
+
+            if (notInC11y) {
+              this.setState({ isDisabled: true, classNameError: true });
+            } else {
+              this.setState({ isDisabled: false, classNameError: false });
+            }
+          })
+          .catch(error => {
+            this.setState({ isDisabled: true, classNameError: true });
+          });
       }
     }
   };
@@ -167,14 +196,14 @@ class OntologyEditorClass extends React.Component<
       this.setState({
         keyword: '',
         keywords: [...keywords, { keyword, weight: Number(weight) }],
-        weight: 0
+        weight: 1
       });
     }
   };
 
   public saveClassMutation = (saveClassMutation: any) => {
     const { className, classType, description, keywords } = this.state;
-    const { setClassId } = this.props;
+    const { classSchemaQuery, setClassId } = this.props;
     const classId = `local-${classType}-${className}`;
 
     saveClassMutation({
@@ -188,7 +217,7 @@ class OntologyEditorClass extends React.Component<
       }
     })
       .then(() => {
-        client.mutate({
+        return client.mutate({
           mutation: UPDATE_CLASS_MUTATION,
           variables: {
             classLocation: 'Local',
@@ -201,9 +230,15 @@ class OntologyEditorClass extends React.Component<
         });
       })
       .then(() => {
+        return client.query({
+          query: CLASS_IDS_QUERY
+        });
+      })
+      .then(() => {
         setClassId(classId, className, classType);
       })
       .then(() => {
+        classSchemaQuery.refetch();
         this.setState({ isDrawerOpen: false });
       })
       // tslint:disable-next-line:no-console
@@ -224,7 +259,7 @@ class OntologyEditorClass extends React.Component<
       }
     })
       .then(() => {
-        this.setState({ keyword: '', keywords: newKeywords, weight: 0 });
+        this.setState({ keyword: '', keywords: newKeywords, weight: 1 });
       })
       // tslint:disable-next-line:no-console
       .catch(console.log);
@@ -258,7 +293,7 @@ class OntologyEditorClass extends React.Component<
         >
           <AppBar position="static" elevation={1}>
             <Toolbar variant="dense">
-              <Typography color="inherit">
+              <Typography component="h1" variant="subtitle1" color="inherit">
                 {isNewClass ? 'New' : 'Edit'} class
               </Typography>
             </Toolbar>
@@ -393,7 +428,7 @@ class OntologyEditorClass extends React.Component<
                       variant="contained"
                       size="small"
                       color="primary"
-                      disabled={isDisabled}
+                      disabled={isDisabled || !isNewClass}
                       onClick={this.saveClassMutation.bind(
                         null,
                         saveClassMutation

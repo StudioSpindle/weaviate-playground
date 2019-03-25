@@ -6,8 +6,12 @@ const url = uri.replace('graphql', '');
 
 const restLink = new RestLink({
   responseTransformer: async data => {
-    const text = await data.text();
-    return text.length ? JSON.parse(text) : {};
+    if (data) {
+      const text = await data.text();
+      return text.length ? JSON.parse(text) : {};
+    }
+
+    return {};
   },
   uri: url
 });

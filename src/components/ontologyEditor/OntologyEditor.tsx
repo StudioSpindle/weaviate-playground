@@ -46,6 +46,9 @@ export interface IOntologyEditorState {
  */
 const styles = (theme: Theme) =>
   createStyles({
+    button: {
+      margin: '0.5em 0.9em'
+    },
     drawer: {
       backgroundColor: theme.palette.grey[100],
       minWidth: '600px'
@@ -91,9 +94,11 @@ class OntologyEditor extends React.Component<
 
   public toggleDrawer = () => {
     const { isDrawerOpen } = this.state;
+    const { className } = this.props;
 
     this.setState({
       classId: undefined,
+      className,
       isDrawerOpen: !isDrawerOpen
     });
   };
@@ -124,7 +129,11 @@ class OntologyEditor extends React.Component<
             <CreateIcon />
           </IconButton>
         ) : (
-          <Button variant="outlined" onClick={this.toggleDrawer}>
+          <Button
+            variant="outlined"
+            onClick={this.toggleDrawer}
+            className={classes.button}
+          >
             <Typography>Create schema item</Typography>
           </Button>
         )}
@@ -136,7 +145,7 @@ class OntologyEditor extends React.Component<
         >
           <AppBar position="static" elevation={1}>
             <Toolbar variant="dense">
-              <Typography color="inherit">
+              <Typography component="h1" variant="subtitle1" color="inherit">
                 {className || 'Untitled schema item'}
               </Typography>
 
@@ -146,7 +155,9 @@ class OntologyEditor extends React.Component<
                 color="primary"
                 onClick={this.toggleDrawer}
               >
-                Close
+                <Typography color="inherit" variant="body2">
+                  Close
+                </Typography>
               </Button>
             </Toolbar>
           </AppBar>
@@ -234,6 +245,7 @@ class OntologyEditor extends React.Component<
                           classId={classId}
                           className={className}
                           classType={classType}
+                          classSchemaQuery={classSchemaQuery}
                           description={description}
                           keywords={keywords}
                           setClassId={this.setClassId}

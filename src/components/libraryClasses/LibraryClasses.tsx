@@ -1,3 +1,4 @@
+import get from 'get-value';
 import React from 'react';
 import { LibraryClassButton } from 'src/components';
 import { CLASS_IDS_QUERY, ClassIdsQuery } from './queries';
@@ -8,7 +9,7 @@ import { CLASS_IDS_QUERY, ClassIdsQuery } from './queries';
 const LibraryClasses: React.SFC = () => (
   <ClassIdsQuery query={CLASS_IDS_QUERY}>
     {(query: any) => {
-      const classIds = query.data.canvas.classIds;
+      const classIds = get(query, 'data.canvas.classIds') || [];
       return (
         <ul>
           {classIds.map((classId: string, i: number) => (

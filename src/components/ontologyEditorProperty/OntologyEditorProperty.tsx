@@ -21,7 +21,10 @@ import Typography from '@material-ui/core/Typography';
 import gql from 'graphql-tag';
 import * as React from 'react';
 import { Mutation, QueryResult } from 'react-apollo';
+import client from 'src/apollo/apolloClient';
 import { Keywords } from 'src/types';
+import { camelize } from 'src/utils';
+import { VALIDATE_WORDS_CONTEXTIONARY_QUERY } from '../ontologyEditorClass/queries/ValidateClassName';
 import {
   UPDATE_CLASS_PROPERTY_MUTATION,
   UpdateClassPropertyMutation
@@ -147,7 +150,7 @@ class OntologyEditorProperty extends React.Component<
       keywords: [],
       propertyName: '',
       propertyNameError: false,
-      weight: 0
+      weight: 1
     };
   }
 
@@ -165,7 +168,19 @@ class OntologyEditorProperty extends React.Component<
           propertyNameError: true
         });
       } else {
-        this.setState({ isDisabled: false, propertyNameError: false });
+        client
+          .query({
+            query: VALIDATE_WORDS_CONTEXTIONARY_QUERY,
+            variables: {
+              words: camelize(propertyName)
+            }
+          })
+          .then((result: any) => {
+            this.setState({ isDisabled: false, propertyNameError: false });
+          })
+          .catch(() => {
+            this.setState({ isDisabled: true, propertyNameError: true });
+          });
       }
     }
   };
@@ -185,7 +200,7 @@ class OntologyEditorProperty extends React.Component<
       this.setState({
         keyword: '',
         keywords: [...keywords, { keyword, weight: Number(weight) }],
-        weight: 0
+        weight: 1
       });
     }
   };
@@ -203,7 +218,6 @@ class OntologyEditorProperty extends React.Component<
     const dataTypeObject = dataTypes.find(
       dataTypex => dataTypex.weaviateType === dataType
     );
-
     const DataType =
       dataType === 'CrossRef' && classReference
         ? classReference
@@ -245,7 +259,7 @@ class OntologyEditorProperty extends React.Component<
       }
     })
       .then(() => {
-        this.setState({ keyword: '', keywords: newKeywords, weight: 0 });
+        this.setState({ keyword: '', keywords: newKeywords, weight: 1 });
       })
       // tslint:disable-next-line:no-console
       .catch(console.log);
@@ -283,7 +297,9 @@ class OntologyEditorProperty extends React.Component<
         >
           <AppBar position="static" elevation={1}>
             <Toolbar variant="dense">
-              <Typography color="inherit">New property</Typography>
+              <Typography component="h1" variant="subtitle1" color="inherit">
+                New property
+              </Typography>
             </Toolbar>
           </AppBar>
           <div className={classes.paperContainer}>

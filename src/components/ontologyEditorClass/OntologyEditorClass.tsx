@@ -27,12 +27,6 @@ import { camelize } from 'src/utils';
 import { ClassId } from '../canvas/Canvas';
 import { UPDATE_CLASS_MUTATION } from '../introspection/queries';
 import { CLASS_IDS_QUERY } from '../libraryClasses/queries';
-import {
-  CREATE_CLASS_MUTATION,
-  CreateClassMutation,
-  UPDATE_CLASS_SCHEMA_MUTATION,
-  UpdateClassSchemaMutation
-} from './queries';
 import { VALIDATE_WORDS_CONTEXTIONARY_QUERY } from './queries/ValidateClassName';
 
 /**
@@ -53,10 +47,13 @@ export interface IOntologyEditorClassState {
   classNameError: boolean;
   classType: ClassType;
   description: string;
+  isAddKeywordDisabled: boolean;
   isDisabled: boolean;
   isDrawerOpen: boolean;
   keyword: IKeyword['keyword'];
+  keywordError: boolean;
   weight: IKeyword['weight'];
+  weightError: boolean;
   keywords: Keywords;
 }
 
@@ -91,6 +88,10 @@ const styles = (theme: Theme) =>
     }
   });
 
+const urlParams = new URLSearchParams(window.location.search);
+const uri = urlParams.get('weaviateUri') || '';
+const url = uri.replace('graphql', '');
+
 /**
  * Component
  */
@@ -105,11 +106,14 @@ class OntologyEditorClass extends React.Component<
       classNameError: false,
       classType: 'Things',
       description: '',
+      isAddKeywordDisabled: false,
       isDisabled: true,
       isDrawerOpen: false,
       keyword: '',
+      keywordError: false,
       keywords: [],
-      weight: 1
+      weight: 1,
+      weightError: false
     };
   }
 
@@ -145,10 +149,20 @@ class OntologyEditorClass extends React.Component<
   };
 
   public validateFormField = (name: string) => (event: any) => {
-    const { className } = this.state;
+    const isClassName = name === 'className';
+    const isKeyword = name === 'keyword';
+    const isWeight = name === 'weight';
 
-    if (name === 'className') {
-      if (className === '') {
+    if (isWeight) {
+      if (this.state.weight >= 0 && this.state.weight <= 1) {
+        this.setState({ isAddKeywordDisabled: false, weightError: false });
+      } else {
+        this.setState({ isAddKeywordDisabled: true, weightError: true });
+      }
+    }
+
+    if (isClassName || isKeyword) {
+      if (this.state[name] === '') {
         this.setState({
           classNameError: true,
           isDisabled: true
@@ -158,7 +172,7 @@ class OntologyEditorClass extends React.Component<
           .query({
             query: VALIDATE_WORDS_CONTEXTIONARY_QUERY,
             variables: {
-              words: camelize(className)
+              words: camelize(this.state[name])
             }
           })
           .then((result: any) => {
@@ -169,9 +183,23 @@ class OntologyEditorClass extends React.Component<
             const notInC11y = individualWords.some((word: any) => !word.inC11y);
 
             if (notInC11y) {
-              this.setState({ isDisabled: true, classNameError: true });
+              if (isClassName) {
+                this.setState({ isDisabled: true, classNameError: true });
+              } else if (isKeyword) {
+                this.setState({
+                  isAddKeywordDisabled: true,
+                  keywordError: true
+                });
+              }
             } else {
-              this.setState({ isDisabled: false, classNameError: false });
+              if (isClassName) {
+                this.setState({ isDisabled: false, classNameError: false });
+              } else if (isKeyword) {
+                this.setState({
+                  isAddKeywordDisabled: false,
+                  keywordError: false
+                });
+              }
             }
           })
           .catch(error => {
@@ -183,6 +211,11 @@ class OntologyEditorClass extends React.Component<
 
   public toggleDrawer = () => {
     const { isDrawerOpen } = this.state;
+    const { classSchemaQuery } = this.props;
+
+    if (isDrawerOpen) {
+      classSchemaQuery.refetch();
+    }
 
     this.setState({
       isDrawerOpen: !isDrawerOpen
@@ -201,21 +234,31 @@ class OntologyEditorClass extends React.Component<
     }
   };
 
-  public saveClassMutation = (saveClassMutation: any) => {
+  public saveClassMutation = () => {
     const { className, classType, description, keywords } = this.state;
     const { classSchemaQuery, setClassId } = this.props;
     const classId = `local-${classType}-${className}`;
 
-    saveClassMutation({
-      variables: {
-        body: {
-          class: className,
-          description,
-          keywords
-        },
-        classType: classType.toLowerCase()
-      }
+    fetch(`${url}schema/${classType.toLowerCase()}`, {
+      body: JSON.stringify({
+        class: className,
+        description,
+        keywords
+      }),
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      method: 'POST'
     })
+      .then(res => {
+        if (res.status >= 400) {
+          this.setState({ isDisabled: true, classNameError: true });
+          throw new Error('');
+        } else {
+          return res.json();
+        }
+      })
       .then(() => {
         return client.mutate({
           mutation: UPDATE_CLASS_MUTATION,
@@ -245,19 +288,28 @@ class OntologyEditorClass extends React.Component<
       .catch(console.log);
   };
 
-  public updateClassSchemaMutation = (updateClassSchemaMutation: any) => {
+  public updateClassSchema = () => {
     const { className, classType, keyword, keywords, weight } = this.state;
     const newKeywords = [...keywords, { keyword, weight: Number(weight) }];
 
-    updateClassSchemaMutation({
-      variables: {
-        body: {
-          keywords: newKeywords
-        },
-        className,
-        classType: classType.toLowerCase()
-      }
+    fetch(`${url}schema/${(classType || '').toLowerCase()}/${className}`, {
+      body: JSON.stringify({
+        keywords: newKeywords
+      }),
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      method: 'PUT'
     })
+      .then(res => {
+        if (res.status >= 400) {
+          this.setState({ isDisabled: true, keywordError: true });
+          throw new Error('');
+        } else {
+          return res.text();
+        }
+      })
       .then(() => {
         this.setState({ keyword: '', keywords: newKeywords, weight: 1 });
       })
@@ -271,11 +323,14 @@ class OntologyEditorClass extends React.Component<
       classNameError,
       classType,
       description,
+      isAddKeywordDisabled,
       isDisabled,
       isDrawerOpen,
       keyword,
+      keywordError,
       keywords,
-      weight
+      weight,
+      weightError
     } = this.state;
     const { classes } = this.props;
     const isNewClass = !this.props.className;
@@ -354,6 +409,8 @@ class OntologyEditorClass extends React.Component<
                     helperText="Helper text"
                     value={keyword}
                     onChange={this.setFormField('keyword')}
+                    onBlur={this.validateFormField('keyword')}
+                    error={keywordError}
                     fullWidth={true}
                     autoComplete="ontologyEditorClass keyword"
                   />
@@ -368,30 +425,22 @@ class OntologyEditorClass extends React.Component<
                     helperText="Helper text"
                     value={weight}
                     onChange={this.setFormField('weight')}
+                    onBlur={this.validateFormField('weight')}
+                    error={weightError}
                     fullWidth={true}
                     autoComplete="ontologyEditorClass weight"
                   />
                 </Grid>
                 <Grid item={true} xs={12} sm={2}>
-                  <UpdateClassSchemaMutation
-                    mutation={UPDATE_CLASS_SCHEMA_MUTATION}
+                  <Button
+                    variant="text"
+                    disabled={isAddKeywordDisabled}
+                    onClick={
+                      isNewClass ? this.addKeyword : this.updateClassSchema
+                    }
                   >
-                    {(updateClassSchemaMutation, result) => (
-                      <Button
-                        variant="text"
-                        onClick={
-                          isNewClass
-                            ? this.addKeyword
-                            : this.updateClassSchemaMutation.bind(
-                                null,
-                                updateClassSchemaMutation
-                              )
-                        }
-                      >
-                        Add
-                      </Button>
-                    )}
-                  </UpdateClassSchemaMutation>
+                    Add
+                  </Button>
                 </Grid>
                 <Grid item={true} xs={12}>
                   <Table>
@@ -422,27 +471,17 @@ class OntologyEditorClass extends React.Component<
                 >
                   Cancel
                 </Button>
-                <CreateClassMutation mutation={CREATE_CLASS_MUTATION}>
-                  {(saveClassMutation, result) => (
-                    <Button
-                      variant="contained"
-                      size="small"
-                      color="primary"
-                      disabled={isDisabled || !isNewClass}
-                      onClick={this.saveClassMutation.bind(
-                        null,
-                        saveClassMutation
-                      )}
-                      className={classes.button}
-                    >
-                      {result.loading
-                        ? 'Submitting...'
-                        : result.error
-                        ? 'Error'
-                        : 'Save class'}
-                    </Button>
-                  )}
-                </CreateClassMutation>
+
+                <Button
+                  variant="contained"
+                  size="small"
+                  color="primary"
+                  disabled={isDisabled || !isNewClass}
+                  onClick={this.saveClassMutation}
+                  className={classes.button}
+                >
+                  Save class
+                </Button>
               </div>
             </Paper>
           </form>

@@ -150,7 +150,6 @@ const LibraryClassButton: React.SFC<ILibraryClassProps> = ({
         >
           {(updateSelectedClasses: any) => (
             <ListItem
-              className="library-class-button"
               key={id}
               role={undefined}
               dense={true}

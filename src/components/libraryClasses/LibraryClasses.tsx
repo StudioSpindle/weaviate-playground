@@ -18,7 +18,7 @@ class LibraryClasses extends React.Component {
 
           const classIds = (data && get(data, 'canvas.classIds')) || [];
           return (
-            <ul>
+            <ul id="library-class-button-container">
               {classIds.map((classId: string, i: number) => (
                 <LibraryClassButton
                   key={`${classId}${i}`}

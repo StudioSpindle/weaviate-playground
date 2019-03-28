@@ -8,7 +8,7 @@ const errorString =
   "The provided url doesn't provide access to a Weaviate instance.";
 const url = 'http://localhost:3000/';
 const faultyWeaviateUrl = 'Hello';
-const libraryClassButton = '.library-class-button';
+const libraryClassButtonContainer = '#library-class-button-container';
 const emptyWeaviateUrl = 'http://localhost:8080/weaviate/v1/graphql';
 const emptyWeaviateUrl2 =
   'http%3A%2F%2Flocalhost%3A8080%2Fweaviate%2Fv1%2Fgraphql';
@@ -62,9 +62,14 @@ describe('init Playground', () => {
 
     const newUrl1 = await page.url();
     expect(newUrl1).toEqual(`${url}?weaviateUri=${emptyWeaviateUrl2}`);
+    await page.waitForSelector(libraryClassButtonContainer);
 
-    const classesLength = (await page.$$(libraryClassButton)).length;
-    expect(classesLength).toEqual(0);
+    const libraryClassButtonsLength = await page.evaluate(() => {
+      // @ts-ignore
+      return document.getElementById('library-class-button-container').children
+        .length;
+    });
+    expect(libraryClassButtonsLength).toEqual(0);
 
     browser.close();
   }, 30000);
@@ -90,9 +95,14 @@ describe('init Playground', () => {
 
     const newUrl1 = await page.url();
     expect(newUrl1).toEqual(`${url}?weaviateUri=${emptyWeaviateUrl2}`);
+    await page.waitForSelector(libraryClassButtonContainer);
 
-    const classesLength = (await page.$$(libraryClassButton)).length;
-    expect(classesLength).toEqual(3);
+    const libraryClassButtonsLength = await page.evaluate(() => {
+      // @ts-ignore
+      return document.getElementById('library-class-button-container').children
+        .length;
+    });
+    expect(libraryClassButtonsLength).toEqual(33);
 
     browser.close();
   }, 30000);

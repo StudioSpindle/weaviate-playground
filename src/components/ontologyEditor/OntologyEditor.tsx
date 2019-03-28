@@ -21,7 +21,7 @@ import Typography from '@material-ui/core/Typography';
 import CreateIcon from '@material-ui/icons/Create';
 import get from 'get-value';
 import * as React from 'react';
-import { Query, QueryResult } from 'react-apollo';
+import { Query } from 'react-apollo';
 import { OntologyEditorClass, OntologyEditorProperty } from 'src/components';
 import { ClassType } from 'src/types';
 import { CLASS_SCHEMA_QUERY } from '../library/queries';
@@ -32,7 +32,6 @@ import { CLASS_SCHEMA_QUERY } from '../library/queries';
 export interface IOntologyEditorProps extends WithStyles<typeof styles> {
   className?: string;
   classType?: ClassType;
-  libraryClassesQuery?: QueryResult;
 }
 
 export interface IOntologyEditorState {
@@ -95,11 +94,7 @@ class OntologyEditor extends React.Component<
 
   public toggleDrawer = () => {
     const { isDrawerOpen } = this.state;
-    const { className, libraryClassesQuery } = this.props;
-
-    if (libraryClassesQuery) {
-      libraryClassesQuery.refetch();
-    }
+    const { className } = this.props;
 
     this.setState({
       classId: undefined,

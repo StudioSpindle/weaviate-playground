@@ -43,19 +43,7 @@ const styles = (theme: Theme) =>
  * Library component: renders class selection with filter options
  */
 class Library extends React.Component<ILibraryProps, ILibraryState> {
-  constructor(props: ILibraryProps) {
-    super(props);
-    this.state = {
-      libraryClassesQuery: undefined
-    };
-  }
-
-  public setLibraryClassesQuery = (libraryClassesQuery: any) => {
-    this.setState({ libraryClassesQuery });
-  };
-
   public render() {
-    const { libraryClassesQuery } = this.state;
     const { classes } = this.props;
     return (
       <Section title="Library" shortTitle="Lib">
@@ -109,16 +97,12 @@ class Library extends React.Component<ILibraryProps, ILibraryState> {
                           <LibraryClassSelection
                             selectedClasses={selectedClasses}
                           />
-                          <LibraryClasses
-                            setLibraryClassesQuery={this.setLibraryClassesQuery}
-                          />
+                          <LibraryClasses />
                           <Divider />
                         </div>
                         <Divider />
                         <div>
-                          <OntologyEditor
-                            libraryClassesQuery={libraryClassesQuery}
-                          />
+                          <OntologyEditor />
                         </div>
                       </React.Fragment>
                     );

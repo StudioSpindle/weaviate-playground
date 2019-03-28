@@ -20,7 +20,7 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import get from 'get-value';
 import * as React from 'react';
-import { QueryResult } from 'react-apollo';
+import { Mutation, QueryResult } from 'react-apollo';
 import client from 'src/apollo/apolloClient';
 import { ClassType, IKeyword, Keywords } from 'src/types';
 import { camelize } from 'src/utils';
@@ -215,11 +215,11 @@ class OntologyEditorClass extends React.Component<
 
     if (isDrawerOpen) {
       classSchemaQuery.refetch();
+    } else {
+      this.setState({
+        isDrawerOpen: !isDrawerOpen
+      });
     }
-
-    this.setState({
-      isDrawerOpen: !isDrawerOpen
-    });
   };
 
   public addKeyword = () => {
@@ -234,9 +234,9 @@ class OntologyEditorClass extends React.Component<
     }
   };
 
-  public saveClassMutation = () => {
+  public saveClassMutation = (saveClassMutation: any) => {
     const { className, classType, description, keywords } = this.state;
-    const { classSchemaQuery, setClassId } = this.props;
+    const { setClassId } = this.props;
     const classId = `local-${classType}-${className}`;
 
     fetch(`${url}schema/${classType.toLowerCase()}`, {
@@ -260,29 +260,20 @@ class OntologyEditorClass extends React.Component<
         }
       })
       .then(() => {
-        return client.mutate({
-          mutation: UPDATE_CLASS_MUTATION,
-          variables: {
-            classLocation: 'Local',
-            classType,
-            filters: '{}',
-            id: classId,
-            instance: 'Local',
-            name: className
-          }
-        });
+        return saveClassMutation();
       })
       .then(() => {
         return client.query({
           query: CLASS_IDS_QUERY
         });
       })
-      .then(() => {
-        setClassId(classId, className, classType);
+      .then(res => {
+        // tslint:disable-next-line:no-console
+        console.log(res);
+        return setClassId(classId, className, classType);
       })
       .then(() => {
-        classSchemaQuery.refetch();
-        this.setState({ isDrawerOpen: false });
+        this.toggleDrawer();
       })
       // tslint:disable-next-line:no-console
       .catch(console.log);
@@ -471,17 +462,35 @@ class OntologyEditorClass extends React.Component<
                 >
                   Cancel
                 </Button>
-
-                <Button
-                  variant="contained"
-                  size="small"
-                  color="primary"
-                  disabled={isDisabled || !isNewClass}
-                  onClick={this.saveClassMutation}
-                  className={classes.button}
+                <Mutation
+                  mutation={UPDATE_CLASS_MUTATION}
+                  variables={{
+                    classLocation: 'Local',
+                    classType,
+                    filters: '{}',
+                    id: `local-${classType}-${className}`,
+                    instance: 'Local',
+                    name: className
+                  }}
                 >
-                  Save class
-                </Button>
+                  {saveClassMutation => {
+                    return (
+                      <Button
+                        variant="contained"
+                        size="small"
+                        color="primary"
+                        disabled={isDisabled || !isNewClass}
+                        onClick={this.saveClassMutation.bind(
+                          null,
+                          saveClassMutation
+                        )}
+                        className={classes.button}
+                      >
+                        Save class
+                      </Button>
+                    );
+                  }}
+                </Mutation>
               </div>
             </Paper>
           </form>

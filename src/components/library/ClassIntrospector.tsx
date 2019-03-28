@@ -8,7 +8,6 @@ import Typography from '@material-ui/core/Typography';
 import get from 'get-value';
 import React from 'react';
 import apolloClient from 'src/apollo/apolloClient';
-import client from 'src/apollo/apolloClient';
 import translations from 'src/translations/en';
 import {
   CLASS_IDS_QUERY,
@@ -19,7 +18,6 @@ import {
   NetworkClassesQuery,
   UPDATE_CLASS_MUTATION
 } from '../introspection/queries';
-import { CLASS_SCHEMA_QUERY } from './queries';
 
 // tslint:disable-next-line:no-empty-interface
 interface IClassIntrospectorProps {}
@@ -267,17 +265,21 @@ class ClassIntrospector extends React.Component<
   }
 
   public fetchClasses() {
-    client
-      .query({ query: CLASS_SCHEMA_QUERY })
+    const urlParams = new URLSearchParams(window.location.search);
+    const uri = urlParams.get('weaviateUri') || '';
+    const url = uri.replace('graphql', '');
+
+    fetch(`${url}meta`)
+      .then(res => {
+        if (res.status >= 400) {
+          throw new Error('');
+        } else {
+          return res.json();
+        }
+      })
       .then(classSchemasQuery => {
-        const actionClasses = get(
-          classSchemasQuery,
-          'data.classSchemas.actionSchema.classes'
-        );
-        const thingsClasses = get(
-          classSchemasQuery,
-          'data.classSchemas.thingsSchema.classes'
-        );
+        const actionClasses = get(classSchemasQuery, 'actionSchema.classes');
+        const thingsClasses = get(classSchemasQuery, 'thingsSchema.classes');
         const empty =
           !Boolean(actionClasses && actionClasses.length) &&
           !Boolean(thingsClasses && thingsClasses.length);

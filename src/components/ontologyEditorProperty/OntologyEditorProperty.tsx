@@ -18,17 +18,13 @@ import TableRow from '@material-ui/core/TableRow';
 import TextField from '@material-ui/core/TextField';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
-import gql from 'graphql-tag';
+import get from 'get-value';
 import * as React from 'react';
-import { Mutation, QueryResult } from 'react-apollo';
+import { QueryResult } from 'react-apollo';
 import client from 'src/apollo/apolloClient';
 import { Keywords } from 'src/types';
 import { camelize } from 'src/utils';
 import { VALIDATE_WORDS_CONTEXTIONARY_QUERY } from '../ontologyEditorClass/queries/ValidateClassName';
-import {
-  UPDATE_CLASS_PROPERTY_MUTATION,
-  UpdateClassPropertyMutation
-} from './queries';
 
 /**
  * Types
@@ -47,13 +43,16 @@ export interface IOntologyEditorPropertyState {
   classReference?: string;
   dataType: any;
   description: string;
+  isAddKeywordDisabled: boolean;
   isDisabled: boolean;
   isDrawerOpen: boolean;
   keyword: string;
+  keywordError: boolean;
   keywords: Keywords;
-  weight: number;
   propertyName: string;
   propertyNameError: boolean;
+  weight: number;
+  weightError: boolean;
 }
 
 /**
@@ -130,6 +129,10 @@ const dataTypes = [
   }
 ];
 
+const urlParams = new URLSearchParams(window.location.search);
+const uri = urlParams.get('weaviateUri') || '';
+const url = uri.replace('graphql', '');
+
 /**
  * Component
  */
@@ -144,13 +147,16 @@ class OntologyEditorProperty extends React.Component<
       classReference: undefined,
       dataType: 'string',
       description: '',
+      isAddKeywordDisabled: false,
       isDisabled: true,
       isDrawerOpen: false,
       keyword: '',
+      keywordError: false,
       keywords: [],
       propertyName: '',
       propertyNameError: false,
-      weight: 1
+      weight: 1,
+      weightError: false
     };
   }
 
@@ -160,25 +166,57 @@ class OntologyEditorProperty extends React.Component<
   };
 
   public validateFormField = (name: string) => (event: any) => {
-    const { propertyName } = this.state;
-    if (name === 'className') {
-      if (propertyName === '') {
-        this.setState({
-          isDisabled: true,
-          propertyNameError: true
-        });
+    const isPropertyName = name === 'propertyName';
+    const isKeyword = name === 'keyword';
+    const isWeight = name === 'weight';
+
+    if (isWeight) {
+      if (this.state.weight >= 0 && this.state.weight <= 1) {
+        this.setState({ isAddKeywordDisabled: false, weightError: false });
+      } else {
+        this.setState({ isAddKeywordDisabled: true, weightError: true });
+      }
+    }
+
+    if (isPropertyName || isKeyword) {
+      if (this.state[name] === '') {
+        this.setState({ propertyNameError: true, isDisabled: true });
       } else {
         client
           .query({
             query: VALIDATE_WORDS_CONTEXTIONARY_QUERY,
             variables: {
-              words: camelize(propertyName)
+              words: camelize(this.state[name])
             }
           })
           .then((result: any) => {
-            this.setState({ isDisabled: false, propertyNameError: false });
+            const individualWords = get(
+              result,
+              'data.validateWordsContextionary.individualWords'
+            );
+            const notInC11y = individualWords.some((word: any) => !word.inC11y);
+
+            if (notInC11y) {
+              if (isPropertyName) {
+                this.setState({ isDisabled: true, propertyNameError: true });
+              } else if (isKeyword) {
+                this.setState({
+                  isAddKeywordDisabled: true,
+                  keywordError: true
+                });
+              }
+            } else {
+              if (isPropertyName) {
+                this.setState({ isDisabled: false, propertyNameError: false });
+              } else if (isKeyword) {
+                this.setState({
+                  isAddKeywordDisabled: false,
+                  keywordError: false
+                });
+              }
+            }
           })
-          .catch(() => {
+          .catch(error => {
             this.setState({ isDisabled: true, propertyNameError: true });
           });
       }
@@ -205,7 +243,7 @@ class OntologyEditorProperty extends React.Component<
     }
   };
 
-  public savePropertyMutation = (savePropertyMutation: any) => {
+  public saveProperty = () => {
     const {
       cardinality,
       classReference,
@@ -223,20 +261,32 @@ class OntologyEditorProperty extends React.Component<
         ? classReference
         : dataTypeObject && dataTypeObject.dataType;
 
-    savePropertyMutation({
-      variables: {
-        body: {
+    fetch(
+      `${url}schema/${(classType || '').toLowerCase()}/${className}/properties`,
+      {
+        body: JSON.stringify({
           '@dataType': [DataType],
           cardinality,
           description,
           keywords,
           name: propertyName
+        }),
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
         },
-        className,
-        classType: (classType || '').toLowerCase()
+        method: 'POST'
       }
-    })
-      .then(() => {
+    )
+      .then(res => {
+        if (res.status >= 400) {
+          this.setState({ isDisabled: true, propertyNameError: true });
+          throw new Error('');
+        } else {
+          return res.json();
+        }
+      })
+      .then(res => {
         classSchemaQuery.refetch();
         this.setState({ isDrawerOpen: false });
       })
@@ -244,20 +294,30 @@ class OntologyEditorProperty extends React.Component<
       .catch(console.log);
   };
 
-  public updateClassPropertyMutation = (updateClassPropertyMutation: any) => {
+  public updateClassProperty = () => {
     const { className, classType } = this.props;
     const { keyword, keywords, weight } = this.state;
     const newKeywords = [...keywords, { keyword, weight: Number(weight) }];
 
-    updateClassPropertyMutation({
-      variables: {
-        body: {
-          keywords: newKeywords
+    fetch(
+      `${url}schema/${(classType || '').toLowerCase()}/${className}/properties`,
+      {
+        body: JSON.stringify({ keywords: newKeywords }),
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
         },
-        className,
-        classType: (classType || '').toLowerCase()
+        method: 'PUT'
       }
-    })
+    )
+      .then(res => {
+        if (res.status >= 400) {
+          this.setState({ isDisabled: true, keywordError: true });
+          throw new Error('');
+        } else {
+          return res.json();
+        }
+      })
       .then(() => {
         this.setState({ keyword: '', keywords: newKeywords, weight: 1 });
       })
@@ -271,11 +331,16 @@ class OntologyEditorProperty extends React.Component<
       classReference,
       dataType,
       description,
+      isAddKeywordDisabled,
+      isDisabled,
       isDrawerOpen,
       keyword,
+      keywordError,
       keywords,
       propertyName,
-      weight
+      propertyNameError,
+      weight,
+      weightError
     } = this.state;
     const { classes, classesSchema, className } = this.props;
     const isNewProperty = true;
@@ -316,6 +381,8 @@ class OntologyEditorProperty extends React.Component<
                     helperText="Helper text"
                     value={propertyName}
                     onChange={this.setFormField('propertyName')}
+                    onBlur={this.validateFormField('propertyName')}
+                    error={propertyNameError}
                     fullWidth={true}
                     autoComplete="ontologyEditorProperty propertyName"
                   />
@@ -397,6 +464,8 @@ class OntologyEditorProperty extends React.Component<
                     helperText="Helper text"
                     value={keyword}
                     onChange={this.setFormField('keyword')}
+                    onBlur={this.validateFormField('keyword')}
+                    error={keywordError}
                     fullWidth={true}
                     autoComplete="ontologyEditorProperty keyword"
                   />
@@ -411,30 +480,22 @@ class OntologyEditorProperty extends React.Component<
                     helperText="Helper text"
                     value={weight}
                     onChange={this.setFormField('weight')}
+                    onBlur={this.validateFormField('weight')}
+                    error={weightError}
                     fullWidth={true}
                     autoComplete="ontologyEditorProperty weight"
                   />
                 </Grid>
                 <Grid item={true} xs={12} sm={2}>
-                  <UpdateClassPropertyMutation
-                    mutation={UPDATE_CLASS_PROPERTY_MUTATION}
+                  <Button
+                    variant="text"
+                    disabled={isAddKeywordDisabled}
+                    onClick={
+                      isNewProperty ? this.addKeyword : this.updateClassProperty
+                    }
                   >
-                    {updateClassPropertyMutation => (
-                      <Button
-                        variant="text"
-                        onClick={
-                          isNewProperty
-                            ? this.addKeyword
-                            : this.updateClassPropertyMutation.bind(
-                                null,
-                                updateClassPropertyMutation
-                              )
-                        }
-                      >
-                        Add
-                      </Button>
-                    )}
-                  </UpdateClassPropertyMutation>
+                    Add
+                  </Button>
                 </Grid>
                 <Grid item={true} xs={12}>
                   <Table>
@@ -465,44 +526,17 @@ class OntologyEditorProperty extends React.Component<
                 >
                   Cancel
                 </Button>
-                <Mutation
-                  mutation={gql`
-                    mutation createClass(
-                      $classType: String!
-                      $className: String!
-                      $body: Body!
-                    ) {
-                      saveProperty(
-                        classType: $classType
-                        className: $className
-                        body: $body
-                      )
-                        @rest(
-                          type: "Class"
-                          path: "schema/{args.classType}/{args.className}/properties"
-                          method: "POST"
-                          bodyKey: "body"
-                        ) {
-                        NoResponse
-                      }
-                    }
-                  `}
+
+                <Button
+                  variant="contained"
+                  size="small"
+                  color="primary"
+                  disabled={isDisabled}
+                  className={classes.button}
+                  onClick={this.saveProperty}
                 >
-                  {(savePropertyMutation, result) => (
-                    <Button
-                      variant="contained"
-                      size="small"
-                      color="primary"
-                      className={classes.button}
-                      onClick={this.savePropertyMutation.bind(
-                        null,
-                        savePropertyMutation
-                      )}
-                    >
-                      Save property
-                    </Button>
-                  )}
-                </Mutation>
+                  Save property
+                </Button>
               </div>
             </Paper>
           </div>

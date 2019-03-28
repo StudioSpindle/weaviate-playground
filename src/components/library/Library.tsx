@@ -3,6 +3,7 @@ import { Theme } from '@material-ui/core/styles/createMuiTheme';
 import createStyles from '@material-ui/core/styles/createStyles';
 import withStyles, { WithStyles } from '@material-ui/core/styles/withStyles';
 import * as React from 'react';
+import { QueryResult } from 'react-apollo';
 import {
   LibraryClasses,
   LibraryClassSelection,
@@ -23,6 +24,10 @@ import {
  */
 interface ILibraryProps extends WithStyles<typeof styles> {}
 
+interface ILibraryState {
+  libraryClassesQuery?: QueryResult;
+}
+
 /**
  * Styles
  */
@@ -37,67 +42,95 @@ const styles = (theme: Theme) =>
 /**
  * Library component: renders class selection with filter options
  */
-const Library: React.SFC<ILibraryProps> = ({ classes }) => (
-  <Section title="Library" shortTitle="Lib">
-    <ClassesFiltersQuery query={CLASSES_FILTERS_QUERY}>
-      {classesFiltersQuery => {
-        if (classesFiltersQuery.loading) {
-          return 'Loading...';
-        }
+class Library extends React.Component<ILibraryProps, ILibraryState> {
+  constructor(props: ILibraryProps) {
+    super(props);
+    this.state = {
+      libraryClassesQuery: undefined
+    };
+  }
 
-        if (classesFiltersQuery.error) {
-          return `Error! ${classesFiltersQuery.error.message}`;
-        }
+  public setLibraryClassesQuery = (libraryClassesQuery: any) => {
+    this.setState({ libraryClassesQuery });
+  };
 
-        if (!classesFiltersQuery.data) {
-          // TODO: Replace with proper message
-          return null;
-        }
+  public render() {
+    const { libraryClassesQuery } = this.state;
+    const { classes } = this.props;
+    return (
+      <Section title="Library" shortTitle="Lib">
+        <ClassesFiltersQuery query={CLASSES_FILTERS_QUERY}>
+          {classesFiltersQuery => {
+            if (classesFiltersQuery.loading) {
+              return 'Loading...';
+            }
 
-        const selectedClassLocation =
-          classesFiltersQuery.data.classesFilters.classLocation;
-        const selectedClassType =
-          classesFiltersQuery.data.classesFilters.classType;
+            if (classesFiltersQuery.error) {
+              return `Error! ${classesFiltersQuery.error.message}`;
+            }
 
-        return (
-          <React.Fragment>
-            <LibraryTextSearch />
-            <LibraryFilters
-              selectedClassLocation={selectedClassLocation}
-              selectedClassType={selectedClassType}
-            />
+            if (!classesFiltersQuery.data) {
+              // TODO: Replace with proper message
+              return null;
+            }
 
-            <SelectedClassesQuery query={SELECTED_CLASSES_QUERY}>
-              {selectedClassesQuery => {
-                if (selectedClassesQuery.loading) {
-                  return 'Loading...';
-                }
+            const selectedClassLocation =
+              classesFiltersQuery.data.classesFilters.classLocation;
+            const selectedClassType =
+              classesFiltersQuery.data.classesFilters.classType;
 
-                if (selectedClassesQuery.error) {
-                  return `Error! ${selectedClassesQuery.error.message}`;
-                }
+            return (
+              <React.Fragment>
+                <LibraryTextSearch />
+                <LibraryFilters
+                  selectedClassLocation={selectedClassLocation}
+                  selectedClassType={selectedClassType}
+                />
 
-                if (!selectedClassesQuery.data) {
-                  // TODO: Replace with proper message
-                  return null;
-                }
-                const selectedClasses =
-                  selectedClassesQuery.data.canvas.selectedClasses;
-                return (
-                  <div className={classes.classContainer}>
-                    <LibraryClassSelection selectedClasses={selectedClasses} />
-                    <LibraryClasses />
-                    <Divider />
-                    <OntologyEditor />
-                  </div>
-                );
-              }}
-            </SelectedClassesQuery>
-          </React.Fragment>
-        );
-      }}
-    </ClassesFiltersQuery>
-  </Section>
-);
+                <SelectedClassesQuery query={SELECTED_CLASSES_QUERY}>
+                  {selectedClassesQuery => {
+                    if (selectedClassesQuery.loading) {
+                      return 'Loading...';
+                    }
+
+                    if (selectedClassesQuery.error) {
+                      return `Error! ${selectedClassesQuery.error.message}`;
+                    }
+
+                    if (!selectedClassesQuery.data) {
+                      // TODO: Replace with proper message
+                      return null;
+                    }
+                    const selectedClasses =
+                      selectedClassesQuery.data.canvas.selectedClasses;
+                    return (
+                      <React.Fragment>
+                        <div className={classes.classContainer}>
+                          <LibraryClassSelection
+                            selectedClasses={selectedClasses}
+                          />
+                          <LibraryClasses
+                            setLibraryClassesQuery={this.setLibraryClassesQuery}
+                          />
+                          <Divider />
+                        </div>
+                        <Divider />
+                        <div>
+                          <OntologyEditor
+                            libraryClassesQuery={libraryClassesQuery}
+                          />
+                        </div>
+                      </React.Fragment>
+                    );
+                  }}
+                </SelectedClassesQuery>
+              </React.Fragment>
+            );
+          }}
+        </ClassesFiltersQuery>
+      </Section>
+    );
+  }
+}
 
 export default withStyles(styles)(Library);

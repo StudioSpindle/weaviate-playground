@@ -44,6 +44,7 @@ export {
 } from 'src/components/libraryTextSearch/LibraryTextSearch';
 export { default as Link } from './link/Link';
 export { default as Node } from './node/Node';
+export { default as NodeEditor } from './nodeEditor/NodeEditor';
 export { default as OntologyEditor } from './ontologyEditor/OntologyEditor';
 export {
   default as OntologyEditorClass

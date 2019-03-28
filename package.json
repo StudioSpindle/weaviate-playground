@@ -40,11 +40,11 @@
     "release": "standard-version && npm run build",
     "prettier:check": "prettier --list-different './src/**/*.{ts,tsx}'",
     "prettier:fix": "prettier --write './src/**/*.{ts,tsx}'",
-    "test": "npm run test:types && npm run test:lint && npm run test:unit",
+    "test": "npm run test:types && npm run test:lint && npm run test:jest",
     "test:lint": "tslint --project ./tsconfig.json",
     "test:types": "tsc --noEmit",
-    "test:unit": "CI=true react-scripts-ts test --env=jsdom",
-    "test:unit:watch": "react-scripts-ts test --env=jsdom",
+    "test:jest": "CI=true react-scripts-ts test --env=jsdom",
+    "test:jest:watch": "react-scripts-ts test --env=jsdom",
     "eject": "react-scripts-ts eject"
   },
   "lint-staged": {
@@ -59,12 +59,14 @@
     "@types/jest": "^23.3.2",
     "@types/node": "^10.10.3",
     "@types/prismjs": "^1.9.0",
+    "@types/puppeteer": "^1.12.3",
     "@types/rc-slider": "^8.6.0",
     "@types/react": "^16.4.14",
     "@types/react-dom": "^16.0.7",
     "husky": "^1.0.0-rc.15",
     "lint-staged": "^7.3.0",
     "prettier": "^1.16.4",
+    "puppeteer": "^1.13.0",
     "typescript": "^3.0.3"
   }
 }

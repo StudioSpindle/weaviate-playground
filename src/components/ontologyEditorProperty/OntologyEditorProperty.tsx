@@ -253,13 +253,8 @@ class OntologyEditorProperty extends React.Component<
       propertyName
     } = this.state;
     const { className, classType, classSchemaQuery } = this.props;
-    const dataTypeObject = dataTypes.find(
-      dataTypex => dataTypex.weaviateType === dataType
-    );
     const DataType =
-      dataType === 'CrossRef' && classReference
-        ? classReference
-        : dataTypeObject && dataTypeObject.dataType;
+      dataType === 'CrossRef' && classReference ? classReference : dataType;
 
     fetch(
       `${url}schema/${(classType || '').toLowerCase()}/${className}/properties`,

@@ -9,7 +9,7 @@ import withStyles, { WithStyles } from '@material-ui/core/styles/withStyles';
 import Typography from '@material-ui/core/Typography';
 
 import React from 'react';
-import { NodeEditor, OntologyEditor, Tag } from 'src/components';
+import { NodeOverview, OntologyEditor, Tag } from 'src/components';
 import { ActionIcon, ThingIcon } from 'src/components/icons';
 import {
   LIBRARY_CLASS_BUTTON_QUERY,
@@ -177,7 +177,7 @@ const LibraryClassButton: React.SFC<ILibraryClassProps> = ({
               <ListItemSecondaryAction>
                 <Tag>{instance}</Tag>
                 {classLocation === 'Local' && (
-                  <NodeEditor className={name} classType={classType} />
+                  <NodeOverview className={name} classType={classType} />
                 )}
                 {classLocation === 'Local' && (
                   <OntologyEditor className={name} classType={classType} />

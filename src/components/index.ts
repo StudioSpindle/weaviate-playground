@@ -45,6 +45,7 @@ export {
 export { default as Link } from './link/Link';
 export { default as Node } from './node/Node';
 export { default as NodeEditor } from './nodeEditor/NodeEditor';
+export { default as NodeOverview } from './nodeOverview/NodeOverview';
 export { default as OntologyEditor } from './ontologyEditor/OntologyEditor';
 export {
   default as OntologyEditorClass

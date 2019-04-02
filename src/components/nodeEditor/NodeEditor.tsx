@@ -3,7 +3,6 @@ import Button from '@material-ui/core/Button';
 import Divider from '@material-ui/core/Divider';
 import Drawer from '@material-ui/core/Drawer';
 import Grid from '@material-ui/core/Grid';
-import IconButton from '@material-ui/core/IconButton';
 import Paper from '@material-ui/core/Paper';
 import {
   createStyles,
@@ -15,7 +14,6 @@ import Switch from '@material-ui/core/Switch';
 import TextField, { StandardTextFieldProps } from '@material-ui/core/TextField';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
-import AddIcon from '@material-ui/icons/Add';
 import get from 'get-value';
 import * as React from 'react';
 import { Query } from 'react-apollo';
@@ -33,14 +31,18 @@ const url = uri.replace('graphql', '');
 export interface INodeEditorProps extends WithStyles<typeof styles> {
   className?: string;
   classType?: ClassType;
+  refetch(): void;
 }
 
 export interface INodeEditorState {
   classId?: string;
   className?: string;
   classType?: ClassType;
+  errors: Array<{ message: string }>;
   isDrawerOpen: boolean;
+  isDisabled: boolean;
   form: {};
+  temp: {};
 }
 
 /**
@@ -53,7 +55,7 @@ const styles = (theme: Theme) =>
     },
     drawer: {
       backgroundColor: theme.palette.grey[100],
-      minWidth: '600px'
+      width: '600px'
     },
     grow: {
       flexGrow: 1
@@ -80,8 +82,11 @@ class NodeEditor extends React.Component<INodeEditorProps, INodeEditorState> {
     super(props);
     this.state = {
       classId: undefined,
+      errors: [],
       form: {},
-      isDrawerOpen: false
+      isDisabled: false,
+      isDrawerOpen: false,
+      temp: {}
     };
   }
 
@@ -93,9 +98,12 @@ class NodeEditor extends React.Component<INodeEditorProps, INodeEditorState> {
   }
 
   public renderPropertyField = (property: any) => {
+    const { form, temp } = this.state;
     const dataType = property['@dataType'][0];
+    const field = form[property.name];
 
     const props: StandardTextFieldProps = {
+      InputLabelProps: { shrink: true },
       fullWidth: true,
       helperText: 'Helper text',
       id: property.name,
@@ -106,16 +114,16 @@ class NodeEditor extends React.Component<INodeEditorProps, INodeEditorState> {
 
     switch (dataType) {
       case 'string':
-        return <TextField {...props} />;
+        return <TextField {...props} value={field} />;
 
       case 'text':
-        return <TextField type="text" {...props} />;
+        return <TextField type="text" {...props} value={field} />;
 
       case 'int':
-        return <TextField type="number" {...props} />;
+        return <TextField type="number" {...props} value={field} />;
 
       case 'number':
-        return <TextField type="number" {...props} />;
+        return <TextField type="number" {...props} value={field} />;
 
       case 'date':
         return <TextField type="date" {...props} />;
@@ -143,26 +151,30 @@ class NodeEditor extends React.Component<INodeEditorProps, INodeEditorState> {
             <Grid container={true} spacing={24} alignItems="center">
               <Grid item={true}>
                 <TextField
-                  type="number"
                   {...props}
+                  type="number"
                   label="Longitude"
+                  inputProps={{ min: -180, max: 180, step: 0.000001 }}
                   onChange={this.setFormField(
                     property.name,
                     dataType,
                     'longitude'
                   )}
+                  value={field && field.longitude}
                 />
               </Grid>
               <Grid item={true}>
                 <TextField
-                  type="number"
                   {...props}
+                  type="number"
+                  inputProps={{ min: -90, max: 90, step: 0.000001 }}
                   label="Latitude"
                   onChange={this.setFormField(
                     property.name,
                     dataType,
                     'latitude'
                   )}
+                  value={field && field.latitude}
                 />
               </Grid>
             </Grid>
@@ -181,7 +193,39 @@ class NodeEditor extends React.Component<INodeEditorProps, INodeEditorState> {
                 classId.includes(dataType)
               );
               if (filteredClassIds.length) {
-                return <TextField {...props} />;
+                if (property.cardinality === 'many') {
+                  return (
+                    <Grid container={true}>
+                      <Grid item={true} xs={12} sm={9}>
+                        <TextField
+                          {...props}
+                          onChange={this.setTemporaryFormField(property.name)}
+                          value={temp[property.name]}
+                        />
+                      </Grid>
+                      <Grid item={true} xs={12} sm={3}>
+                        <Button
+                          onClick={this.setFormField(
+                            property.name,
+                            dataType,
+                            undefined,
+                            true
+                          )}
+                        >
+                          Add
+                        </Button>
+                      </Grid>
+                      {field && field.length
+                        ? field.map((cref: { $cref: string }, i: number) => (
+                            <Grid item={true} xs={12}>
+                              <Typography key={i}>{cref.$cref}</Typography>
+                            </Grid>
+                          ))
+                        : ''}
+                    </Grid>
+                  );
+                }
+                return <TextField {...props} value={field && field.$cref} />;
               }
               return <Typography>An error occurred</Typography>;
             }}
@@ -201,13 +245,25 @@ class NodeEditor extends React.Component<INodeEditorProps, INodeEditorState> {
     });
   };
 
-  public setFormField = (name: string, type: string, subName?: string) => (
-    event: any,
-    checked?: boolean
-  ) => {
-    const { form } = this.state;
-    let value = event.target.value;
-    if (type === 'string') {
+  public setTemporaryFormField = (name: string) => (event: any) => {
+    const { temp } = this.state;
+    this.setState({
+      temp: {
+        ...temp,
+        [name]: event.target.value
+      }
+    });
+  };
+
+  public setFormField = (
+    name: string,
+    type: string,
+    subName?: string,
+    hasMany?: boolean
+  ) => (event: any, checked?: boolean) => {
+    const { form, temp } = this.state;
+    let value = event.target.value || form[name];
+    if (type === 'string' || type === 'text') {
       value = event.target.value;
     } else if (type === 'int' || type === 'number') {
       value = Number(value);
@@ -221,9 +277,20 @@ class NodeEditor extends React.Component<INodeEditorProps, INodeEditorState> {
         [subName || '']: Number(event.target.value)
       };
     } else {
-      value = {
-        $cref: event.target.value
+      const cref = {
+        $cref: event.target.value || temp[name]
       };
+      if (hasMany) {
+        value = [...(value || []), cref];
+        this.setState({
+          temp: {
+            ...temp,
+            [name]: ''
+          }
+        });
+      } else {
+        value = cref;
+      }
     }
 
     this.setState({
@@ -236,7 +303,7 @@ class NodeEditor extends React.Component<INodeEditorProps, INodeEditorState> {
 
   public saveNode = () => {
     const { form } = this.state;
-    const { className, classType } = this.props;
+    const { className, classType, refetch } = this.props;
     const classTypeSingularLowercase = (classType || '')
       .toLowerCase()
       .slice(0, -1);
@@ -256,13 +323,20 @@ class NodeEditor extends React.Component<INodeEditorProps, INodeEditorState> {
       },
       method: 'POST'
     })
+      .then(res => res.json())
       .then(res => {
-        if (res.status >= 400) {
-          // this.setState({ isDisabled: true, keywordError: true });
+        if (res.error) {
+          // @ts-ignore
+          this.setState({ errors: res.error });
           throw new Error('');
         } else {
-          return res.text();
+          return null;
         }
+      })
+      .then(res => {
+        // Reser the form and close the drawer to avoid double form submissions
+        refetch();
+        this.setState({ form: {}, isDrawerOpen: false, temp: {} });
       })
       // tslint:disable-next-line:no-console
       .catch(console.log);
@@ -281,18 +355,25 @@ class NodeEditor extends React.Component<INodeEditorProps, INodeEditorState> {
   };
 
   public render() {
-    const { className, classType, isDrawerOpen } = this.state;
+    const {
+      className,
+      classType,
+      errors,
+      isDisabled,
+      isDrawerOpen
+    } = this.state;
     const { classes } = this.props;
 
     return (
       <React.Fragment>
         {this.props.className && this.props.classType && (
-          <IconButton
-            aria-label="Edit thing or action"
+          <Button
+            variant="outlined"
+            aria-label="Add thing or action"
             onClick={this.toggleDrawer}
           >
-            <AddIcon />
-          </IconButton>
+            <Typography>Add data instance</Typography>
+          </Button>
         )}
 
         <Drawer
@@ -367,9 +448,17 @@ class NodeEditor extends React.Component<INodeEditorProps, INodeEditorState> {
                           color="primary"
                           className={classes.button}
                           onClick={this.saveNode}
+                          disabled={isDisabled}
                         >
                           Save {className}
                         </Button>
+                        {errors.length
+                          ? errors.map((error, i) => (
+                              <Typography key={i} color="error">
+                                {error.message}
+                              </Typography>
+                            ))
+                          : ''}
                       </div>
                     </Paper>
                   </React.Fragment>

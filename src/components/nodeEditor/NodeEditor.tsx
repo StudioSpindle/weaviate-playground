@@ -3,6 +3,7 @@ import Button from '@material-ui/core/Button';
 import Divider from '@material-ui/core/Divider';
 import Drawer from '@material-ui/core/Drawer';
 import Grid from '@material-ui/core/Grid';
+import IconButton from '@material-ui/core/IconButton';
 import Paper from '@material-ui/core/Paper';
 import {
   createStyles,
@@ -14,6 +15,7 @@ import Switch from '@material-ui/core/Switch';
 import TextField, { StandardTextFieldProps } from '@material-ui/core/TextField';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
+import CreateIcon from '@material-ui/icons/Create';
 import get from 'get-value';
 import * as React from 'react';
 import { Query } from 'react-apollo';
@@ -29,15 +31,13 @@ const url = uri.replace('graphql', '');
  * Types
  */
 export interface INodeEditorProps extends WithStyles<typeof styles> {
-  className?: string;
-  classType?: ClassType;
+  className: string;
+  classType: ClassType;
+  nodeId?: string;
   refetch(): void;
 }
 
 export interface INodeEditorState {
-  classId?: string;
-  className?: string;
-  classType?: ClassType;
   errors: Array<{ message: string }>;
   isDrawerOpen: boolean;
   isDisabled: boolean;
@@ -81,7 +81,6 @@ class NodeEditor extends React.Component<INodeEditorProps, INodeEditorState> {
   constructor(props: INodeEditorProps) {
     super(props);
     this.state = {
-      classId: undefined,
       errors: [],
       form: {},
       isDisabled: false,
@@ -90,10 +89,16 @@ class NodeEditor extends React.Component<INodeEditorProps, INodeEditorState> {
     };
   }
 
-  public componentWillMount() {
-    const { className, classType } = this.props;
-    if (className && classType) {
-      this.setState({ className, classType });
+  public componentDidMount() {
+    const { classType, nodeId } = this.props;
+    if (nodeId) {
+      fetch(`${url}${(classType || '').toLowerCase()}/${nodeId}`)
+        .then(res => res.json())
+        .then(res => {
+          this.setState({ form: res.schema });
+        })
+        // tslint:disable-next-line:no-console
+        .catch(console.log);
     }
   }
 
@@ -120,19 +125,21 @@ class NodeEditor extends React.Component<INodeEditorProps, INodeEditorState> {
         return <TextField type="text" {...props} value={field} />;
 
       case 'int':
-        return <TextField type="number" {...props} value={field} />;
-
       case 'number':
         return <TextField type="number" {...props} value={field} />;
 
       case 'date':
-        return <TextField type="date" {...props} />;
+        const newField = (field || '').replace('Z', '');
+        return <TextField type="datetime-local" {...props} value={newField} />;
 
       case 'boolean':
         return (
           <Grid container={true} spacing={24} alignItems="center">
             <Grid item={true}>
-              <Switch onChange={this.setFormField(property.name, dataType)} />
+              <Switch
+                onChange={this.setFormField(property.name, dataType)}
+                checked={field}
+              />
             </Grid>
             {property.name && (
               <Grid item={true}>
@@ -236,11 +243,8 @@ class NodeEditor extends React.Component<INodeEditorProps, INodeEditorState> {
 
   public toggleDrawer = () => {
     const { isDrawerOpen } = this.state;
-    const { className } = this.props;
 
     this.setState({
-      classId: undefined,
-      className,
       isDrawerOpen: !isDrawerOpen
     });
   };
@@ -303,26 +307,35 @@ class NodeEditor extends React.Component<INodeEditorProps, INodeEditorState> {
 
   public saveNode = () => {
     const { form } = this.state;
-    const { className, classType, refetch } = this.props;
+    const { className, classType, nodeId, refetch } = this.props;
     const classTypeSingularLowercase = (classType || '')
       .toLowerCase()
       .slice(0, -1);
 
-    fetch(`${url}${(classType || '').toLowerCase()}`, {
-      body: JSON.stringify({
-        [`${classTypeSingularLowercase}`]: {
-          '@class': className,
-          '@context': 'string',
-          schema: form
+    const body = {
+      '@class': className,
+      '@context': 'string',
+      schema: form
+    };
+
+    fetch(
+      `${url}${(classType || '').toLowerCase()}${nodeId ? `/${nodeId}` : ''}`,
+      {
+        body: JSON.stringify(
+          nodeId
+            ? body
+            : {
+                [`${classTypeSingularLowercase}`]: body,
+                async: true
+              }
+        ),
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
         },
-        async: true
-      }),
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json'
-      },
-      method: 'POST'
-    })
+        method: nodeId ? 'PUT' : 'POST'
+      }
+    )
       .then(res => res.json())
       .then(res => {
         if (res.error) {
@@ -330,43 +343,37 @@ class NodeEditor extends React.Component<INodeEditorProps, INodeEditorState> {
           this.setState({ errors: res.error });
           throw new Error('');
         } else {
-          return null;
+          // Reset the form and close the drawer to avoid double form submissions
+          refetch();
+          const newState = {
+            errors: [],
+            isDrawerOpen: false
+          };
+          if (nodeId) {
+            this.setState(newState);
+          } else {
+            this.setState({ ...newState, form: {}, temp: {} });
+          }
         }
-      })
-      .then(res => {
-        // Reser the form and close the drawer to avoid double form submissions
-        refetch();
-        this.setState({ form: {}, isDrawerOpen: false, temp: {} });
       })
       // tslint:disable-next-line:no-console
       .catch(console.log);
   };
 
-  public setClassId = (
-    classId: string,
-    className: string,
-    classType: ClassType
-  ) => {
-    this.setState({
-      classId,
-      className,
-      classType
-    });
-  };
-
   public render() {
-    const {
-      className,
-      classType,
-      errors,
-      isDisabled,
-      isDrawerOpen
-    } = this.state;
-    const { classes } = this.props;
+    const { errors, isDisabled, isDrawerOpen } = this.state;
+    const { classes, className, classType } = this.props;
 
     return (
       <React.Fragment>
-        {this.props.className && this.props.classType && (
+        {this.props.nodeId ? (
+          <IconButton
+            aria-label="Edit thing or action"
+            onClick={this.toggleDrawer}
+          >
+            <CreateIcon />
+          </IconButton>
+        ) : (
           <Button
             variant="outlined"
             aria-label="Add thing or action"

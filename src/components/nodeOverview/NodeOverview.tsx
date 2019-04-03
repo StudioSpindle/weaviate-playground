@@ -17,6 +17,7 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
+import DeleteIcon from '@material-ui/icons/Delete';
 import * as React from 'react';
 import { NodeEditor } from 'src/components';
 import { ClassType } from 'src/types';
@@ -26,14 +27,12 @@ import AddIcon from '../icons/AddIcon';
  * Types
  */
 export interface IOntologyEditorProps extends WithStyles<typeof styles> {
-  className?: string;
-  classType?: ClassType;
+  className: string;
+  classType: ClassType;
 }
 
 export interface IOntologyEditorState {
   classId?: string;
-  className?: string;
-  classType?: ClassType;
   isDrawerOpen: boolean;
   nodes: [];
 }
@@ -49,6 +48,9 @@ const styles = (theme: Theme) =>
   createStyles({
     button: {
       margin: '0.5em 0.9em'
+    },
+    buttonContainer: {
+      display: 'flex'
     },
     drawer: {
       backgroundColor: theme.palette.grey[100],
@@ -87,37 +89,15 @@ class NodeOverview extends React.Component<
     };
   }
 
-  public componentWillMount() {
-    const { className, classType } = this.props;
-    if (className && classType) {
-      this.setState({ className, classType });
-    }
-  }
-
   public componentDidMount() {
     this.fetchNodes();
   }
 
   public toggleDrawer = () => {
     const { isDrawerOpen } = this.state;
-    const { className } = this.props;
 
     this.setState({
-      classId: undefined,
-      className,
       isDrawerOpen: !isDrawerOpen
-    });
-  };
-
-  public setClassId = (
-    classId: string,
-    className: string,
-    classType: ClassType
-  ) => {
-    this.setState({
-      classId,
-      className,
-      classType
     });
   };
 
@@ -135,9 +115,22 @@ class NodeOverview extends React.Component<
       });
   };
 
+  public deleteNode = (classId: string) => () => {
+    const { classType } = this.props;
+    const classTypeLowerCase = (classType || '').toLowerCase();
+    fetch(`${url}${classTypeLowerCase}/${classId}`, { method: 'DELETE' })
+      .then(res => {
+        if (res.status < 400) {
+          this.fetchNodes();
+        }
+      })
+      // tslint:disable-next-line:no-console
+      .catch(console.log);
+  };
+
   public render() {
-    const { className, classType, isDrawerOpen, nodes } = this.state;
-    const { classes } = this.props;
+    const { isDrawerOpen, nodes } = this.state;
+    const { classes, className, classType } = this.props;
 
     return (
       <React.Fragment>
@@ -186,24 +179,39 @@ class NodeOverview extends React.Component<
                   <TableRow>
                     <TableCell>Name/title</TableCell>
                     <TableCell>Id</TableCell>
+                    <TableCell />
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {nodes.map((node: any, i: number) => (
-                    <TableRow key={i}>
-                      <TableCell>
-                        {node.schema.name || node.schema.title || 'Untitled'}
-                      </TableCell>
-                      <TableCell>
-                        {' '}
-                        {
-                          node[
-                            `${(classType || '').toLowerCase().slice(0, -1)}Id`
-                          ]
-                        }
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {nodes.map((node: any, i: number) => {
+                    const nodeId =
+                      node[`${(classType || '').toLowerCase().slice(0, -1)}Id`];
+
+                    return (
+                      <TableRow key={`${nodeId}+${i}`}>
+                        <TableCell>
+                          {node.schema.name || node.schema.title || 'Untitled'}
+                        </TableCell>
+                        <TableCell>{nodeId}</TableCell>
+                        <TableCell>
+                          <div className={classes.buttonContainer}>
+                            <NodeEditor
+                              className={className}
+                              classType={classType}
+                              nodeId={nodeId}
+                              refetch={this.fetchNodes}
+                            />{' '}
+                            <IconButton
+                              aria-label="Edit thing or action"
+                              onClick={this.deleteNode(nodeId)}
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
 

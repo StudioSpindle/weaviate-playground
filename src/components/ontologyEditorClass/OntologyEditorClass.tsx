@@ -268,8 +268,6 @@ class OntologyEditorClass extends React.Component<
         });
       })
       .then(res => {
-        // tslint:disable-next-line:no-console
-        console.log(res);
         return setClassId(classId, className, classType);
       })
       .then(() => {

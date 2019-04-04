@@ -40,8 +40,8 @@ export interface INodeEditorProps extends WithStyles<typeof styles> {
 export interface INodeEditorState {
   errors: Array<{ message: string }>;
   isDrawerOpen: boolean;
-  isDisabled: boolean;
   form: {};
+  formErrors: {};
   temp: {};
 }
 
@@ -83,7 +83,7 @@ class NodeEditor extends React.Component<INodeEditorProps, INodeEditorState> {
     this.state = {
       errors: [],
       form: {},
-      isDisabled: false,
+      formErrors: {},
       isDrawerOpen: false,
       temp: {}
     };
@@ -103,9 +103,10 @@ class NodeEditor extends React.Component<INodeEditorProps, INodeEditorState> {
   }
 
   public renderPropertyField = (property: any) => {
-    const { form, temp } = this.state;
+    const { form, formErrors, temp } = this.state;
     const dataType = property['@dataType'][0];
     const field = form[property.name];
+    const fieldError = formErrors[property.name];
 
     const props: StandardTextFieldProps = {
       InputLabelProps: { shrink: true },
@@ -150,6 +151,9 @@ class NodeEditor extends React.Component<INodeEditorProps, INodeEditorState> {
         );
 
       case 'geoCoordinates':
+        const longitudeError = fieldError && fieldError.longitude;
+        const latitudeError = fieldError && fieldError.latitude;
+
         return (
           <React.Fragment>
             <Grid>
@@ -161,6 +165,7 @@ class NodeEditor extends React.Component<INodeEditorProps, INodeEditorState> {
                   {...props}
                   type="number"
                   label="Longitude"
+                  helperText={longitudeError || 'Helper text'}
                   inputProps={{ min: -180, max: 180, step: 0.000001 }}
                   onChange={this.setFormField(
                     property.name,
@@ -168,6 +173,7 @@ class NodeEditor extends React.Component<INodeEditorProps, INodeEditorState> {
                     'longitude'
                   )}
                   value={field && field.longitude}
+                  error={longitudeError}
                 />
               </Grid>
               <Grid item={true}>
@@ -176,12 +182,14 @@ class NodeEditor extends React.Component<INodeEditorProps, INodeEditorState> {
                   type="number"
                   inputProps={{ min: -90, max: 90, step: 0.000001 }}
                   label="Latitude"
+                  helperText={latitudeError || 'Helper text'}
                   onChange={this.setFormField(
                     property.name,
                     dataType,
                     'latitude'
                   )}
                   value={field && field.latitude}
+                  error={latitudeError}
                 />
               </Grid>
             </Grid>
@@ -208,6 +216,8 @@ class NodeEditor extends React.Component<INodeEditorProps, INodeEditorState> {
                           {...props}
                           onChange={this.setTemporaryFormField(property.name)}
                           value={temp[property.name]}
+                          error={fieldError}
+                          helperText={fieldError || 'Helper text'}
                         />
                       </Grid>
                       <Grid item={true} xs={12} sm={3}>
@@ -232,7 +242,15 @@ class NodeEditor extends React.Component<INodeEditorProps, INodeEditorState> {
                     </Grid>
                   );
                 }
-                return <TextField {...props} value={field && field.$cref} />;
+
+                return (
+                  <TextField
+                    {...props}
+                    value={field && field.$cref}
+                    error={fieldError}
+                    helperText={fieldError || 'Helper text'}
+                  />
+                );
               }
               return <Typography>An error occurred</Typography>;
             }}
@@ -250,13 +268,35 @@ class NodeEditor extends React.Component<INodeEditorProps, INodeEditorState> {
   };
 
   public setTemporaryFormField = (name: string) => (event: any) => {
-    const { temp } = this.state;
-    this.setState({
-      temp: {
-        ...temp,
-        [name]: event.target.value
-      }
-    });
+    const { formErrors, temp } = this.state;
+    const value = event.target.value;
+    const newTemp = {
+      ...temp,
+      [name]: value
+    };
+
+    if (
+      value &&
+      value !== '' &&
+      ((value && !value.includes('weaviate://')) ||
+        (!value.includes('/things/') && !value.includes('/actions/')))
+    ) {
+      this.setState({
+        formErrors: {
+          ...formErrors,
+          [name]: 'Invalid cref'
+        },
+        temp: newTemp
+      });
+    } else {
+      this.setState({
+        formErrors: {
+          ...formErrors,
+          [name]: undefined
+        },
+        temp: newTemp
+      });
+    }
   };
 
   public setFormField = (
@@ -265,7 +305,7 @@ class NodeEditor extends React.Component<INodeEditorProps, INodeEditorState> {
     subName?: string,
     hasMany?: boolean
   ) => (event: any, checked?: boolean) => {
-    const { form, temp } = this.state;
+    const { formErrors, form, temp } = this.state;
     let value = event.target.value || form[name];
     if (type === 'string' || type === 'text') {
       value = event.target.value;
@@ -276,6 +316,54 @@ class NodeEditor extends React.Component<INodeEditorProps, INodeEditorState> {
     } else if (type === 'boolean') {
       value = checked;
     } else if (type === 'geoCoordinates') {
+      if (subName === 'latitude') {
+        if (value < -90 || value > 90) {
+          this.setState({
+            formErrors: {
+              ...formErrors,
+              [name]: {
+                ...formErrors[name],
+                latitude: 'Out of range'
+              }
+            }
+          });
+        } else {
+          this.setState({
+            formErrors: {
+              ...formErrors,
+              [name]: {
+                ...formErrors[name],
+                latitude: undefined
+              }
+            }
+          });
+        }
+      }
+
+      if (subName === 'longitude') {
+        if (value < -180 || value > 180) {
+          this.setState({
+            formErrors: {
+              ...formErrors,
+              [name]: {
+                ...formErrors[name],
+                longitude: 'Out of range'
+              }
+            }
+          });
+        } else {
+          this.setState({
+            formErrors: {
+              ...formErrors,
+              [name]: {
+                ...formErrors[name],
+                longitude: undefined
+              }
+            }
+          });
+        }
+      }
+
       value = {
         ...this.state.form[name],
         [subName || '']: Number(event.target.value)
@@ -293,6 +381,34 @@ class NodeEditor extends React.Component<INodeEditorProps, INodeEditorState> {
           }
         });
       } else {
+        if (cref.$cref) {
+          if (
+            (cref.$cref !== '' && !cref.$cref.includes('weaviate://')) ||
+            (!cref.$cref.includes('/things/') &&
+              !cref.$cref.includes('/actions/'))
+          ) {
+            this.setState({
+              formErrors: {
+                ...formErrors,
+                [name]: 'Invalid cref'
+              }
+            });
+          } else {
+            this.setState({
+              formErrors: {
+                ...formErrors,
+                [name]: undefined
+              }
+            });
+          }
+        } else {
+          this.setState({
+            formErrors: {
+              ...formErrors,
+              [name]: undefined
+            }
+          });
+        }
         value = cref;
       }
     }
@@ -326,7 +442,7 @@ class NodeEditor extends React.Component<INodeEditorProps, INodeEditorState> {
             ? body
             : {
                 [`${classTypeSingularLowercase}`]: body,
-                async: true
+                async: false
               }
         ),
         headers: {
@@ -361,8 +477,9 @@ class NodeEditor extends React.Component<INodeEditorProps, INodeEditorState> {
   };
 
   public render() {
-    const { errors, isDisabled, isDrawerOpen } = this.state;
+    const { errors, formErrors, isDrawerOpen } = this.state;
     const { classes, className, classType } = this.props;
+    const isDisabled = Object.keys(formErrors).some(key => formErrors[key]);
 
     return (
       <React.Fragment>

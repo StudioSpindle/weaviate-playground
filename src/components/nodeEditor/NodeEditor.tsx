@@ -479,7 +479,15 @@ class NodeEditor extends React.Component<INodeEditorProps, INodeEditorState> {
   public render() {
     const { errors, formErrors, isDrawerOpen } = this.state;
     const { classes, className, classType } = this.props;
-    const isDisabled = Object.keys(formErrors).some(key => formErrors[key]);
+    const isDisabled = Object.keys(formErrors).some(key => {
+      if (typeof formErrors[key] === 'object') {
+        return Object.keys(formErrors[key]).some(
+          childKey => formErrors[key][childKey]
+        );
+      }
+
+      return formErrors[key];
+    });
 
     return (
       <React.Fragment>

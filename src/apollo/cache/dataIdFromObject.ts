@@ -15,6 +15,9 @@ const dataIdFromObject = (object: any) => {
       }
       return `__Field:${object.id}`;
     default:
+      if (!object.id && !object._id) {
+        return object.__typename;
+      }
       return defaultDataIdFromObject(object);
   }
 };

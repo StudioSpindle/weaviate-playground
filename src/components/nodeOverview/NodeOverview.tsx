@@ -19,9 +19,11 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import DeleteIcon from '@material-ui/icons/Delete';
 import * as React from 'react';
+import apolloClient from 'src/apollo/apolloClient';
 import { NodeEditor } from 'src/components';
 import { ClassType } from 'src/types';
 import AddIcon from '../icons/AddIcon';
+import { UPDATE_META_COUNT_MUTATION } from '../nodeEditor/queries';
 
 /**
  * Types
@@ -116,11 +118,16 @@ class NodeOverview extends React.Component<
   };
 
   public deleteNode = (classId: string) => () => {
-    const { classType } = this.props;
+    const { className, classType } = this.props;
     const classTypeLowerCase = (classType || '').toLowerCase();
     fetch(`${url}${classTypeLowerCase}/${classId}`, { method: 'DELETE' })
       .then(res => {
         if (res.status < 400) {
+          // Update the count until GraphQL subscriptions are added
+          apolloClient.mutate({
+            mutation: UPDATE_META_COUNT_MUTATION,
+            variables: { className, addition: false }
+          });
           this.fetchNodes();
         }
       })

@@ -19,9 +19,11 @@ import CreateIcon from '@material-ui/icons/Create';
 import get from 'get-value';
 import * as React from 'react';
 import { Query } from 'react-apollo';
+import apolloClient from 'src/apollo/apolloClient';
 import { ClassType } from 'src/types';
 import { CLASS_SCHEMA_QUERY } from '../library/queries';
 import { CLASS_IDS_QUERY, ClassIdsQuery } from '../libraryClasses/queries';
+import { UPDATE_META_COUNT_MUTATION } from './queries';
 
 const urlParams = new URLSearchParams(window.location.search);
 const uri = urlParams.get('weaviateUri') || '';
@@ -461,6 +463,13 @@ class NodeEditor extends React.Component<INodeEditorProps, INodeEditorState> {
           this.setState({ errors: res.error });
           throw new Error('');
         } else {
+          if (!nodeId) {
+            // Update the count until GraphQL subscriptions are added
+            apolloClient.mutate({
+              mutation: UPDATE_META_COUNT_MUTATION,
+              variables: { className, addition: true }
+            });
+          }
           // Reset the form and close the drawer to avoid double form submissions
           refetch();
           const newState = {

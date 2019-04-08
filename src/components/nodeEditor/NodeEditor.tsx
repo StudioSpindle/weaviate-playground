@@ -382,6 +382,8 @@ class NodeEditor extends React.Component<INodeEditorProps, INodeEditorState> {
         });
       } else {
         if (cref.$cref) {
+          value = cref;
+
           if (
             (cref.$cref !== '' && !cref.$cref.includes('weaviate://')) ||
             (!cref.$cref.includes('/things/') &&
@@ -402,6 +404,7 @@ class NodeEditor extends React.Component<INodeEditorProps, INodeEditorState> {
             });
           }
         } else {
+          value = undefined;
           this.setState({
             formErrors: {
               ...formErrors,
@@ -409,7 +412,6 @@ class NodeEditor extends React.Component<INodeEditorProps, INodeEditorState> {
             }
           });
         }
-        value = cref;
       }
     }
 

@@ -255,22 +255,25 @@ class OntologyEditorProperty extends React.Component<
     const { className, classType, classSchemaQuery } = this.props;
     const DataType =
       dataType === 'CrossRef' && classReference ? classReference : dataType;
+    const isNewProperty = true;
 
     fetch(
       `${url}schema/${(classType || '').toLowerCase()}/${className}/properties`,
       {
-        body: JSON.stringify({
-          '@dataType': [DataType],
-          cardinality,
-          description,
-          keywords,
-          name: propertyName
-        }),
+        body: isNewProperty
+          ? JSON.stringify({
+              '@dataType': [DataType],
+              cardinality,
+              description,
+              keywords,
+              name: propertyName
+            })
+          : JSON.stringify({ keywords }),
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json'
         },
-        method: 'POST'
+        method: isNewProperty ? 'POST' : 'PUT'
       }
     )
       .then(res => {
@@ -284,37 +287,6 @@ class OntologyEditorProperty extends React.Component<
       .then(res => {
         classSchemaQuery.refetch();
         this.setState({ isDrawerOpen: false });
-      })
-      // tslint:disable-next-line:no-console
-      .catch(console.log);
-  };
-
-  public updateClassProperty = () => {
-    const { className, classType } = this.props;
-    const { keyword, keywords, weight } = this.state;
-    const newKeywords = [...keywords, { keyword, weight: Number(weight) }];
-
-    fetch(
-      `${url}schema/${(classType || '').toLowerCase()}/${className}/properties`,
-      {
-        body: JSON.stringify({ keywords: newKeywords }),
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json'
-        },
-        method: 'PUT'
-      }
-    )
-      .then(res => {
-        if (res.status >= 400) {
-          this.setState({ isDisabled: true, keywordError: true });
-          throw new Error('');
-        } else {
-          return res.json();
-        }
-      })
-      .then(() => {
-        this.setState({ keyword: '', keywords: newKeywords, weight: 1 });
       })
       // tslint:disable-next-line:no-console
       .catch(console.log);
@@ -338,7 +310,6 @@ class OntologyEditorProperty extends React.Component<
       weightError
     } = this.state;
     const { classes, classesSchema, className } = this.props;
-    const isNewProperty = true;
 
     return (
       <div className={classes.ontologyActionsContainer}>
@@ -485,9 +456,7 @@ class OntologyEditorProperty extends React.Component<
                   <Button
                     variant="text"
                     disabled={isAddKeywordDisabled}
-                    onClick={
-                      isNewProperty ? this.addKeyword : this.updateClassProperty
-                    }
+                    onClick={this.addKeyword}
                   >
                     Add
                   </Button>

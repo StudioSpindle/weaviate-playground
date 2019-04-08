@@ -19,6 +19,7 @@ import TableRow from '@material-ui/core/TableRow';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import CreateIcon from '@material-ui/icons/Create';
+import DeleteIcon from '@material-ui/icons/Delete';
 import get from 'get-value';
 import * as React from 'react';
 import { Query } from 'react-apollo';
@@ -70,6 +71,10 @@ const styles = (theme: Theme) =>
     }
   });
 
+const urlParams = new URLSearchParams(window.location.search);
+const uri = urlParams.get('weaviateUri') || '';
+const url = uri.replace('graphql', '');
+
 /**
  * Component
  */
@@ -113,6 +118,22 @@ class OntologyEditor extends React.Component<
       className,
       classType
     });
+  };
+
+  public deleteProperty = (propertyName: string, refetch: any) => () => {
+    const { className, classType } = this.props;
+    const classTypeLowerCase = (classType || '').toLowerCase();
+    fetch(
+      `${url}/schema/${classTypeLowerCase}/${className}/properties/${propertyName}`,
+      { method: 'DELETE' }
+    )
+      .then(res => {
+        if (res.status < 400) {
+          refetch();
+        }
+      })
+      // tslint:disable-next-line:no-console
+      .catch(console.log);
   };
 
   public render() {
@@ -265,6 +286,17 @@ class OntologyEditor extends React.Component<
                             <TableRow key={i}>
                               <TableCell>{property.name}</TableCell>
                               <TableCell>{property.description}</TableCell>
+                              <TableCell>
+                                <IconButton
+                                  aria-label="Edit thing or action"
+                                  onClick={this.deleteProperty(
+                                    property.name,
+                                    classSchemaQuery.refetch
+                                  )}
+                                >
+                                  <DeleteIcon />
+                                </IconButton>
+                              </TableCell>
                             </TableRow>
                           ))}
                         </TableBody>

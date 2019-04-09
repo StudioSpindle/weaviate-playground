@@ -50,6 +50,9 @@ const styles = (theme: Theme) =>
     button: {
       margin: '0.5em 0.9em'
     },
+    buttonContainer: {
+      display: 'flex'
+    },
     drawer: {
       backgroundColor: theme.palette.grey[100],
       minWidth: '600px'
@@ -285,17 +288,26 @@ class OntologyEditor extends React.Component<
                           {properties.map((property: any, i: number) => (
                             <TableRow key={i}>
                               <TableCell>{property.name}</TableCell>
-                              <TableCell>{property.description}</TableCell>
+                              <TableCell>{property['@dataType'][0]}</TableCell>
                               <TableCell>
-                                <IconButton
-                                  aria-label="Edit thing or action"
-                                  onClick={this.deleteProperty(
-                                    property.name,
-                                    classSchemaQuery.refetch
-                                  )}
-                                >
-                                  <DeleteIcon />
-                                </IconButton>
+                                <div className={classes.buttonContainer}>
+                                  <OntologyEditorProperty
+                                    className={className}
+                                    classType={classType}
+                                    classesSchema={classesSchema}
+                                    classSchemaQuery={classSchemaQuery}
+                                    property={property}
+                                  />
+                                  <IconButton
+                                    aria-label="Edit thing or action"
+                                    onClick={this.deleteProperty(
+                                      property.name,
+                                      classSchemaQuery.refetch
+                                    )}
+                                  >
+                                    <DeleteIcon />
+                                  </IconButton>
+                                </div>
                               </TableCell>
                             </TableRow>
                           ))}

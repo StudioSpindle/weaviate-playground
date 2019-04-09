@@ -2,6 +2,7 @@ import AppBar from '@material-ui/core/AppBar';
 import Button from '@material-ui/core/Button';
 import Drawer from '@material-ui/core/Drawer';
 import Grid from '@material-ui/core/Grid';
+import IconButton from '@material-ui/core/IconButton';
 import MenuItem from '@material-ui/core/MenuItem';
 import Paper from '@material-ui/core/Paper';
 import {
@@ -18,6 +19,8 @@ import TableRow from '@material-ui/core/TableRow';
 import TextField from '@material-ui/core/TextField';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
+import CreateIcon from '@material-ui/icons/Create';
+import DeleteIcon from '@material-ui/icons/Delete';
 import get from 'get-value';
 import * as React from 'react';
 import { QueryResult } from 'react-apollo';
@@ -30,29 +33,36 @@ import { VALIDATE_WORDS_CONTEXTIONARY_QUERY } from '../ontologyEditorClass/queri
  * Types
  */
 // tslint:disable-next-line:no-empty-interface
+export interface ISchemaKeyword {
+  weight: number;
+}
 export interface IOntologyEditorPropertyProps
   extends WithStyles<typeof styles> {
   classesSchema: any[];
   className?: string;
   classType?: string;
   classSchemaQuery: QueryResult;
+  property?: {};
 }
 
 export interface IOntologyEditorPropertyState {
-  cardinality: string;
-  classReference?: string;
-  dataType: any;
-  description: string;
-  isAddKeywordDisabled: boolean;
-  isDisabled: boolean;
+  errors: Array<{ message: string }>;
+  form: {
+    cardinality: 'atMostOne' | 'many';
+    classReference?: string;
+    ['@dataType']: [string];
+    description: string;
+    keywords: Keywords;
+    name: string;
+  };
+  formErrors: {
+    name: boolean;
+    keyword: boolean;
+    weight: boolean;
+  };
   isDrawerOpen: boolean;
   keyword: string;
-  keywordError: boolean;
-  keywords: Keywords;
-  propertyName: string;
-  propertyNameError: boolean;
   weight: number;
-  weightError: boolean;
 }
 
 /**
@@ -143,50 +153,84 @@ class OntologyEditorProperty extends React.Component<
   constructor(props: IOntologyEditorPropertyProps) {
     super(props);
     this.state = {
-      cardinality: 'atMostOne',
-      classReference: undefined,
-      dataType: 'string',
-      description: '',
-      isAddKeywordDisabled: false,
-      isDisabled: true,
+      errors: [],
+      form: {
+        cardinality: 'atMostOne',
+        classReference: undefined,
+        ['@dataType']: ['string'],
+        description: '',
+        keywords: [],
+        name: ''
+      },
+      formErrors: {
+        keyword: false,
+        name: false,
+        weight: false
+      },
       isDrawerOpen: false,
       keyword: '',
-      keywordError: false,
-      keywords: [],
-      propertyName: '',
-      propertyNameError: false,
-      weight: 1,
-      weightError: false
+      weight: 1
     };
   }
 
+  public componentDidMount() {
+    const { property } = this.props;
+    const { form } = this.state;
+    if (typeof property === 'object') {
+      this.setState({ form: { ...form, ...property } });
+    }
+  }
+
   public setFormField = (name: string) => (event: any) => {
-    // @ts-ignore
-    this.setState({ [name]: event.target.value });
+    const { form } = this.state;
+    let value = event.target.value;
+    if (name === 'keyword') {
+      this.setState({ keyword: value });
+    } else {
+      if (name === '@dataType') {
+        value = [value];
+      }
+      // @ts-ignore
+      this.setState({
+        form: {
+          ...form,
+          [name]: value
+        }
+      });
+    }
   };
 
   public validateFormField = (name: string) => (event: any) => {
-    const isPropertyName = name === 'propertyName';
+    const { formErrors } = this.state;
+    const isName = name === 'name';
     const isKeyword = name === 'keyword';
     const isWeight = name === 'weight';
 
     if (isWeight) {
       if (this.state.weight >= 0 && this.state.weight <= 1) {
-        this.setState({ isAddKeywordDisabled: false, weightError: false });
+        this.setState({
+          formErrors: { ...formErrors, weight: false }
+        });
       } else {
-        this.setState({ isAddKeywordDisabled: true, weightError: true });
+        this.setState({
+          formErrors: { ...formErrors, weight: true }
+        });
       }
     }
 
-    if (isPropertyName || isKeyword) {
-      if (this.state[name] === '') {
-        this.setState({ propertyNameError: true, isDisabled: true });
+    if (isName || isKeyword) {
+      const words = isName
+        ? camelize(this.state.form[name])
+        : camelize(this.state[name]);
+
+      if (words === '') {
+        this.setState({ formErrors: { ...formErrors, name: true } });
       } else {
         client
           .query({
             query: VALIDATE_WORDS_CONTEXTIONARY_QUERY,
             variables: {
-              words: camelize(this.state[name])
+              words
             }
           })
           .then((result: any) => {
@@ -197,27 +241,31 @@ class OntologyEditorProperty extends React.Component<
             const notInC11y = individualWords.some((word: any) => !word.inC11y);
 
             if (notInC11y) {
-              if (isPropertyName) {
-                this.setState({ isDisabled: true, propertyNameError: true });
+              if (isName) {
+                this.setState({
+                  formErrors: { ...formErrors, name: true }
+                });
               } else if (isKeyword) {
                 this.setState({
-                  isAddKeywordDisabled: true,
-                  keywordError: true
+                  formErrors: { ...formErrors, keyword: true }
                 });
               }
             } else {
-              if (isPropertyName) {
-                this.setState({ isDisabled: false, propertyNameError: false });
+              if (isName) {
+                this.setState({
+                  formErrors: { ...formErrors, name: false }
+                });
               } else if (isKeyword) {
                 this.setState({
-                  isAddKeywordDisabled: false,
-                  keywordError: false
+                  formErrors: { ...formErrors, keyword: false }
                 });
               }
             }
           })
           .catch(error => {
-            this.setState({ isDisabled: true, propertyNameError: true });
+            this.setState({
+              formErrors: { ...formErrors, name: true }
+            });
           });
       }
     }
@@ -225,48 +273,72 @@ class OntologyEditorProperty extends React.Component<
 
   public toggleDrawer = () => {
     const { isDrawerOpen } = this.state;
+    const { classSchemaQuery } = this.props;
 
-    this.setState({
-      isDrawerOpen: !isDrawerOpen
-    });
+    if (isDrawerOpen) {
+      classSchemaQuery.refetch();
+    } else {
+      this.setState({
+        isDrawerOpen: !isDrawerOpen
+      });
+    }
   };
 
   public addKeyword = () => {
-    const { keyword, keywords, weight } = this.state;
+    const { form, keyword, weight } = this.state;
+    const newKeyword = { keyword, weight: Number(weight) };
+    const keywords =
+      form.keywords && form.keywords.length
+        ? [...form.keywords, newKeyword]
+        : [newKeyword];
 
     if (keyword) {
       this.setState({
+        form: { ...form, keywords },
         keyword: '',
-        keywords: [...keywords, { keyword, weight: Number(weight) }],
         weight: 1
       });
     }
   };
 
+  public deleteKeyword = (keyword: string) => () => {
+    const { form } = this.state;
+
+    if (form.keywords) {
+      const newKeywords = form.keywords.filter(
+        keywordObj => keywordObj.keyword !== keyword
+      );
+      this.setState({
+        form: {
+          ...form,
+          keywords: newKeywords
+        }
+      });
+    }
+  };
+
   public saveProperty = () => {
-    const {
-      cardinality,
-      classReference,
-      dataType,
-      description,
-      keywords,
-      propertyName
-    } = this.state;
-    const { className, classType, classSchemaQuery } = this.props;
+    const { form } = this.state;
+    const { cardinality, classReference, description, keywords, name } = form;
+    const { className, classType } = this.props;
     const DataType =
-      dataType === 'CrossRef' && classReference ? classReference : dataType;
-    const isNewProperty = true;
+      form['@dataType'][0] === 'CrossRef' && classReference
+        ? classReference
+        : form['@dataType'];
+    const isNewProperty = !this.props.property;
 
     fetch(
-      `${url}schema/${(classType || '').toLowerCase()}/${className}/properties`,
+      `${url}schema/${(
+        classType || ''
+      ).toLowerCase()}/${className}/properties/${isNewProperty ? '' : name}`,
       {
         body: isNewProperty
           ? JSON.stringify({
-              '@dataType': [DataType],
+              '@dataType': DataType,
               cardinality,
               description,
               keywords,
-              name: propertyName
+              name
             })
           : JSON.stringify({ keywords }),
         headers: {
@@ -276,17 +348,18 @@ class OntologyEditorProperty extends React.Component<
         method: isNewProperty ? 'POST' : 'PUT'
       }
     )
+      .then(res => res.text())
+      .then(text => (text.length ? JSON.parse(text) : {}))
       .then(res => {
-        if (res.status >= 400) {
-          this.setState({ isDisabled: true, propertyNameError: true });
+        // tslint:disable-next-line:no-console
+        console.log(res);
+        if (res.error) {
+          // @ts-ignore
+          this.setState({ errors: res.error });
           throw new Error('');
         } else {
-          return res.json();
+          this.toggleDrawer();
         }
-      })
-      .then(res => {
-        classSchemaQuery.refetch();
-        this.setState({ isDrawerOpen: false });
       })
       // tslint:disable-next-line:no-console
       .catch(console.log);
@@ -294,32 +367,36 @@ class OntologyEditorProperty extends React.Component<
 
   public render() {
     const {
-      cardinality,
-      classReference,
-      dataType,
-      description,
-      isAddKeywordDisabled,
-      isDisabled,
+      errors,
+      form,
+      formErrors,
       isDrawerOpen,
       keyword,
-      keywordError,
-      keywords,
-      propertyName,
-      propertyNameError,
-      weight,
-      weightError
+      weight
     } = this.state;
+    const { cardinality, classReference, description, name } = form;
+    const {} = formErrors;
     const { classes, classesSchema, className } = this.props;
+    const isNewProperty = !this.props.property;
 
     return (
       <div className={classes.ontologyActionsContainer}>
-        <Button
-          variant="outlined"
-          onClick={this.toggleDrawer}
-          disabled={!className}
-        >
-          <Typography>Add property</Typography>
-        </Button>
+        {this.props.property ? (
+          <IconButton
+            aria-label="Edit thing or action"
+            onClick={this.toggleDrawer}
+          >
+            <CreateIcon />
+          </IconButton>
+        ) : (
+          <Button
+            variant="outlined"
+            onClick={this.toggleDrawer}
+            disabled={!className}
+          >
+            <Typography>Add property</Typography>
+          </Button>
+        )}
 
         <Drawer
           open={isDrawerOpen}
@@ -329,7 +406,7 @@ class OntologyEditorProperty extends React.Component<
           <AppBar position="static" elevation={1}>
             <Toolbar variant="dense">
               <Typography component="h1" variant="subtitle1" color="inherit">
-                New property
+                {isNewProperty ? 'New' : 'Edit'} property
               </Typography>
             </Toolbar>
           </AppBar>
@@ -341,16 +418,17 @@ class OntologyEditorProperty extends React.Component<
                 <Grid item={true} xs={12}>
                   <TextField
                     required={true}
-                    id="propertyName"
-                    name="propertyName"
+                    id="name"
+                    name="name"
                     label="Property name"
                     helperText="Helper text"
-                    value={propertyName}
-                    onChange={this.setFormField('propertyName')}
-                    onBlur={this.validateFormField('propertyName')}
-                    error={propertyNameError}
+                    value={name}
+                    onChange={this.setFormField('name')}
+                    onBlur={this.validateFormField('name')}
+                    error={formErrors.name}
                     fullWidth={true}
-                    autoComplete="ontologyEditorProperty propertyName"
+                    autoComplete="ontologyEditorProperty name"
+                    disabled={!isNewProperty}
                   />
                 </Grid>
                 <Grid item={true} xs={12}>
@@ -359,10 +437,11 @@ class OntologyEditorProperty extends React.Component<
                     select={true}
                     label="Data type"
                     fullWidth={true}
-                    value={dataType}
-                    onChange={this.setFormField('dataType')}
+                    value={form['@dataType'][0]}
+                    onChange={this.setFormField('@dataType')}
                     helperText="Helper text"
                     margin="normal"
+                    disabled={!isNewProperty}
                   >
                     {dataTypes.map((dataTypex, i) => (
                       <MenuItem key={i} value={dataTypex.weaviateType}>
@@ -371,7 +450,7 @@ class OntologyEditorProperty extends React.Component<
                     ))}
                   </TextField>
                 </Grid>
-                {dataType === 'CrossRef' && (
+                {form['@dataType'][0] === 'CrossRef' && (
                   <Grid item={true} xs={12}>
                     <TextField
                       id="class-reference"
@@ -382,6 +461,7 @@ class OntologyEditorProperty extends React.Component<
                       onChange={this.setFormField('classReference')}
                       helperText="Helper text"
                       margin="normal"
+                      disabled={!isNewProperty}
                     >
                       {classesSchema
                         .filter(classSchema => classSchema.class !== className)
@@ -393,7 +473,7 @@ class OntologyEditorProperty extends React.Component<
                     </TextField>
                   </Grid>
                 )}
-                {dataType === 'CrossRef' && (
+                {form['@dataType'][0] === 'CrossRef' && (
                   <Grid item={true} xs={12}>
                     <TextField
                       id="cardinality"
@@ -404,6 +484,7 @@ class OntologyEditorProperty extends React.Component<
                       onChange={this.setFormField('cardinality')}
                       helperText="Helper text"
                       margin="normal"
+                      disabled={!isNewProperty}
                     >
                       <MenuItem value={'atMostOne'}>At most one</MenuItem>
                       <MenuItem value={'many'}>Many</MenuItem>
@@ -420,6 +501,7 @@ class OntologyEditorProperty extends React.Component<
                     onChange={this.setFormField('description')}
                     fullWidth={true}
                     autoComplete="ontologyEditorProperty description"
+                    disabled={!isNewProperty}
                   />
                 </Grid>
                 <Grid item={true} xs={12} sm={6}>
@@ -431,7 +513,7 @@ class OntologyEditorProperty extends React.Component<
                     value={keyword}
                     onChange={this.setFormField('keyword')}
                     onBlur={this.validateFormField('keyword')}
-                    error={keywordError}
+                    error={formErrors.keyword}
                     fullWidth={true}
                     autoComplete="ontologyEditorProperty keyword"
                   />
@@ -447,7 +529,7 @@ class OntologyEditorProperty extends React.Component<
                     value={weight}
                     onChange={this.setFormField('weight')}
                     onBlur={this.validateFormField('weight')}
-                    error={weightError}
+                    error={formErrors.weight}
                     fullWidth={true}
                     autoComplete="ontologyEditorProperty weight"
                   />
@@ -455,7 +537,7 @@ class OntologyEditorProperty extends React.Component<
                 <Grid item={true} xs={12} sm={2}>
                   <Button
                     variant="text"
-                    disabled={isAddKeywordDisabled}
+                    disabled={formErrors.keyword || formErrors.weight}
                     onClick={this.addKeyword}
                   >
                     Add
@@ -467,13 +549,22 @@ class OntologyEditorProperty extends React.Component<
                       <TableRow>
                         <TableCell>Keyword</TableCell>
                         <TableCell>Weight</TableCell>
+                        <TableCell />
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {keywords.map((keywordItem, i: number) => (
+                      {form.keywords.map((keywordItem, i: number) => (
                         <TableRow key={i}>
                           <TableCell>{keywordItem.keyword}</TableCell>
                           <TableCell>{keywordItem.weight}</TableCell>
+                          <TableCell>
+                            <IconButton
+                              aria-label="Edit thing or action"
+                              onClick={this.deleteKeyword(keywordItem.keyword)}
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -495,12 +586,19 @@ class OntologyEditorProperty extends React.Component<
                   variant="contained"
                   size="small"
                   color="primary"
-                  disabled={isDisabled}
+                  disabled={formErrors.name}
                   className={classes.button}
                   onClick={this.saveProperty}
                 >
                   Save property
                 </Button>
+                {errors.length
+                  ? errors.map((error, i) => (
+                      <Typography key={i} color="error">
+                        {error.message}
+                      </Typography>
+                    ))
+                  : ''}
               </div>
             </Paper>
           </div>

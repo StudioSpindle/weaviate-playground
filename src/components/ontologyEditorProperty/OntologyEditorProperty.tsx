@@ -323,7 +323,7 @@ class OntologyEditorProperty extends React.Component<
     const { className, classType } = this.props;
     const DataType =
       form['@dataType'][0] === 'CrossRef' && classReference
-        ? classReference
+        ? [classReference]
         : form['@dataType'];
     const isNewProperty = !this.props.property;
 

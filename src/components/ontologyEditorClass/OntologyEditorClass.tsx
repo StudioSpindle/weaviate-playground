@@ -321,11 +321,7 @@ class OntologyEditorClass extends React.Component<
           <Typography>{className ? 'Edit' : 'Configure class'}</Typography>
         </Button>
 
-        <Drawer
-          open={isDrawerOpen}
-          onClose={this.toggleDrawer}
-          classes={{ paper: classes.drawer }}
-        >
+        <Drawer open={isDrawerOpen} classes={{ paper: classes.drawer }}>
           <AppBar position="static" elevation={1}>
             <Toolbar variant="dense">
               <Typography component="h1" variant="subtitle1" color="inherit">

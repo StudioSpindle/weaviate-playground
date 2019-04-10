@@ -351,8 +351,6 @@ class OntologyEditorProperty extends React.Component<
       .then(res => res.text())
       .then(text => (text.length ? JSON.parse(text) : {}))
       .then(res => {
-        // tslint:disable-next-line:no-console
-        console.log(res);
         if (res.error) {
           // @ts-ignore
           this.setState({ errors: res.error });
@@ -398,11 +396,7 @@ class OntologyEditorProperty extends React.Component<
           </Button>
         )}
 
-        <Drawer
-          open={isDrawerOpen}
-          onClose={this.toggleDrawer}
-          classes={{ paper: classes.drawer }}
-        >
+        <Drawer open={isDrawerOpen} classes={{ paper: classes.drawer }}>
           <AppBar position="static" elevation={1}>
             <Toolbar variant="dense">
               <Typography component="h1" variant="subtitle1" color="inherit">

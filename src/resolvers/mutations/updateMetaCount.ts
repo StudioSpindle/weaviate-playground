@@ -13,16 +13,19 @@ const updateMetaCount = (
   const id = getCacheKey({ __typename });
 
   const fragment = gql`
-    fragment count on ${__typename} {
+    fragment ${__typename + 'count'} on ${__typename} {
         count
         __typename
     }
     `;
 
   const metaObj = cache.readFragment({ fragment, id });
-  const count = variables.addition ? metaObj.count + 1 : metaObj.count - 1;
-  const data = { ...metaObj, count, __typename };
-  cache.writeFragment({ id, fragment, data });
+  if (metaObj) {
+    const count = variables.addition ? metaObj.count + 1 : metaObj.count - 1;
+    const data = { ...metaObj, count, __typename };
+    cache.writeFragment({ id, fragment, data });
+  }
+
   return null;
 };
 

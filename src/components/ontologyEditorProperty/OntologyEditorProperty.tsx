@@ -227,7 +227,7 @@ class OntologyEditorProperty extends React.Component<
         : camelize(this.state[name]);
 
       if (words === '') {
-        this.setState({ formErrors: { ...formErrors, name: true } });
+        this.setState({ formErrors: { ...formErrors, [name]: isName } });
       } else {
         client
           .query({

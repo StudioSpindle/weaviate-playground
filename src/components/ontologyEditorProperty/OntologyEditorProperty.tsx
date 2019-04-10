@@ -142,6 +142,9 @@ const dataTypes = [
 const urlParams = new URLSearchParams(window.location.search);
 const uri = urlParams.get('weaviateUri') || '';
 const url = uri.replace('graphql', '');
+const inputProps = {
+  InputLabelProps: { shrink: true }
+};
 
 /**
  * Component
@@ -411,6 +414,7 @@ class OntologyEditorProperty extends React.Component<
               <Grid container={true} spacing={8}>
                 <Grid item={true} xs={12}>
                   <TextField
+                    {...inputProps}
                     required={true}
                     id="name"
                     name="name"
@@ -427,6 +431,7 @@ class OntologyEditorProperty extends React.Component<
                 </Grid>
                 <Grid item={true} xs={12}>
                   <TextField
+                    {...inputProps}
                     id="data-type"
                     select={true}
                     label="Data type"
@@ -447,6 +452,7 @@ class OntologyEditorProperty extends React.Component<
                 {form['@dataType'][0] === 'CrossRef' && (
                   <Grid item={true} xs={12}>
                     <TextField
+                      {...inputProps}
                       id="class-reference"
                       select={true}
                       label="Class reference"
@@ -470,6 +476,7 @@ class OntologyEditorProperty extends React.Component<
                 {form['@dataType'][0] === 'CrossRef' && (
                   <Grid item={true} xs={12}>
                     <TextField
+                      {...inputProps}
                       id="cardinality"
                       select={true}
                       label="Cardinality"
@@ -487,6 +494,7 @@ class OntologyEditorProperty extends React.Component<
                 )}
                 <Grid item={true} xs={12}>
                   <TextField
+                    {...inputProps}
                     id="description"
                     name="description"
                     label="Description"
@@ -500,6 +508,7 @@ class OntologyEditorProperty extends React.Component<
                 </Grid>
                 <Grid item={true} xs={12} sm={6}>
                   <TextField
+                    {...inputProps}
                     id="keyword"
                     name="keyword"
                     label="Keyword"
@@ -514,6 +523,7 @@ class OntologyEditorProperty extends React.Component<
                 </Grid>
                 <Grid item={true} xs={12} sm={4}>
                   <TextField
+                    {...inputProps}
                     inputProps={{ min: 0, max: 1, step: 0.01 }}
                     type="number"
                     id="weight"

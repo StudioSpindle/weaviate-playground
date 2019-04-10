@@ -93,6 +93,9 @@ const styles = (theme: Theme) =>
 const urlParams = new URLSearchParams(window.location.search);
 const uri = urlParams.get('weaviateUri') || '';
 const url = uri.replace('graphql', '');
+const inputProps = {
+  InputLabelProps: { shrink: true }
+};
 
 /**
  * Component
@@ -334,6 +337,7 @@ class OntologyEditorClass extends React.Component<
               <Grid container={true} spacing={8}>
                 <Grid item={true} xs={12}>
                   <TextField
+                    {...inputProps}
                     disabled={!isNewClass}
                     id="class-type"
                     select={true}
@@ -350,6 +354,7 @@ class OntologyEditorClass extends React.Component<
                 </Grid>
                 <Grid item={true} xs={12}>
                   <TextField
+                    {...inputProps}
                     disabled={!isNewClass}
                     required={true}
                     id="className"
@@ -366,6 +371,7 @@ class OntologyEditorClass extends React.Component<
                 </Grid>
                 <Grid item={true} xs={12}>
                   <TextField
+                    {...inputProps}
                     disabled={!isNewClass}
                     id="description"
                     name="description"
@@ -379,6 +385,7 @@ class OntologyEditorClass extends React.Component<
                 </Grid>
                 <Grid item={true} xs={12} sm={6}>
                   <TextField
+                    {...inputProps}
                     id="keyword"
                     name="keyword"
                     label="Keyword"
@@ -393,6 +400,7 @@ class OntologyEditorClass extends React.Component<
                 </Grid>
                 <Grid item={true} xs={12} sm={4}>
                   <TextField
+                    {...inputProps}
                     inputProps={{ min: 0, max: 1, step: 0.01 }}
                     type="number"
                     id="weight"

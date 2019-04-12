@@ -46,7 +46,7 @@ class Library extends React.Component<ILibraryProps, ILibraryState> {
   public render() {
     const { classes } = this.props;
     return (
-      <Section title="Library" shortTitle="Lib">
+      <Section title="Library" shortTitle="Lib" maxHeight="40vh">
         <ClassesFiltersQuery query={CLASSES_FILTERS_QUERY}>
           {classesFiltersQuery => {
             if (classesFiltersQuery.loading) {

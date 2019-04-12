@@ -12,6 +12,7 @@ import * as React from 'react';
  * Types
  */
 export interface ISectionProps extends WithStyles<typeof styles> {
+  maxHeight?: string;
   title: string;
   shortTitle: string;
 }
@@ -27,6 +28,7 @@ const styles = (theme: Theme) =>
   createStyles({
     details: {
       flexDirection: 'column',
+      overflow: 'scroll',
       padding: '0px'
     },
     expanded: { width: '500px !important' },
@@ -67,7 +69,7 @@ class Section extends React.Component<ISectionProps, ISectionState> {
   };
 
   public render() {
-    const { children, classes, title, shortTitle } = this.props;
+    const { children, classes, maxHeight, title, shortTitle } = this.props;
     const { isOpen } = this.state;
     return (
       <ExpansionPanel
@@ -86,7 +88,10 @@ class Section extends React.Component<ISectionProps, ISectionState> {
             {isOpen ? title : shortTitle}
           </Typography>
         </ExpansionPanelSummary>
-        <ExpansionPanelDetails classes={{ root: classes.details }}>
+        <ExpansionPanelDetails
+          classes={{ root: classes.details }}
+          style={{ maxHeight: maxHeight || '100vh' }}
+        >
           {children}
         </ExpansionPanelDetails>
       </ExpansionPanel>

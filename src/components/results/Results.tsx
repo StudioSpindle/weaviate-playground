@@ -11,7 +11,7 @@ import gql from 'graphql-tag';
 import * as React from 'react';
 import client from 'src/apollo/apolloClient';
 import { ResultsJson, ResultsSankey } from 'src/components';
-import { JsonIcon, SankeyIcon, SwarmIcon } from '../icons';
+import { JsonIcon, SankeyIcon } from '../icons';
 
 interface IResultsProps extends WithStyles<typeof styles> {
   queryString?: string;
@@ -50,7 +50,7 @@ class Results extends React.Component<IResultsProps, IResultsState> {
     this.state = {
       data: {},
       errors: undefined,
-      selectedTab: 2
+      selectedTab: 1
     };
   }
 
@@ -93,7 +93,6 @@ class Results extends React.Component<IResultsProps, IResultsState> {
         <AppBar position="static" color="inherit" elevation={0}>
           <Tabs value={selectedTab} onChange={this.changeTab}>
             <Tab icon={<SankeyIcon />} />
-            <Tab icon={<SwarmIcon />} />
             <Tab icon={<JsonIcon />} />
           </Tabs>
         </AppBar>
@@ -112,9 +111,6 @@ class Results extends React.Component<IResultsProps, IResultsState> {
               </div>
             )}
             {selectedTab === 1 && (
-              <div className={classes.tabSubcontainer}>Swarm diagram</div>
-            )}
-            {selectedTab === 2 && (
               <React.Fragment>
                 <div className={classes.tabContainer}>
                   <div className={classes.tabContainerInline}>

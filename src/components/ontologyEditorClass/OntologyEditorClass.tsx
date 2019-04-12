@@ -168,10 +168,17 @@ class OntologyEditorClass extends React.Component<
 
     if (isClassName || isKeyword) {
       if (this.state[name] === '') {
-        this.setState({
-          classNameError: true,
-          isDisabled: true
-        });
+        if (isClassName) {
+          this.setState({
+            classNameError: false,
+            isDisabled: false
+          });
+        } else if (isKeyword) {
+          this.setState({
+            isDisabled: false,
+            keywordError: false
+          });
+        }
       } else {
         client
           .query({

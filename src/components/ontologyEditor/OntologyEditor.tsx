@@ -19,9 +19,10 @@ import TableRow from '@material-ui/core/TableRow';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import CreateIcon from '@material-ui/icons/Create';
+import DeleteIcon from '@material-ui/icons/Delete';
 import get from 'get-value';
 import * as React from 'react';
-import { Query, QueryResult } from 'react-apollo';
+import { Query } from 'react-apollo';
 import { OntologyEditorClass, OntologyEditorProperty } from 'src/components';
 import { ClassType } from 'src/types';
 import { CLASS_SCHEMA_QUERY } from '../library/queries';
@@ -32,7 +33,6 @@ import { CLASS_SCHEMA_QUERY } from '../library/queries';
 export interface IOntologyEditorProps extends WithStyles<typeof styles> {
   className?: string;
   classType?: ClassType;
-  libraryClassesQuery?: QueryResult;
 }
 
 export interface IOntologyEditorState {
@@ -49,6 +49,9 @@ const styles = (theme: Theme) =>
   createStyles({
     button: {
       margin: '0.5em 0.9em'
+    },
+    buttonContainer: {
+      display: 'flex'
     },
     drawer: {
       backgroundColor: theme.palette.grey[100],
@@ -70,6 +73,10 @@ const styles = (theme: Theme) =>
       padding: '1em'
     }
   });
+
+const urlParams = new URLSearchParams(window.location.search);
+const uri = urlParams.get('weaviateUri') || '';
+const url = uri.replace('graphql', '');
 
 /**
  * Component
@@ -95,11 +102,7 @@ class OntologyEditor extends React.Component<
 
   public toggleDrawer = () => {
     const { isDrawerOpen } = this.state;
-    const { className, libraryClassesQuery } = this.props;
-
-    if (libraryClassesQuery) {
-      libraryClassesQuery.refetch();
-    }
+    const { className } = this.props;
 
     this.setState({
       classId: undefined,
@@ -118,6 +121,22 @@ class OntologyEditor extends React.Component<
       className,
       classType
     });
+  };
+
+  public deleteProperty = (propertyName: string, refetch: any) => () => {
+    const { className, classType } = this.props;
+    const classTypeLowerCase = (classType || '').toLowerCase();
+    fetch(
+      `${url}/schema/${classTypeLowerCase}/${className}/properties/${propertyName}`,
+      { method: 'DELETE' }
+    )
+      .then(res => {
+        if (res.status < 400) {
+          refetch();
+        }
+      })
+      // tslint:disable-next-line:no-console
+      .catch(console.log);
   };
 
   public render() {
@@ -269,7 +288,27 @@ class OntologyEditor extends React.Component<
                           {properties.map((property: any, i: number) => (
                             <TableRow key={i}>
                               <TableCell>{property.name}</TableCell>
-                              <TableCell>{property.description}</TableCell>
+                              <TableCell>{property['@dataType'][0]}</TableCell>
+                              <TableCell>
+                                <div className={classes.buttonContainer}>
+                                  <OntologyEditorProperty
+                                    className={className}
+                                    classType={classType}
+                                    classesSchema={classesSchema}
+                                    classSchemaQuery={classSchemaQuery}
+                                    property={property}
+                                  />
+                                  <IconButton
+                                    aria-label="Edit thing or action"
+                                    onClick={this.deleteProperty(
+                                      property.name,
+                                      classSchemaQuery.refetch
+                                    )}
+                                  >
+                                    <DeleteIcon />
+                                  </IconButton>
+                                </div>
+                              </TableCell>
                             </TableRow>
                           ))}
                         </TableBody>

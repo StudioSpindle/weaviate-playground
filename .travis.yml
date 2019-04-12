@@ -1,13 +1,13 @@
 language: node_js
 dist: xenial
-services: 
+services:
   - docker
 node_js:
-  - "6.2.2"
+  - '10.15.3'
 cache:
   yarn: false
-branches: 
-  only: 
+branches:
+  only:
     - master
     - develop
 script:

@@ -68,7 +68,11 @@ const StateMessage = ({
           </a>{' '}
           on Github.
         </Typography>
-        {message && <Typography color="error">{message}</Typography>}
+        {message && (
+          <Typography id="errorMessage" color="error">
+            {message}
+          </Typography>
+        )}
         <form>
           <FormControl margin="normal" required={true} fullWidth={true}>
             <InputLabel htmlFor="weaviateUri">Weaviate URL</InputLabel>
@@ -81,6 +85,7 @@ const StateMessage = ({
           </FormControl>
 
           <Button
+            id="connectButton"
             type="submit"
             fullWidth={true}
             variant="contained"

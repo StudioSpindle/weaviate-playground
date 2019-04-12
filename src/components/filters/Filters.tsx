@@ -77,7 +77,11 @@ const Filters: React.SFC<IFiltersProps> = ({ classes }) => (
        * Get the meta information for the selected Class
        */
       return (
-        <Section title={`Filters for ${name} on ${instance}`} shortTitle="Flt">
+        <Section
+          title={`Filters for ${name} on ${instance}`}
+          shortTitle="Flt"
+          maxHeight="40vh"
+        >
           <MetaTypeQuery query={META_TYPE_QUERY} variables={{ typename }}>
             {metaTypeQuery => {
               if (metaTypeQuery.loading) {

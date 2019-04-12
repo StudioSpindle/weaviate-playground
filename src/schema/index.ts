@@ -48,6 +48,7 @@ const typeDefs = `
         updateClassSelectionCanvas(id: String!): Canvas
         updateClassesFilters(classLocation: String, classType: String, queryString: String): ClassesFilters
         updateClassSelection(typename: String!): Canvas
+        updateMetaCount(className: String!, addition: Boolean!)
         updateQueryString(hasActiveSourceLinks: Boolean!, hasActiveTargetLinks: Boolean!, queryString: String!): String
     }
 `;

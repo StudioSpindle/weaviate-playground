@@ -1,4 +1,5 @@
 import AppBar from '@material-ui/core/AppBar';
+import Button from '@material-ui/core/Button';
 import Divider from '@material-ui/core/Divider';
 import { Theme } from '@material-ui/core/styles/createMuiTheme';
 import createStyles from '@material-ui/core/styles/createStyles';
@@ -10,7 +11,7 @@ import gql from 'graphql-tag';
 import * as React from 'react';
 import client from 'src/apollo/apolloClient';
 import { ResultsJson, ResultsSankey } from 'src/components';
-import { JsonIcon, SankeyIcon, SwarmIcon } from '../icons';
+import { JsonIcon, SankeyIcon } from '../icons';
 
 interface IResultsProps extends WithStyles<typeof styles> {
   queryString?: string;
@@ -31,6 +32,13 @@ const styles = (theme: Theme) =>
       border: `1px solid ${theme.palette.grey[100]}`,
       margin: '1em'
     },
+    tabContainerInline: {
+      margin: '1em'
+    },
+    tabSubcontainer: {
+      border: `1px solid ${theme.palette.grey[100]}`,
+      margin: '1em'
+    },
     warning: {
       padding: '1em'
     }
@@ -42,7 +50,7 @@ class Results extends React.Component<IResultsProps, IResultsState> {
     this.state = {
       data: {},
       errors: undefined,
-      selectedTab: 2
+      selectedTab: 1
     };
   }
 
@@ -85,13 +93,12 @@ class Results extends React.Component<IResultsProps, IResultsState> {
         <AppBar position="static" color="inherit" elevation={0}>
           <Tabs value={selectedTab} onChange={this.changeTab}>
             <Tab icon={<SankeyIcon />} />
-            <Tab icon={<SwarmIcon />} />
             <Tab icon={<JsonIcon />} />
           </Tabs>
         </AppBar>
         <Divider />
         {!hasValidQueryString ? (
-          <div className={`${classes.tabContainer} ${classes.warning}`}>
+          <div className={`${classes.tabSubcontainer} ${classes.warning}`}>
             <Typography color="error">
               No link or multiple link paths selected
             </Typography>
@@ -99,26 +106,54 @@ class Results extends React.Component<IResultsProps, IResultsState> {
         ) : (
           <React.Fragment>
             {selectedTab === 0 && (
-              <div className={classes.tabContainer}>
+              <div className={classes.tabSubcontainer}>
                 <ResultsSankey data={data} />
               </div>
             )}
             {selectedTab === 1 && (
-              <div className={classes.tabContainer}>Swarm diagram</div>
-            )}
-            {selectedTab === 2 && (
               <React.Fragment>
                 <div className={classes.tabContainer}>
-                  <ResultsJson data={queryString} isGraphQL={true} />
+                  <div className={classes.tabContainerInline}>
+                    <Typography variant="subtitle1">
+                      GraphQL response
+                    </Typography>
+                  </div>
+
+                  <Divider />
+                  <div className={classes.tabSubcontainer}>
+                    <ResultsJson
+                      data={
+                        errors && errors.length
+                          ? JSON.stringify(errors[0], undefined, 4)
+                          : JSON.stringify(data, undefined, 4)
+                      }
+                    />
+                  </div>
                 </div>
+
                 <div className={classes.tabContainer}>
-                  <ResultsJson
-                    data={
-                      errors && errors.length
-                        ? JSON.stringify(errors[0], undefined, 4)
-                        : JSON.stringify(data, undefined, 4)
-                    }
-                  />
+                  <div className={classes.tabContainerInline}>
+                    {' '}
+                    <Typography variant="subtitle1">GraphQL query</Typography>
+                  </div>
+
+                  <Divider />
+                  <div className={classes.tabSubcontainer}>
+                    <ResultsJson data={queryString} isGraphQL={true} />
+                  </div>
+                  <div className={classes.tabContainerInline}>
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      component="a"
+                      href={`${
+                        window.location.href
+                      }&graphiql=true&query="${queryString}"`}
+                      target="_blank"
+                    >
+                      <Typography>Run in GraphiQL</Typography>
+                    </Button>
+                  </div>
                 </div>
               </React.Fragment>
             )}

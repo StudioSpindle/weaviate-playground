@@ -1,4 +1,5 @@
 import AppBar from '@material-ui/core/AppBar';
+import Button from '@material-ui/core/Button';
 import Divider from '@material-ui/core/Divider';
 import { Theme } from '@material-ui/core/styles/createMuiTheme';
 import createStyles from '@material-ui/core/styles/createStyles';
@@ -29,6 +30,9 @@ const styles = (theme: Theme) =>
   createStyles({
     tabContainer: {
       border: `1px solid ${theme.palette.grey[100]}`,
+      margin: '1em'
+    },
+    tabContainerButton: {
       margin: '1em'
     },
     warning: {
@@ -119,6 +123,19 @@ class Results extends React.Component<IResultsProps, IResultsState> {
                         : JSON.stringify(data, undefined, 4)
                     }
                   />
+                </div>
+                <div className={classes.tabContainerButton}>
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    component="a"
+                    href={`${
+                      window.location.href
+                    }&graphiql=true&query="${queryString}"`}
+                    target="_blank"
+                  >
+                    <Typography>Run in GraphiQL</Typography>
+                  </Button>
                 </div>
               </React.Fragment>
             )}

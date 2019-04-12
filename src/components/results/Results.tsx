@@ -32,7 +32,11 @@ const styles = (theme: Theme) =>
       border: `1px solid ${theme.palette.grey[100]}`,
       margin: '1em'
     },
-    tabContainerButton: {
+    tabContainerInline: {
+      margin: '1em'
+    },
+    tabSubcontainer: {
+      border: `1px solid ${theme.palette.grey[100]}`,
       margin: '1em'
     },
     warning: {
@@ -95,7 +99,7 @@ class Results extends React.Component<IResultsProps, IResultsState> {
         </AppBar>
         <Divider />
         {!hasValidQueryString ? (
-          <div className={`${classes.tabContainer} ${classes.warning}`}>
+          <div className={`${classes.tabSubcontainer} ${classes.warning}`}>
             <Typography color="error">
               No link or multiple link paths selected
             </Typography>
@@ -103,39 +107,57 @@ class Results extends React.Component<IResultsProps, IResultsState> {
         ) : (
           <React.Fragment>
             {selectedTab === 0 && (
-              <div className={classes.tabContainer}>
+              <div className={classes.tabSubcontainer}>
                 <ResultsSankey data={data} />
               </div>
             )}
             {selectedTab === 1 && (
-              <div className={classes.tabContainer}>Swarm diagram</div>
+              <div className={classes.tabSubcontainer}>Swarm diagram</div>
             )}
             {selectedTab === 2 && (
               <React.Fragment>
                 <div className={classes.tabContainer}>
-                  <ResultsJson data={queryString} isGraphQL={true} />
+                  <div className={classes.tabContainerInline}>
+                    <Typography variant="subtitle1">
+                      GraphQL response
+                    </Typography>
+                  </div>
+
+                  <Divider />
+                  <div className={classes.tabSubcontainer}>
+                    <ResultsJson
+                      data={
+                        errors && errors.length
+                          ? JSON.stringify(errors[0], undefined, 4)
+                          : JSON.stringify(data, undefined, 4)
+                      }
+                    />
+                  </div>
                 </div>
+
                 <div className={classes.tabContainer}>
-                  <ResultsJson
-                    data={
-                      errors && errors.length
-                        ? JSON.stringify(errors[0], undefined, 4)
-                        : JSON.stringify(data, undefined, 4)
-                    }
-                  />
-                </div>
-                <div className={classes.tabContainerButton}>
-                  <Button
-                    variant="outlined"
-                    color="primary"
-                    component="a"
-                    href={`${
-                      window.location.href
-                    }&graphiql=true&query="${queryString}"`}
-                    target="_blank"
-                  >
-                    <Typography>Run in GraphiQL</Typography>
-                  </Button>
+                  <div className={classes.tabContainerInline}>
+                    {' '}
+                    <Typography variant="subtitle1">GraphQL query</Typography>
+                  </div>
+
+                  <Divider />
+                  <div className={classes.tabSubcontainer}>
+                    <ResultsJson data={queryString} isGraphQL={true} />
+                  </div>
+                  <div className={classes.tabContainerInline}>
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      component="a"
+                      href={`${
+                        window.location.href
+                      }&graphiql=true&query="${queryString}"`}
+                      target="_blank"
+                    >
+                      <Typography>Run in GraphiQL</Typography>
+                    </Button>
+                  </div>
                 </div>
               </React.Fragment>
             )}

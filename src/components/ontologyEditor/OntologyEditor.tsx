@@ -288,7 +288,7 @@ class OntologyEditor extends React.Component<
                           {properties.map((property: any, i: number) => (
                             <TableRow key={i}>
                               <TableCell>{property.name}</TableCell>
-                              <TableCell>{property['@dataType'][0]}</TableCell>
+                              <TableCell>{property.dataType[0]}</TableCell>
                               <TableCell>
                                 <div className={classes.buttonContainer}>
                                   <OntologyEditorProperty

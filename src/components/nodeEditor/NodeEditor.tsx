@@ -106,7 +106,7 @@ class NodeEditor extends React.Component<INodeEditorProps, INodeEditorState> {
 
   public renderPropertyField = (property: any) => {
     const { form, formErrors, temp } = this.state;
-    const dataType = property['@dataType'][0];
+    const dataType = property.dataType[0];
     const field = form[property.name];
     const fieldError = formErrors[property.name];
 
@@ -428,27 +428,15 @@ class NodeEditor extends React.Component<INodeEditorProps, INodeEditorState> {
   public saveNode = () => {
     const { form } = this.state;
     const { className, classType, nodeId, refetch } = this.props;
-    const classTypeSingularLowercase = (classType || '')
-      .toLowerCase()
-      .slice(0, -1);
-
     const body = {
-      '@class': className,
-      '@context': 'string',
+      class: className,
       schema: form
     };
 
     fetch(
       `${url}${(classType || '').toLowerCase()}${nodeId ? `/${nodeId}` : ''}`,
       {
-        body: JSON.stringify(
-          nodeId
-            ? body
-            : {
-                [`${classTypeSingularLowercase}`]: body,
-                async: false
-              }
-        ),
+        body: JSON.stringify(body),
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json'

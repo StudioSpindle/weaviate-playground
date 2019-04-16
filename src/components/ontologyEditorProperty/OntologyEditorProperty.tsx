@@ -42,7 +42,14 @@ export interface IOntologyEditorPropertyProps
   className?: string;
   classType?: string;
   classSchemaQuery: QueryResult;
-  property?: {};
+  property?: {
+    cardinality: 'atMostOne' | 'many';
+    classReference?: string;
+    dataType: [string];
+    description: string;
+    keywords: Keywords;
+    name: string;
+  };
 }
 
 export interface IOntologyEditorPropertyState {
@@ -50,7 +57,7 @@ export interface IOntologyEditorPropertyState {
   form: {
     cardinality: 'atMostOne' | 'many';
     classReference?: string;
-    ['@dataType']: [string];
+    dataType: [string];
     description: string;
     keywords: Keywords;
     name: string;
@@ -160,7 +167,7 @@ class OntologyEditorProperty extends React.Component<
       form: {
         cardinality: 'atMostOne',
         classReference: undefined,
-        ['@dataType']: ['string'],
+        dataType: ['string'],
         description: '',
         keywords: [],
         name: ''
@@ -190,7 +197,7 @@ class OntologyEditorProperty extends React.Component<
     if (name === 'keyword') {
       this.setState({ keyword: value });
     } else {
-      if (name === '@dataType') {
+      if (name === 'dataType') {
         value = [value];
       }
       // @ts-ignore
@@ -323,27 +330,27 @@ class OntologyEditorProperty extends React.Component<
   public saveProperty = () => {
     const { form } = this.state;
     const { cardinality, classReference, description, keywords, name } = form;
-    const { className, classType } = this.props;
+    const { className, classType, property } = this.props;
     const DataType =
-      form['@dataType'][0] === 'CrossRef' && classReference
+      form.dataType[0] === 'CrossRef' && classReference
         ? [classReference]
-        : form['@dataType'];
-    const isNewProperty = !this.props.property;
+        : form.dataType;
+    const isNewProperty = !property;
 
     fetch(
       `${url}schema/${(
         classType || ''
-      ).toLowerCase()}/${className}/properties/${isNewProperty ? '' : name}`,
+      ).toLowerCase()}/${className}/properties/${
+        isNewProperty ? '' : property && property.name
+      }`,
       {
-        body: isNewProperty
-          ? JSON.stringify({
-              '@dataType': DataType,
-              cardinality,
-              description,
-              keywords,
-              name
-            })
-          : JSON.stringify({ keywords }),
+        body: JSON.stringify({
+          cardinality,
+          dataType: DataType,
+          description,
+          keywords,
+          name
+        }),
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json'
@@ -426,7 +433,6 @@ class OntologyEditorProperty extends React.Component<
                     error={formErrors.name}
                     fullWidth={true}
                     autoComplete="ontologyEditorProperty name"
-                    disabled={!isNewProperty}
                   />
                 </Grid>
                 <Grid item={true} xs={12}>
@@ -436,11 +442,10 @@ class OntologyEditorProperty extends React.Component<
                     select={true}
                     label="Data type"
                     fullWidth={true}
-                    value={form['@dataType'][0]}
-                    onChange={this.setFormField('@dataType')}
+                    value={form.dataType[0]}
+                    onChange={this.setFormField('dataType')}
                     helperText="Helper text"
                     margin="normal"
-                    disabled={!isNewProperty}
                   >
                     {dataTypes.map((dataTypex, i) => (
                       <MenuItem key={i} value={dataTypex.weaviateType}>
@@ -449,7 +454,7 @@ class OntologyEditorProperty extends React.Component<
                     ))}
                   </TextField>
                 </Grid>
-                {form['@dataType'][0] === 'CrossRef' && (
+                {form.dataType[0] === 'CrossRef' && (
                   <Grid item={true} xs={12}>
                     <TextField
                       {...inputProps}
@@ -461,7 +466,6 @@ class OntologyEditorProperty extends React.Component<
                       onChange={this.setFormField('classReference')}
                       helperText="Helper text"
                       margin="normal"
-                      disabled={!isNewProperty}
                     >
                       {classesSchema
                         .filter(classSchema => classSchema.class !== className)
@@ -473,7 +477,7 @@ class OntologyEditorProperty extends React.Component<
                     </TextField>
                   </Grid>
                 )}
-                {form['@dataType'][0] === 'CrossRef' && (
+                {form.dataType[0] === 'CrossRef' && (
                   <Grid item={true} xs={12}>
                     <TextField
                       {...inputProps}
@@ -485,7 +489,6 @@ class OntologyEditorProperty extends React.Component<
                       onChange={this.setFormField('cardinality')}
                       helperText="Helper text"
                       margin="normal"
-                      disabled={!isNewProperty}
                     >
                       <MenuItem value={'atMostOne'}>At most one</MenuItem>
                       <MenuItem value={'many'}>Many</MenuItem>
@@ -503,7 +506,6 @@ class OntologyEditorProperty extends React.Component<
                     onChange={this.setFormField('description')}
                     fullWidth={true}
                     autoComplete="ontologyEditorProperty description"
-                    disabled={!isNewProperty}
                   />
                 </Grid>
                 <Grid item={true} xs={12} sm={6}>

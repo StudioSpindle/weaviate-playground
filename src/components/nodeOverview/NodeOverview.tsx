@@ -109,9 +109,11 @@ class NodeOverview extends React.Component<
     fetch(`${url}${classTypeLowerCase}`)
       .then(res => res.json())
       .then(res => {
+        // tslint:disable-next-line:no-console
+        console.log(res);
         const nodes = res[classTypeLowerCase];
         const filteredNodes = nodes.filter(
-          (node: any) => node['@class'] === className
+          (node: any) => node.class === className
         );
         this.setState({ nodes: filteredNodes });
       });

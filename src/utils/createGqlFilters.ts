@@ -12,7 +12,7 @@ export const createOperand = (path: string[], value: any, operator: string) => {
     return {
       operator,
       path,
-      valueInt: value
+      valueInt: Number(value.toFixed())
     };
   } else if (typeof value === 'boolean' && value === true) {
     return {

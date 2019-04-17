@@ -277,8 +277,8 @@ class Filter extends React.Component<IFilterProps> {
                                             <RangeSlider
                                               filterMutation={filterMutation}
                                               filterValue={filterValue}
-                                              min={metaData.lowest}
-                                              max={metaData.highest}
+                                              min={metaData.minimum}
+                                              max={metaData.maximum}
                                             />
                                           );
 

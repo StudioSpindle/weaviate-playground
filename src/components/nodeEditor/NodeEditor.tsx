@@ -477,7 +477,7 @@ class NodeEditor extends React.Component<INodeEditorProps, INodeEditorState> {
 
   public render() {
     const { errors, formErrors, isDrawerOpen } = this.state;
-    const { classes, className, classType } = this.props;
+    const { classes, className, classType, nodeId } = this.props;
     const isDisabled = Object.keys(formErrors).some(key => {
       if (typeof formErrors[key] === 'object') {
         return Object.keys(formErrors[key]).some(
@@ -560,7 +560,9 @@ class NodeEditor extends React.Component<INodeEditorProps, INodeEditorState> {
                   <React.Fragment>
                     <Paper className={classes.paper}>
                       <div className={classes.paperBody}>
-                        <Typography variant="h6">Add {className}</Typography>
+                        <Typography variant="h6">
+                          {nodeId ? 'Edit' : 'Add'} {className}
+                        </Typography>
                       </div>
                       <Divider />
                       <div className={classes.paperBody}>

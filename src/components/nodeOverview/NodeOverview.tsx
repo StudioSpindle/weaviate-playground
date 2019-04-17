@@ -191,26 +191,23 @@ class NodeOverview extends React.Component<
                 </TableHead>
                 <TableBody>
                   {nodes.map((node: any, i: number) => {
-                    const nodeId =
-                      node[`${(classType || '').toLowerCase().slice(0, -1)}Id`];
-
                     return (
-                      <TableRow key={`${nodeId}+${i}`}>
+                      <TableRow key={`${node.id}+${i}`}>
                         <TableCell>
                           {node.schema.name || node.schema.title || 'Untitled'}
                         </TableCell>
-                        <TableCell>{nodeId}</TableCell>
+                        <TableCell>{node.id}</TableCell>
                         <TableCell>
                           <div className={classes.buttonContainer}>
                             <NodeEditor
                               className={className}
                               classType={classType}
-                              nodeId={nodeId}
+                              nodeId={node.id}
                               refetch={this.fetchNodes}
                             />{' '}
                             <IconButton
                               aria-label="Edit thing or action"
-                              onClick={this.deleteNode(nodeId)}
+                              onClick={this.deleteNode(node.id)}
                             >
                               <DeleteIcon />
                             </IconButton>

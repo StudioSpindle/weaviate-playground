@@ -9,11 +9,19 @@ export const createOperand = (path: string[], value: any, operator: string) => {
       valueString: value
     };
   } else if (typeof value === 'number') {
-    return {
-      operator,
-      path,
-      valueInt: Number(value.toFixed())
-    };
+    if (value % 1 === 0) {
+      return {
+        operator,
+        path,
+        valueInt: Number(value.toFixed())
+      };
+    } else {
+      return {
+        operator,
+        path,
+        valueNumber: value
+      };
+    }
   } else if (typeof value === 'boolean' && value === true) {
     return {
       operator,

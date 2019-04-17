@@ -272,6 +272,7 @@ class Filter extends React.Component<IFilterProps> {
                                               path={path}
                                             />
                                           );
+                                        case 'int':
                                         case 'number':
                                           return (
                                             <RangeSlider

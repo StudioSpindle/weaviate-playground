@@ -4,7 +4,7 @@ import gql from 'graphql-tag';
 export const CLASS_SCHEMA_QUERY = gql`
   query classSchemas {
     classSchemas @rest(type: "ClassSchemas", path: "meta") {
-      actionSchema
+      actionsSchema
       thingsSchema
     }
   }

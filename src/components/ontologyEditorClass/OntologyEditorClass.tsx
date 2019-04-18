@@ -49,6 +49,7 @@ export interface IOntologyEditorClassState {
   classNameError: boolean;
   classType: ClassType;
   description: string;
+  errors: Array<{ message: string }>;
   isAddKeywordDisabled: boolean;
   isDisabled: boolean;
   isDrawerOpen: boolean;
@@ -111,6 +112,7 @@ class OntologyEditorClass extends React.Component<
       classNameError: false,
       classType: 'Things',
       description: '',
+      errors: [],
       isAddKeywordDisabled: false,
       isDisabled: false,
       isDrawerOpen: false,
@@ -263,17 +265,17 @@ class OntologyEditorClass extends React.Component<
     const isNewClass = !this.props.className;
 
     fetch(
-      `${url}schema/${classType.toLowerCase()}/${isNewClass ? '' : className}`,
+      `${url}schema/${
+        this.props.classType
+          ? this.props.classType.toLowerCase()
+          : classType.toLowerCase()
+      }/${isNewClass ? '' : this.props.className}`,
       {
-        body: isNewClass
-          ? JSON.stringify({
-              class: className,
-              description,
-              keywords
-            })
-          : JSON.stringify({
-              keywords
-            }),
+        body: JSON.stringify({
+          class: className,
+          description,
+          keywords
+        }),
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json'
@@ -281,14 +283,18 @@ class OntologyEditorClass extends React.Component<
         method: isNewClass ? 'POST' : 'PUT'
       }
     )
+      .then(res => res.text())
+      .then(text => (text.length ? JSON.parse(text) : {}))
       .then(res => {
-        if (res.status >= 400) {
-          this.setState({ isDisabled: true, classNameError: true });
+        if (res.error) {
+          // @ts-ignore
+          this.setState({ errors: res.error });
           throw new Error('');
         } else {
-          return res.text();
+          return;
         }
       })
+
       .then(() => {
         return saveClassMutation();
       })
@@ -313,6 +319,7 @@ class OntologyEditorClass extends React.Component<
       classNameError,
       classType,
       description,
+      errors,
       isAddKeywordDisabled,
       isDisabled,
       isDrawerOpen,
@@ -345,7 +352,6 @@ class OntologyEditorClass extends React.Component<
                 <Grid item={true} xs={12}>
                   <TextField
                     {...inputProps}
-                    disabled={!isNewClass}
                     id="class-type"
                     select={true}
                     label="Select"
@@ -362,7 +368,6 @@ class OntologyEditorClass extends React.Component<
                 <Grid item={true} xs={12}>
                   <TextField
                     {...inputProps}
-                    disabled={!isNewClass}
                     required={true}
                     id="className"
                     name="className"
@@ -379,7 +384,6 @@ class OntologyEditorClass extends React.Component<
                 <Grid item={true} xs={12}>
                   <TextField
                     {...inputProps}
-                    disabled={!isNewClass}
                     id="description"
                     name="description"
                     label="Description"
@@ -498,6 +502,13 @@ class OntologyEditorClass extends React.Component<
                     );
                   }}
                 </Mutation>
+                {errors.length
+                  ? errors.map((error, i) => (
+                      <Typography key={i} color="error">
+                        {error.message}
+                      </Typography>
+                    ))
+                  : ''}
               </div>
             </Paper>
           </form>

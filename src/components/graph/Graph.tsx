@@ -13,6 +13,7 @@ import {
 } from 'd3-selection';
 import { zoom as d3Zoom } from 'd3-zoom';
 import get from 'get-value';
+import debounce from 'lodash.debounce';
 import * as React from 'react';
 import ERRORS from '../err';
 import utils from '../utils';
@@ -90,6 +91,18 @@ const styles = (theme: Theme) =>
  */
 class Graph extends React.Component<IGraphProps, IGraphState> {
   public focusAnimationTimeout: any;
+
+  /**
+   * The tick function simply calls React set state in order to update component and render nodes
+   * along time as d3 calculates new node positioning.
+   */
+  public tick = debounce((state?: {}, cb?: () => void) => {
+    if (!state) {
+      state = {};
+    }
+    return cb ? this.setState(state, cb) : this.setState(state);
+  });
+
   constructor(props: IGraphProps) {
     super(props);
 
@@ -152,20 +165,37 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
     const enableFocusAnimation =
       this.props.data.focusedNodeId !== nextProps.data.focusedNodeId;
 
-    this.setState({
-      ...state,
-      config,
-      configUpdated,
-      d3ConfigUpdated,
-      enableFocusAnimation,
-      focusTransformation,
-      focusedNodeId,
-      newGraphElements,
-      transform
-    });
+    // tslint:disable-next-line:no-console
+    if (
+      graphElementsUpdated ||
+      newGraphElements ||
+      configUpdated ||
+      d3ConfigUpdated
+    ) {
+      this.setState({
+        ...state,
+        config,
+        configUpdated,
+        d3ConfigUpdated,
+        enableFocusAnimation,
+        focusTransformation,
+        focusedNodeId,
+        newGraphElements,
+        transform
+      });
+    }
   }
 
-  public componentDidUpdate() {
+  public shouldComponentUpdate(nextProps: any) {
+    const {
+      graphElementsUpdated,
+      newGraphElements
+    } = graphHelper.checkForGraphElementsChanges(nextProps, this.state);
+
+    return graphElementsUpdated || newGraphElements;
+  }
+
+  public componentDidUpdate(prevProps: any, prevState: any) {
     // if the property staticGraph was activated we want to stop possible ongoing simulation
     if (this.state.config.staticGraph) {
       this.pauseSimulation();
@@ -295,17 +325,6 @@ class Graph extends React.Component<IGraphProps, IGraphState> {
         value
       )
     );
-
-  /**
-   * The tick function simply calls React set state in order to update component and render nodes
-   * along time as d3 calculates new node positioning.
-   */
-  public tick = (state?: {}, cb?: () => void) => {
-    if (!state) {
-      state = {};
-    }
-    return cb ? this.setState(state, cb) : this.setState(state);
-  };
 
   /**
    * Configures zoom upon graph with default or user provided values.

@@ -1,10 +1,10 @@
 import {
-  forceManyBody as d3ForceManyBody,
   forceSimulation as d3ForceSimulation,
   forceX as d3ForceX,
   forceY as d3ForceY,
   Simulation
 } from 'd3-force';
+import { forceManyBodyReuse } from 'd3-force-reuse';
 import ERRORS from '../err';
 import utils from '../utils';
 import { computeNodeDegree } from './collapse.helper';
@@ -44,7 +44,7 @@ const createForceSimulation = (
   const forceStrength = gravity;
 
   return d3ForceSimulation()
-    .force('charge', d3ForceManyBody().strength(forceStrength))
+    .force('charge', forceManyBodyReuse().strength(forceStrength))
     .force('x', frx)
     .force('y', fry);
 };

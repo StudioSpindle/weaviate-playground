@@ -272,13 +272,14 @@ class Filter extends React.Component<IFilterProps> {
                                               path={path}
                                             />
                                           );
+                                        case 'int':
                                         case 'number':
                                           return (
                                             <RangeSlider
                                               filterMutation={filterMutation}
                                               filterValue={filterValue}
-                                              min={metaData.lowest}
-                                              max={metaData.highest}
+                                              min={metaData.minimum}
+                                              max={metaData.maximum}
                                             />
                                           );
 

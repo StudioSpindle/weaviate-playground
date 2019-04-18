@@ -1,6 +1,6 @@
 import { ApolloLink } from 'apollo-link';
 import authLink from './authLink';
-import httpLink from './httpLink';
+import batchHttpLink from './batchHttpLink';
 import onErrorLink from './onError';
 import restLink from './restLink';
 import withClientStateLink from './withClientStateLink';
@@ -10,7 +10,7 @@ const link = ApolloLink.from([
   withClientStateLink,
   authLink,
   restLink,
-  httpLink
+  batchHttpLink
 ]);
 
 export default link;

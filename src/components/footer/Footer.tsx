@@ -22,6 +22,11 @@ const styles = (theme: Theme) => ({
   }
 });
 
+const openGraphiQL = (e: any) => {
+  e.preventDefault();
+  window.open(window.location.href + '&graphiql=true', '_blank');
+};
+
 /**
  * Footer component
  */
@@ -37,7 +42,11 @@ class Footer extends React.Component<IFooterProps> {
       >
         <Divider />
         <Toolbar variant="dense">
-          <Typography color="inherit">Add nodes from the library</Typography>
+          <Typography color="inherit">
+            <a href="#" onClick={openGraphiQL}>
+              open GraphiQL for this Weaviate
+            </a>
+          </Typography>
           <div className={classes.grow} />
         </Toolbar>
       </AppBar>

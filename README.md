@@ -62,11 +62,15 @@ This will automatically open your browser window and navigate to the right url. 
 
 #### Testing
 
+> Note: Tests only run if you have a local version of the site running by using the previous command.
+
+> Note: Tests only succeed if a Weaviate is running on your local machine
+
 ```bash
 yarn test
 ```
 
-This will run all tests. You can also run tests separate from eachother by adding `:lint`, `:types` or `:unit` to the test command.
+This will run all tests. You can also run tests separate from each other by adding `:lint`, `:types` or `:unit` to the test command.
 
 #### Formatting
 

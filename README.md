@@ -1,30 +1,50 @@
 
-# Weaviate Playground (BETA) <img alt='Weaviate logo' src='https://raw.githubusercontent.com/semi-technologies/weaviate/19de0956c69b66c5552447e84d016f4fe29d12c9/docs/assets/weaviate-logo.png' width='180' align='right' />
+<h1 align="center">
+    <img alt='Weaviate logo' src='https://raw.githubusercontent.com/semi-technologies/weaviate/19de0956c69b66c5552447e84d016f4fe29d12c9/docs/assets/weaviate-logo.png' width='180' align='right' /><br>
+    Weaviate Playground (🚧 BETA)<br>
+</h1>
 
-Weaviate Playground is a Javascript web app that allows users to explore [Weaviate instances](https://github.com/creativesoftwarefdn/weaviate).
+<p align="center">Weaviate Playground is a Javascript web app that allows users to explore [Weaviate instances](https://github.com/creativesoftwarefdn/weaviate). It is a graphical user interface (GUI) which can help to visualise your Weaviate instance.</p>
 
-> 🚧 Still in BETA
+---
 
+## Weaviate Playground
+
+The Weaviate Playground is:
 - **Dynamic:** any Weaviate instance can be easily plugged via route params. Playground will sync it's UI with the instance's [ontologies](https://github.com/creativesoftwarefdn/weaviate#ontology) through introspection.
 - **Client-side only:** Playground runs client-side only. This makes the app very portable and easily distributable. It can be easily run from a static file server or locally from a device with a desktop browser.
 
-## Weaviate Documentation
+## Usage
 
-Documentation on running a Weaviate can be found [here](https://github.com/semi-technologies/weaviate/blob/develop/docs/en/use/weaviate-playground.md) as part of the Weaviate repo.
+The Weaviate Playground works in combination with a Weaviate. Meaning that you will have to run a Weaviate in order for the playground to visualise your data.
 
-## Dependencies
-- [NodeJS](https://nodejs.org/en/download/)
-- [Yarn](https://yarnpkg.com/lang/en/docs/install/)
+Documentation on setting up and running a Weaviate for the Weaviate Playground can be found [on the Weaviate Git repository](https://github.com/semi-technologies/weaviate/blob/master/docs/en/use/weaviate-playground.md) as part of the Weaviate repo.
 
-## Usage with Docker
+To view the Weaviate Playground make sure you have a Weaviate instance running and then follow the next few steps.  
+
+### Dependencies
+- [Docker](https://docs.docker.com/v17.12/docker-for-mac/install/)
+
+### Running Weaviate Playground in Docker
+
+In your terminal run the following command: 
 
 `$ docker run -d -p 80:80 semitechnologies/weaviate-playground:latest`
 
-You can also [run the whole stack](https://github.com/semi-technologies/weaviate/blob/master/docs/en/use/running-weaviate.md#running-the-latest-version).
+Running this command will fetch your local instance of Weaviate.
 
-## Usage without Docker
+> Note: If you prefer you can also [run the whole stack](https://github.com/semi-technologies/weaviate/blob/master/docs/en/use/running-weaviate.md#running-the-latest-version).
+
+Once that's running you can open your browser and ...[to be defined]
+ 
+
+## Contribute
 
 This app is based on [Create React App](https://facebook.github.io/create-react-app/). You can utilize their commands to start, build and eject the app.
+
+### Dependencies
+- [NodeJS](https://nodejs.org/en/download/)
+- [Yarn](https://yarnpkg.com/lang/en/docs/install/)
 
 #### Installation
 

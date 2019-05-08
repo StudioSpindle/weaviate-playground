@@ -1,15 +1,20 @@
+
 # Weaviate Playground (BETA) <img alt='Weaviate logo' src='https://raw.githubusercontent.com/semi-technologies/weaviate/19de0956c69b66c5552447e84d016f4fe29d12c9/docs/assets/weaviate-logo.png' width='180' align='right' />
 
 Weaviate Playground is a Javascript web app that allows users to explore [Weaviate instances](https://github.com/creativesoftwarefdn/weaviate).
 
-_Still in BETA_
+> 🚧 Still in BETA
 
 - **Dynamic:** any Weaviate instance can be easily plugged via route params. Playground will sync it's UI with the instance's [ontologies](https://github.com/creativesoftwarefdn/weaviate#ontology) through introspection.
 - **Client-side only:** Playground runs client-side only. This makes the app very portable and easily distributable. It can be easily run from a static file server or locally from a device with a desktop browser.
 
-## Documentation
+## Weaviate Documentation
 
-Documentation can be found [here](https://github.com/semi-technologies/weaviate/blob/develop/docs/en/use/weaviate-playground.md) as part of the Weaviate repo.
+Documentation on running a Weaviate can be found [here](https://github.com/semi-technologies/weaviate/blob/develop/docs/en/use/weaviate-playground.md) as part of the Weaviate repo.
+
+## Dependencies
+- [NodeJS](https://nodejs.org/en/download/)
+- [Yarn](https://yarnpkg.com/lang/en/docs/install/)
 
 ## Usage with Docker
 
@@ -26,8 +31,6 @@ This app is based on [Create React App](https://facebook.github.io/create-react-
 ```bash
 yarn
 ```
-
-You need to have [NodeJS](https://nodejs.org/en/download/) and [Yarn](https://yarnpkg.com/lang/en/docs/install/) installed before running the yarn command.
 
 #### Starting
 

@@ -5,12 +5,12 @@ import * as React from 'react';
 import {
   CanvasContainer,
   ClassIntrospector,
-  Filters,
+  // Filters,
   Footer,
   GraphiQLContainer,
   Header,
   Library,
-  ResultsContainer,
+  // ResultsContainer,
   ScreenSizer
 } from 'src/components';
 import { IThemeSpec } from 'src/themes';
@@ -51,7 +51,8 @@ const styles = (theme: Theme) =>
       }
     },
     aside: {
-      marginTop: '50px',
+      marginLeft: '25px',
+      marginTop: '25px',
       position: 'absolute'
     },
     main: {
@@ -78,16 +79,16 @@ class App extends React.Component<IAppProps> {
         <Header logo={logo} />
         <main className={classes.main}>
           <ClassIntrospector>
-            <aside className={classes.aside} style={{ left: '50px' }}>
+            <aside className={classes.aside}>
               <Library />
-              <Filters />
+              {/*<Filters />*/}
             </aside>
 
             <CanvasContainer />
 
-            <aside className={classes.aside} style={{ right: '50px' }}>
-              <ResultsContainer />
-            </aside>
+            {/*<aside className={classes.aside} style={{ right: '50px' }}>*/}
+            {/*  <ResultsContainer />*/}
+            {/*</aside>*/}
           </ClassIntrospector>
         </main>
         <Footer />

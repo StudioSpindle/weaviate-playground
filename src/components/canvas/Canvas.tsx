@@ -310,10 +310,10 @@ class Canvas extends React.PureComponent<ICanvasProps, ICanvasState> {
               gutterBottom={true}
               className={classes.noNodesText}
             >
-              There are no nodes in the playground
+              There are no class nodes in the playground
             </Typography>
             <Typography className={classes.noNodesText}>
-              Add nodes from the library
+              Add schema items in the Schema Item Library panel
             </Typography>
           </div>
         </div>

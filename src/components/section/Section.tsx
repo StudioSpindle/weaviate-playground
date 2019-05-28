@@ -27,9 +27,7 @@ export interface ISectionState {
 const styles = (theme: Theme) =>
   createStyles({
     details: {
-      flexDirection: 'column',
-      overflow: 'scroll',
-      padding: '0px'
+      flexDirection: 'column'
     },
     expanded: { width: '500px !important' },
     heading: {

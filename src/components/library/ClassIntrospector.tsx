@@ -1,10 +1,4 @@
-import Button from '@material-ui/core/Button';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import FormControl from '@material-ui/core/FormControl';
 import Grid from '@material-ui/core/Grid';
-import Input from '@material-ui/core/Input';
-import InputLabel from '@material-ui/core/InputLabel';
-import Typography from '@material-ui/core/Typography';
 import get from 'get-value';
 import React from 'react';
 import apolloClient from 'src/apollo/apolloClient';
@@ -18,6 +12,9 @@ import {
   NetworkClassesQuery,
   UPDATE_CLASS_MUTATION
 } from '../introspection/queries';
+import FormAddWeaviateUrl from '../welcomeScreen/FormAddWeaviateUrl';
+import WelcomeMessage from '../welcomeScreen/WelcomeMessage';
+import StateMessage from './StateMessage';
 
 // tslint:disable-next-line:no-empty-interface
 interface IClassIntrospectorProps {}
@@ -25,80 +22,13 @@ interface IClassIntrospectorProps {}
 interface IClassIntrospectorState {
   empty: boolean;
   error: boolean;
+  info?: string;
   loading: boolean;
 }
 
 interface IClassFetcher {
   isWeaviateEmpty: boolean;
 }
-
-const StateMessage = ({
-  message,
-  state
-}: {
-  message?: string;
-  state: 'error' | 'loading';
-}) => (
-  <Grid
-    container={true}
-    direction="column"
-    justify="center"
-    alignItems="center"
-  >
-    {state === 'loading' && <CircularProgress />}
-    {state === 'error' && (
-      <React.Fragment>
-        <Typography component="h1" variant="h1">
-          Welcome to the Weaviate-Playground!
-        </Typography>
-        <Typography>
-          This is the GUI on top of the decentralised knowledge graph{' '}
-          <a
-            href="https://github.com/creativesoftwarefdn/weaviate"
-            target="_blank"
-          >
-            Weaviate
-          </a>
-          . For more information or documentation visit the Weaviate Playground{' '}
-          <a
-            href="https://github.com/creativesoftwarefdn/weaviate/blob/develop/docs/en/use/weaviate-playground.md"
-            target="_blank"
-          >
-            documentation
-          </a>{' '}
-          on Github.
-        </Typography>
-        {message && (
-          <Typography id="errorMessage" color="error">
-            {message}
-          </Typography>
-        )}
-        <form>
-          <FormControl margin="normal" required={true} fullWidth={true}>
-            <InputLabel htmlFor="weaviateUri">Weaviate URL</InputLabel>
-            <Input
-              name="weaviateUri"
-              type="text"
-              id="weaviateUri"
-              autoComplete="weaviateUri"
-            />
-          </FormControl>
-
-          <Button
-            id="connectButton"
-            type="submit"
-            fullWidth={true}
-            variant="contained"
-            color="primary"
-            size="small"
-          >
-            Connect Weaviate
-          </Button>
-        </form>
-      </React.Fragment>
-    )}
-  </Grid>
-);
 
 const ClassFetcher: React.SFC<IClassFetcher> = ({
   children,
@@ -261,6 +191,7 @@ class ClassIntrospector extends React.Component<
     this.state = {
       empty: true,
       error: false,
+      info: '',
       loading: true
     };
   }
@@ -276,8 +207,10 @@ class ClassIntrospector extends React.Component<
 
     fetch(`${url}meta`)
       .then(res => {
-        if (res.status >= 400) {
-          throw new Error('');
+        if (res.status === 401) {
+          throw new Error(translations.errorAnonymousAccess);
+        } else if (res.status === 400 || res.status > 401) {
+          throw new Error('test');
         } else {
           return res.json();
         }
@@ -291,26 +224,45 @@ class ClassIntrospector extends React.Component<
         this.setState({ error: false, empty, loading: false });
       })
       .catch(err => {
-        this.setState({ error: true, loading: false });
+        /** use error message in UI */
+        this.setState({ error: true, info: err.message, loading: false });
+        /** display error message in console */
+        // tslint:disable-next-line:no-console
+        console.log(err.stack);
       });
   }
 
   public render() {
-    const { empty, error, loading } = this.state;
+    const { empty, error, loading, info } = this.state;
     const { children } = this.props;
     if (loading) {
       return (
-        <StateMessage
-          state="loading"
-          message={translations.loadingLocalClasses}
-        />
+        <Grid
+          container={true}
+          direction="column"
+          justify="center"
+          alignItems="center"
+        >
+          <WelcomeMessage />
+          <StateMessage
+            state="loading"
+            message={translations.loadingLocalClasses}
+          />
+          <FormAddWeaviateUrl />
+        </Grid>
       );
     } else if (error) {
       return (
-        <StateMessage
-          state="error"
-          message="The provided url doesn't provide access to a Weaviate instance."
-        />
+        <Grid
+          container={true}
+          direction="column"
+          justify="center"
+          alignItems="center"
+        >
+          <WelcomeMessage />
+          <StateMessage state="error" message={info} />
+          <FormAddWeaviateUrl />
+        </Grid>
       );
     }
 

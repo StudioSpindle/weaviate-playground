@@ -152,13 +152,12 @@ const typography = {
     letterSpacing: '0.00714em'
   },
   display4: {
-    fontSize: '2.4rem',
-    fontWeight: 300,
+    fontSize: '3rem',
+    fontWeight: 800,
     fontFamily: ['Alegreya Sans', 'Helvetica', 'Arial', 'sans-serif'].join(','),
-    letterSpacing: '-.04em',
+    letterSpacing: '.3px',
     lineHeight: '1.14286em',
-    marginLeft: '-.04em',
-    color: 'rgba(0, 0, 0, 0.54)'
+    color: palette.common.black
   },
   display3: {
     fontSize: '1.6rem',
@@ -213,10 +212,11 @@ const typography = {
     color: 'rgba(0, 0, 0, 0.87)'
   },
   body1: {
-    fontSize: '0.875rem',
+    fontSize: '1rem',
     fontWeight: 400,
     fontFamily: ['Alegreya Sans', 'Helvetica', 'Arial', 'sans-serif'].join(','),
     lineHeight: '1.46429em',
+    maxWidth: '45rem',
     color: 'rgba(0, 0, 0, 0.87)'
   },
   button: {

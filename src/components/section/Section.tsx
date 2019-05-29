@@ -29,7 +29,7 @@ const styles = (theme: Theme) =>
     details: {
       flexDirection: 'column'
     },
-    expanded: { width: '500px !important' },
+    expanded: { width: '521px !important' },
     heading: {
       color: theme.palette.primary.contrastText,
       fontSize: '1rem',

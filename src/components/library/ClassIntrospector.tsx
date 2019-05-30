@@ -7,14 +7,14 @@ import WelcomeMessage from '../welcomeScreen/WelcomeMessage';
 import ClassFetcher from './ClassFetcher';
 import StateMessage from './StateMessage';
 
-interface IClassIntrospectorProps {
-  info?: string;
-}
+// tslint:disable-next-line:no-empty-interface
+interface IClassIntrospectorProps {}
 
 interface IClassIntrospectorState {
   empty: boolean;
   error: boolean;
   loading: boolean;
+  errorMessage?: string;
 }
 
 /**
@@ -48,14 +48,24 @@ class ClassIntrospector extends React.Component<
     fetch(`${url}meta`)
       .then(res => {
         if (res.status === 401) {
+          this.setState({
+            error: true,
+            loading: false,
+            errorMessage: translations.errorAnonymousAccess
+          });
           throw new Error(translations.errorAnonymousAccess);
         } else if (res.status === 400 || res.status > 401) {
-          throw new Error('test');
+          this.setState({
+            error: true,
+            loading: false,
+            errorMessage: translations.errorWrongUrl
+          });
+          throw new Error(translations.errorWrongUrl);
         } else if (res.headers.get('content-type') === 'application/json') {
           /** Good, this means the  response is JSON output which we expect from the query */
           return res.json();
         } else {
-          /** Bad, the  response should be valid JSON */
+          /** Bad, the response should be valid JSON */
           throw new Error('The fetch did not return valid JSON.');
         }
       })
@@ -77,8 +87,8 @@ class ClassIntrospector extends React.Component<
   }
 
   public render() {
-    const { empty, error, loading } = this.state;
-    const { children, info } = this.props;
+    const { empty, error, loading, errorMessage } = this.state;
+    const { children } = this.props;
     if (loading) {
       return (
         <Grid
@@ -104,7 +114,7 @@ class ClassIntrospector extends React.Component<
           alignItems="center"
         >
           <WelcomeMessage />
-          <StateMessage state="error" message={info} />
+          <StateMessage state="error" message={errorMessage} />
           <FormAddWeaviateUrl />
         </Grid>
       );

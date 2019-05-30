@@ -38,6 +38,12 @@ const palette = {
     dark: '#800800',
     contrastText: '#fff'
   },
+  warning: {
+    light: 'red',
+    main: 'red',
+    dark: 'red',
+    contrastText: '#fff'
+  },
   grey: {
     '50': '#f7f7f7',
     '100': '#eaeaea',
@@ -75,57 +81,83 @@ const palette = {
   }
 };
 
-// const typographyNext = {
-//   body1Next: {
-//     color: 'rgba(0, 0, 0, 0.87)',
-//     fontFamily: ['Alegreya Sans', 'Helvetica', 'Arial', 'sans-serif'],
-//     fontWeight: 400,
-//     fontSize: '1rem',
-//     lineHeight: 1.5,
-//     letterSpacing: '0.00938em'
-//   },
-//   body2Next: {
-//     color: 'rgba(0, 0, 0, 0.87)',
-//     fontFamily: ['Alegreya Sans', 'Helvetica', 'Arial', 'sans-serif'],
-//     fontWeight: 400,
-//     fontSize: '0.875rem',
-//     lineHeight: 1.5,
-//     letterSpacing: '0.01071em'
-//   },
-//   buttonNext: {
-//     color: 'rgba(0, 0, 0, 0.87)',
-//     fontFamily: ['Alegreya Sans', 'Helvetica', 'Arial', 'sans-serif'],
-//     fontWeight: 500,
-//     fontSize: '0.875rem',
-//     lineHeight: 1.5,
-//     letterSpacing: '0.02857em',
-//     textTransform: 'uppercase'
-//   },
-//   captionNext: {
-//     color: 'rgba(0, 0, 0, 0.87)',
-//     fontFamily: ['Alegreya Sans', 'Helvetica', 'Arial', 'sans-serif'],
-//     fontWeight: 400,
-//     fontSize: '0.75rem',
-//     lineHeight: 1.66,
-//     letterSpacing: '0.03333em'
-//   },
-//   useNextVariants: true
-// }
-
 const typography = {
   fontFamily: ['Alegreya Sans', 'Helvetica', 'Arial', 'sans-serif'].join(','),
   fontSize: 20,
   fontWeightLight: 300,
   fontWeightRegular: 400,
   fontWeightMedium: 500,
-  display4: {
-    fontSize: '2.4rem',
-    fontWeight: 300,
+  h1: {
+    color: 'rgba(0, 0, 0, 0.87)',
     fontFamily: ['Alegreya Sans', 'Helvetica', 'Arial', 'sans-serif'].join(','),
-    letterSpacing: '-.04em',
+    fontWeight: 300,
+    fontSize: '2.185rem',
+    lineHeight: 1,
+    letterSpacing: '-0.01562em'
+  },
+  h2: {
+    color: 'rgba(0, 0, 0, 0.87)',
+    fontFamily: ['Alegreya Sans', 'Helvetica', 'Arial', 'sans-serif'].join(','),
+    fontWeight: 300,
+    fontSize: '1.875rem',
+    lineHeight: 1,
+    letterSpacing: '-0.00833em'
+  },
+  h3: {
+    color: 'rgba(0, 0, 0, 0.87)',
+    fontFamily: ['Alegreya Sans', 'Helvetica', 'Arial', 'sans-serif'].join(','),
+    fontWeight: 400,
+    fontSize: '1.5rem',
+    lineHeight: 1.04,
+    letterSpacing: '0em'
+  },
+  h4: {
+    color: 'rgba(0, 0, 0, 0.87)',
+    fontFamily: ['Alegreya Sans', 'Helvetica', 'Arial', 'sans-serif'].join(','),
+    fontWeight: 400,
+    fontSize: '1.35rem',
+    lineHeight: 1.17,
+    letterSpacing: '0.00735em'
+  },
+  h5: {
+    color: 'rgba(0, 0, 0, 0.87)',
+    fontFamily: ['Alegreya Sans', 'Helvetica', 'Arial', 'sans-serif'].join(','),
+    fontWeight: 400,
+    fontSize: '1.25rem',
+    lineHeight: 1.33,
+    letterSpacing: '0em'
+  },
+  h6: {
+    color: 'rgba(0, 0, 0, 0.87)',
+    fontFamily: ['Alegreya Sans', 'Helvetica', 'Arial', 'sans-serif'].join(','),
+    fontWeight: 500,
+    fontSize: '1.25rem',
+    lineHeight: 1.6,
+    letterSpacing: '0.0075em'
+  },
+  subtitle1: {
+    color: 'rgba(0, 0, 0, 0.87)',
+    fontFamily: ['Alegreya Sans', 'Helvetica', 'Arial', 'sans-serif'].join(','),
+    fontWeight: 800,
+    fontSize: '1rem',
+    lineHeight: 1.75,
+    letterSpacing: '0.00938em'
+  },
+  subtitle2: {
+    color: 'rgba(0, 0, 0, 0.87)',
+    fontFamily: ['Alegreya Sans', 'Helvetica', 'Arial', 'sans-serif'].join(','),
+    fontWeight: 500,
+    fontSize: '0.875rem',
+    lineHeight: 1.57,
+    letterSpacing: '0.00714em'
+  },
+  display4: {
+    fontSize: '3rem',
+    fontWeight: 800,
+    fontFamily: ['Alegreya Sans', 'Helvetica', 'Arial', 'sans-serif'].join(','),
+    letterSpacing: '.3px',
     lineHeight: '1.14286em',
-    marginLeft: '-.04em',
-    color: 'rgba(0, 0, 0, 0.54)'
+    color: palette.common.black
   },
   display3: {
     fontSize: '1.6rem',
@@ -180,11 +212,20 @@ const typography = {
     color: 'rgba(0, 0, 0, 0.87)'
   },
   body1: {
-    fontSize: '0.875rem',
+    fontSize: '1rem',
     fontWeight: 400,
     fontFamily: ['Alegreya Sans', 'Helvetica', 'Arial', 'sans-serif'].join(','),
     lineHeight: '1.46429em',
+    maxWidth: '45rem',
     color: 'rgba(0, 0, 0, 0.87)'
+  },
+  button: {
+    backgroundColor: palette.common.white,
+    color: 'rgba(0, 0, 0, 0.87)',
+    fontFamily: ['Alegreya Sans', 'Helvetica', 'Arial', 'sans-serif'].join(','),
+    fontSize: '0.875rem',
+    fontWeight: 500
+    // textTransform: 'uppercase'
   },
   caption: {
     fontSize: '0.75rem',
@@ -192,77 +233,6 @@ const typography = {
     fontFamily: ['Alegreya Sans', 'Helvetica', 'Arial', 'sans-serif'].join(','),
     lineHeight: '1.375em',
     color: 'rgba(0, 0, 0, 0.54)'
-  },
-  // button: {
-  //   fontSize: '0.875rem',
-  //   textTransform: 'uppercase',
-  //   fontWeight: 500,
-  //   fontFamily: ['Alegreya Sans', 'Helvetica', 'Arial', 'sans-serif'].join(','),
-  //   color: 'rgba(0, 0, 0, 0.87)'
-  // },
-  h1: {
-    color: 'rgba(0, 0, 0, 0.87)',
-    fontFamily: ['Alegreya Sans', 'Helvetica', 'Arial', 'sans-serif'].join(','),
-    fontWeight: 300,
-    fontSize: '2.185rem',
-    lineHeight: 1,
-    letterSpacing: '-0.01562em'
-  },
-  h2: {
-    color: 'rgba(0, 0, 0, 0.87)',
-    fontFamily: ['Alegreya Sans', 'Helvetica', 'Arial', 'sans-serif'].join(','),
-    fontWeight: 300,
-    fontSize: '1.875rem',
-    lineHeight: 1,
-    letterSpacing: '-0.00833em'
-  },
-  h3: {
-    color: 'rgba(0, 0, 0, 0.87)',
-    fontFamily: ['Alegreya Sans', 'Helvetica', 'Arial', 'sans-serif'].join(','),
-    fontWeight: 400,
-    fontSize: '1.5rem',
-    lineHeight: 1.04,
-    letterSpacing: '0em'
-  },
-  h4: {
-    color: 'rgba(0, 0, 0, 0.87)',
-    fontFamily: ['Alegreya Sans', 'Helvetica', 'Arial', 'sans-serif'].join(','),
-    fontWeight: 400,
-    fontSize: '1.35rem',
-    lineHeight: 1.17,
-    letterSpacing: '0.00735em'
-  },
-  h5: {
-    color: 'rgba(0, 0, 0, 0.87)',
-    fontFamily: ['Alegreya Sans', 'Helvetica', 'Arial', 'sans-serif'].join(','),
-    fontWeight: 400,
-    fontSize: '1.25rem',
-    lineHeight: 1.33,
-    letterSpacing: '0em'
-  },
-  h6: {
-    color: 'rgba(0, 0, 0, 0.87)',
-    fontFamily: ['Alegreya Sans', 'Helvetica', 'Arial', 'sans-serif'].join(','),
-    fontWeight: 500,
-    fontSize: '1.25rem',
-    lineHeight: 1.6,
-    letterSpacing: '0.0075em'
-  },
-  subtitle1: {
-    color: 'rgba(0, 0, 0, 0.87)',
-    fontFamily: ['Alegreya Sans', 'Helvetica', 'Arial', 'sans-serif'].join(','),
-    fontWeight: 400,
-    fontSize: '1rem',
-    lineHeight: 1.75,
-    letterSpacing: '0.00938em'
-  },
-  subtitle2: {
-    color: 'rgba(0, 0, 0, 0.87)',
-    fontFamily: ['Alegreya Sans', 'Helvetica', 'Arial', 'sans-serif'].join(','),
-    fontWeight: 500,
-    fontSize: '0.875rem',
-    lineHeight: 1.57,
-    letterSpacing: '0.00714em'
   }
   // overline: {
   //   color: 'rgba(0, 0, 0, 0.87)',
@@ -280,7 +250,12 @@ const shape = {
 };
 
 const spacing = {
-  unit: 8
+  unit: 8,
+  ui: {
+    outer: {
+      medium: '1rem'
+    }
+  }
 };
 
 const theme = createMuiTheme({

@@ -1,23 +1,11 @@
-import Button from '@material-ui/core/Button';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import FormControl from '@material-ui/core/FormControl';
 import Grid from '@material-ui/core/Grid';
-import Input from '@material-ui/core/Input';
-import InputLabel from '@material-ui/core/InputLabel';
-import Typography from '@material-ui/core/Typography';
 import get from 'get-value';
 import React from 'react';
-import apolloClient from 'src/apollo/apolloClient';
 import translations from 'src/translations/en';
-import {
-  CLASS_IDS_QUERY,
-  ClassIdsQuery,
-  LOCAL_CLASSES_QUERY,
-  LocalClassesQuery,
-  NETWORK_CLASSES_QUERY,
-  NetworkClassesQuery,
-  UPDATE_CLASS_MUTATION
-} from '../introspection/queries';
+import FormAddWeaviateUrl from '../welcomeScreen/FormAddWeaviateUrl';
+import WelcomeMessage from '../welcomeScreen/WelcomeMessage';
+import ClassFetcher from './ClassFetcher';
+import StateMessage from './StateMessage';
 
 // tslint:disable-next-line:no-empty-interface
 interface IClassIntrospectorProps {}
@@ -25,228 +13,9 @@ interface IClassIntrospectorProps {}
 interface IClassIntrospectorState {
   empty: boolean;
   error: boolean;
+  errorMessage?: string;
   loading: boolean;
 }
-
-interface IClassFetcher {
-  isWeaviateEmpty: boolean;
-}
-
-const StateMessage = ({
-  message,
-  state
-}: {
-  message?: string;
-  state: 'error' | 'loading';
-}) => (
-  <Grid
-    container={true}
-    direction="column"
-    justify="center"
-    alignItems="center"
-  >
-    {state === 'loading' && <CircularProgress />}
-    {state === 'error' && (
-      <React.Fragment>
-        <Typography component="h1" variant="h1">
-          Welcome to the Weaviate-Playground!
-        </Typography>
-        <Typography>
-          This is the GUI on top of the decentralised knowledge graph{' '}
-          <a
-            href="https://github.com/creativesoftwarefdn/weaviate"
-            target="_blank"
-          >
-            Weaviate
-          </a>
-          . For more information or documentation visit the Weaviate Playground{' '}
-          <a
-            href="https://github.com/creativesoftwarefdn/weaviate/blob/develop/docs/en/use/weaviate-playground.md"
-            target="_blank"
-          >
-            documentation
-          </a>{' '}
-          on Github.
-        </Typography>
-        {message && (
-          <Typography id="errorMessage" color="error">
-            {message}
-          </Typography>
-        )}
-        <form>
-          <FormControl margin="normal" required={true} fullWidth={true}>
-            <InputLabel htmlFor="weaviateUri">Weaviate URL</InputLabel>
-            <Input
-              name="weaviateUri"
-              type="text"
-              id="weaviateUri"
-              autoComplete="weaviateUri"
-            />
-          </FormControl>
-
-          <Button
-            id="connectButton"
-            type="submit"
-            fullWidth={true}
-            variant="contained"
-            color="primary"
-            size="small"
-          >
-            Connect Weaviate
-          </Button>
-        </form>
-      </React.Fragment>
-    )}
-  </Grid>
-);
-
-const ClassFetcher: React.SFC<IClassFetcher> = ({
-  children,
-  isWeaviateEmpty
-}) => {
-  if (isWeaviateEmpty) {
-    return <React.Fragment>{children}</React.Fragment>;
-  }
-
-  return (
-    <ClassIdsQuery query={CLASS_IDS_QUERY}>
-      {classIdsQuery => {
-        return (
-          <LocalClassesQuery
-            query={LOCAL_CLASSES_QUERY}
-            variables={{ typename: 'WeaviateLocalGetObj' }}
-          >
-            {localClassesQuery => {
-              if (localClassesQuery.loading) {
-                return (
-                  <StateMessage
-                    state="loading"
-                    message={translations.loadingLocalClasses}
-                  />
-                );
-              }
-
-              if (localClassesQuery.error) {
-                return (
-                  <StateMessage
-                    state="error"
-                    message={localClassesQuery.error.message}
-                  />
-                );
-              }
-
-              if (localClassesQuery.data && localClassesQuery.data.__type) {
-                localClassesQuery.data.__type.fields.forEach(
-                  localGetCLASSTYPEObj => {
-                    const classType = localGetCLASSTYPEObj.name;
-                    localGetCLASSTYPEObj.type.fields.forEach(CLASS => {
-                      /**
-                       * Store class information on client
-                       */
-                      apolloClient.mutate({
-                        mutation: UPDATE_CLASS_MUTATION,
-                        variables: {
-                          classLocation: 'Local',
-                          classType,
-                          filters: '{}',
-                          id: `local-${classType}-${CLASS.name}`,
-                          instance: 'Local',
-                          name: CLASS.name
-                        }
-                      });
-                    });
-                  }
-                );
-              }
-
-              return (
-                <NetworkClassesQuery
-                  query={NETWORK_CLASSES_QUERY}
-                  variables={{ typename: 'WeaviateNetworkGetObj' }}
-                >
-                  {networkClassesQuery => {
-                    if (networkClassesQuery.loading) {
-                      return (
-                        <StateMessage
-                          state="loading"
-                          message={translations.loadingNetworkClasses}
-                        />
-                      );
-                    }
-                    if (networkClassesQuery.error) {
-                      return (
-                        <StateMessage
-                          state="error"
-                          message={translations.defaultError}
-                        />
-                      );
-                    }
-
-                    if (
-                      networkClassesQuery.data &&
-                      networkClassesQuery.data.__type
-                    ) {
-                      networkClassesQuery.data.__type.fields.forEach(
-                        networkGetINSTANCEObj => {
-                          const instance = networkGetINSTANCEObj.name;
-                          networkGetINSTANCEObj.type.fields.forEach(
-                            networkGetINSTANCECLASSTYPEObj => {
-                              const classType =
-                                networkGetINSTANCECLASSTYPEObj.name;
-                              networkGetINSTANCECLASSTYPEObj.type.fields.forEach(
-                                CLASS => {
-                                  /**
-                                   * Store class information on client
-                                   */
-                                  apolloClient.mutate({
-                                    mutation: UPDATE_CLASS_MUTATION,
-                                    variables: {
-                                      classLocation:
-                                        instance === 'Local'
-                                          ? instance
-                                          : 'Network',
-                                      classType,
-                                      filters: '{}',
-                                      id: `${instance}-${classType}-${
-                                        CLASS.name
-                                      }`,
-                                      instance,
-                                      name: CLASS.name
-                                    }
-                                  });
-                                }
-                              );
-                            }
-                          );
-                        }
-                      );
-                    }
-
-                    if (
-                      (!localClassesQuery.data ||
-                        !localClassesQuery.data.__type) &&
-                      (!networkClassesQuery.data ||
-                        !networkClassesQuery.data.__type)
-                    ) {
-                      return (
-                        <StateMessage
-                          state="error"
-                          message={translations.defaultError}
-                        />
-                      );
-                    }
-
-                    return children;
-                  }}
-                </NetworkClassesQuery>
-              );
-            }}
-          </LocalClassesQuery>
-        );
-      }}
-    </ClassIdsQuery>
-  );
-};
 
 /**
  * ClassIntrospector: introspects and stores classes to client
@@ -269,6 +38,8 @@ class ClassIntrospector extends React.Component<
     this.fetchClasses();
   }
 
+  // TODO: Make the fetch only happen when the form is submitted, or when in the application itself
+  //  (not on the homepage of the app)
   public fetchClasses() {
     const urlParams = new URLSearchParams(window.location.search);
     const uri = urlParams.get('weaviateUri') || '';
@@ -276,10 +47,26 @@ class ClassIntrospector extends React.Component<
 
     fetch(`${url}meta`)
       .then(res => {
-        if (res.status >= 400) {
-          throw new Error('');
-        } else {
+        if (res.status === 401) {
+          this.setState({
+            error: true,
+            errorMessage: translations.errorAnonymousAccess,
+            loading: false
+          });
+          throw new Error(translations.errorAnonymousAccess);
+        } else if (res.status === 400 || res.status > 401) {
+          this.setState({
+            error: true,
+            errorMessage: translations.errorWrongUrl,
+            loading: false
+          });
+          throw new Error(translations.errorWrongUrl);
+        } else if (res.headers.get('content-type') === 'application/json') {
+          /** Good, this means the  response is JSON output which we expect from the query */
           return res.json();
+        } else {
+          /** Bad, the response should be valid JSON */
+          throw new Error('The fetch did not return valid JSON.');
         }
       })
       .then(classSchemasQuery => {
@@ -291,26 +78,45 @@ class ClassIntrospector extends React.Component<
         this.setState({ error: false, empty, loading: false });
       })
       .catch(err => {
+        /** use error message in UI */
         this.setState({ error: true, loading: false });
+        /** display error message in console */
+        // tslint:disable-next-line:no-console
+        console.log(err.stack);
       });
   }
 
   public render() {
-    const { empty, error, loading } = this.state;
+    const { empty, error, loading, errorMessage } = this.state;
     const { children } = this.props;
     if (loading) {
       return (
-        <StateMessage
-          state="loading"
-          message={translations.loadingLocalClasses}
-        />
+        <Grid
+          container={true}
+          direction="column"
+          justify="center"
+          alignItems="center"
+        >
+          <WelcomeMessage />
+          <StateMessage
+            state="loading"
+            message={translations.loadingLocalClasses}
+          />
+          <FormAddWeaviateUrl />
+        </Grid>
       );
     } else if (error) {
       return (
-        <StateMessage
-          state="error"
-          message="The provided url doesn't provide access to a Weaviate instance."
-        />
+        <Grid
+          container={true}
+          direction="column"
+          justify="center"
+          alignItems="center"
+        >
+          <WelcomeMessage />
+          <StateMessage state="error" message={errorMessage} />
+          <FormAddWeaviateUrl />
+        </Grid>
       );
     }
 

@@ -18,6 +18,7 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
+import AddIcon from '@material-ui/icons/Add';
 import CreateIcon from '@material-ui/icons/Create';
 import DeleteIcon from '@material-ui/icons/Delete';
 import get from 'get-value';
@@ -48,10 +49,14 @@ export interface IOntologyEditorState {
 const styles = (theme: Theme) =>
   createStyles({
     button: {
-      margin: '0.5em 0.9em'
+      boxShadow: 'none',
+      float: 'right'
     },
     buttonContainer: {
       display: 'flex'
+    },
+    buttonLabel: {
+      color: theme.palette.common.white
     },
     drawer: {
       backgroundColor: theme.palette.grey[100],
@@ -154,11 +159,16 @@ class OntologyEditor extends React.Component<
           </IconButton>
         ) : (
           <Button
-            variant="outlined"
+            variant="contained"
             onClick={this.toggleDrawer}
-            className={classes.button}
+            color="secondary"
+            classes={{
+              label: classes.buttonLabel,
+              root: classes.button
+            }}
           >
-            <Typography>Create schema item</Typography>
+            <AddIcon />
+            Create new Schema item
           </Button>
         )}
 
@@ -172,7 +182,6 @@ class OntologyEditor extends React.Component<
               <Typography component="h1" variant="subtitle1" color="inherit">
                 {className || 'Untitled schema item'}
               </Typography>
-
               <div className={classes.grow} />
               <Button
                 variant="contained"

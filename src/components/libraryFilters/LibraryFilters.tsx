@@ -56,34 +56,37 @@ export const classTypes: IClassTypes = {
  */
 const styles = (theme: Theme) =>
   createStyles({
+    // TODO: for re-use of the Toggle button create 'dumb' component with this styling
+    //  see for more information: https://material-ui.com/customization/components/#3-specific-variation-of-a-component
     button: {
-      border: `1px solid ${theme.palette.grey[900]}`,
-      borderRadius: 0,
-      color: theme.palette.common.black,
-      marginLeft: '0.125em',
-      marginRight: '0.125em'
+      '&:hover': {
+        cursor: 'pointer'
+      },
+      backgroundColor: theme.palette.grey[50],
+      padding: '3px 10px'
     },
     buttonSelected: {
-      backgroundColor: theme.palette.primary.main,
-      borderColor: theme.palette.primary.main,
-      color: theme.palette.common.white,
-
+      '&:after': {
+        backgroundColor: 'transparent'
+      },
       '&:hover': {
-        backgroundColor: theme.palette.grey[200],
-        borderColor: theme.palette.primary.main,
-        color: theme.palette.common.black
-      }
+        backgroundColor: theme.palette.primary.main,
+        cursor: 'default'
+      },
+      backgroundColor: theme.palette.primary.main,
+      color: theme.palette.common.white
     },
     container: {
       display: 'flex',
       justifyContent: 'space-between',
-      margin: '1em 0.25em 0.25em 0.25em'
+      margin: '1em 0 1em'
     },
     iconContainer: {
       fontSize: '15px',
       marginTop: '5px'
     },
     root: {
+      border: '1px solid grey',
       borderRadius: 0,
       boxShadow: 'none'
     },
@@ -137,47 +140,7 @@ const LibraryFilters: React.SFC<ILibraryFiltersProps> = ({
   return (
     <div className={classes.container}>
       <div>
-        <Typography>Show schema type</Typography>
-        <UpdateClassesFiltersMutation mutation={UPDATE_CLASSES_FILTERS}>
-          {updateClassesFilters => (
-            <ToggleButtonGroup
-              classes={{ root: classes.root }}
-              value={selectedClassType}
-              exclusive={true}
-              onChange={updateClassesFiltersType.bind(
-                null,
-                updateClassesFilters
-              )}
-            >
-              {Object.keys(classTypes).map((classTypeKey, i) => {
-                const classType: ClassType = classTypes[classTypeKey];
-                const isSelected = classType === selectedClassType;
-                return (
-                  <ToggleButton
-                    key={i}
-                    value={classType}
-                    selected={isSelected}
-                    classes={{
-                      root: classes.button,
-                      selected: classes.buttonSelected
-                    }}
-                  >
-                    <span className={classes.iconContainer}>
-                      {getIcon(classType, isSelected)}{' '}
-                    </span>
-                    <Typography classes={{ root: classes.typography }}>
-                      {classType}
-                    </Typography>
-                  </ToggleButton>
-                );
-              })}
-            </ToggleButtonGroup>
-          )}
-        </UpdateClassesFiltersMutation>
-      </div>
-
-      <div>
-        <Typography>Located in</Typography>
+        {/*<Typography>Located in</Typography>*/}
         <UpdateClassesFiltersMutation mutation={UPDATE_CLASSES_FILTERS}>
           {updateClassesFilters => (
             <ToggleButtonGroup
@@ -208,6 +171,47 @@ const LibraryFilters: React.SFC<ILibraryFiltersProps> = ({
                     </span>
                     <Typography classes={{ root: classes.typography }}>
                       {classLocation}
+                    </Typography>
+                  </ToggleButton>
+                );
+              })}
+            </ToggleButtonGroup>
+          )}
+        </UpdateClassesFiltersMutation>
+      </div>
+
+      <div>
+        {/*<Typography>Show schema type</Typography>*/}
+        <UpdateClassesFiltersMutation mutation={UPDATE_CLASSES_FILTERS}>
+          {updateClassesFilters => (
+            // TODO: Make this size="small", size property will become available at material-UI 4.0.0
+            <ToggleButtonGroup
+              classes={{ root: classes.root }}
+              value={selectedClassType}
+              exclusive={true}
+              onChange={updateClassesFiltersType.bind(
+                null,
+                updateClassesFilters
+              )}
+            >
+              {Object.keys(classTypes).map((classTypeKey, i) => {
+                const classType: ClassType = classTypes[classTypeKey];
+                const isSelected = classType === selectedClassType;
+                return (
+                  <ToggleButton
+                    key={i}
+                    value={classType}
+                    selected={isSelected}
+                    classes={{
+                      root: classes.button,
+                      selected: classes.buttonSelected
+                    }}
+                  >
+                    <span className={classes.iconContainer}>
+                      {getIcon(classType, isSelected)}{' '}
+                    </span>
+                    <Typography classes={{ root: classes.typography }}>
+                      {classType}
                     </Typography>
                   </ToggleButton>
                 );

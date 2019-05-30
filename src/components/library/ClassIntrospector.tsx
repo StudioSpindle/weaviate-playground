@@ -13,8 +13,8 @@ interface IClassIntrospectorProps {}
 interface IClassIntrospectorState {
   empty: boolean;
   error: boolean;
-  loading: boolean;
   errorMessage?: string;
+  loading: boolean;
 }
 
 /**
@@ -50,15 +50,15 @@ class ClassIntrospector extends React.Component<
         if (res.status === 401) {
           this.setState({
             error: true,
-            loading: false,
-            errorMessage: translations.errorAnonymousAccess
+            errorMessage: translations.errorAnonymousAccess,
+            loading: false
           });
           throw new Error(translations.errorAnonymousAccess);
         } else if (res.status === 400 || res.status > 401) {
           this.setState({
             error: true,
-            loading: false,
-            errorMessage: translations.errorWrongUrl
+            errorMessage: translations.errorWrongUrl,
+            loading: false
           });
           throw new Error(translations.errorWrongUrl);
         } else if (res.headers.get('content-type') === 'application/json') {

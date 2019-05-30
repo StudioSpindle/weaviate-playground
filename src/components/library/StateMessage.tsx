@@ -7,7 +7,7 @@ export interface IStateMessageProps {
   message?: string;
 }
 
-export default class StateMessage extends React.Component<IStateMessageProps> {
+class StateMessage extends React.Component<IStateMessageProps> {
   constructor(props: any) {
     super(props);
   }
@@ -31,4 +31,4 @@ export default class StateMessage extends React.Component<IStateMessageProps> {
   }
 }
 
-// export default StateMessage;
+export default StateMessage;

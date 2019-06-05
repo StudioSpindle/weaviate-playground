@@ -3,6 +3,7 @@ import get from 'get-value';
 import jwtDecode from 'jwt-decode';
 import React from 'react';
 import translations from 'src/translations/en';
+import { createApiHeaders } from '../../apis/ApiWeaviate';
 import RedirectToTokenIssuer from '../redirectToTokenIssuer/RedirectToTokenIssuer';
 import FormAddWeaviateUrl from '../welcomeScreen/FormAddWeaviateUrl';
 import WelcomeMessage from '../welcomeScreen/WelcomeMessage';
@@ -83,13 +84,7 @@ class ClassIntrospector extends React.Component<
         'The jwt-token is present in local storage, use the requests with this in the header.'
       );
 
-      /**
-       * fetch the classes with bearer
-       */
-      const headers: {} = {
-        Authorization: `Bearer ${window.localStorage.getItem('jwt-token')}`
-      };
-      this.fetchClasses(urlGraphQl, headers);
+      this.fetchClasses(urlGraphQl, createApiHeaders());
     } else if (tokenUnprocessed) {
       // tslint:disable-next-line:no-console
       console.log(
@@ -102,13 +97,7 @@ class ClassIntrospector extends React.Component<
       /** store token */
       window.localStorage.setItem('jwt-token', processToken);
 
-      /**
-       * fetch the classes with bearer
-       */
-      const headers: {} = {
-        Authorization: `Bearer ${window.localStorage.getItem('jwt-token')}`
-      };
-      this.fetchClasses(urlGraphQl, headers);
+      this.fetchClasses(urlGraphQl, createApiHeaders());
     } else {
       // tslint:disable-next-line:no-console
       console.log('No authorization is required...');
@@ -147,7 +136,7 @@ class ClassIntrospector extends React.Component<
 
   public fetchClasses(url: string, headers: {}) {
     fetch(`${url}meta`, {
-      headers
+      headers: createApiHeaders()
     })
       .then(res => {
         if (res.headers.get('content-type') === 'application/json') {

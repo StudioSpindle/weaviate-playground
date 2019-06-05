@@ -26,6 +26,7 @@ import * as React from 'react';
 import { Query } from 'react-apollo';
 import { OntologyEditorClass, OntologyEditorProperty } from 'src/components';
 import { ClassType } from 'src/types';
+import { createApiHeaders } from '../../apis/ApiWeaviate';
 import { CLASS_SCHEMA_QUERY } from '../library/queries';
 
 /**
@@ -133,7 +134,10 @@ class OntologyEditor extends React.Component<
     const classTypeLowerCase = (classType || '').toLowerCase();
     fetch(
       `${url}/schema/${classTypeLowerCase}/${className}/properties/${propertyName}`,
-      { method: 'DELETE' }
+      {
+        headers: createApiHeaders(),
+        method: 'DELETE'
+      }
     )
       .then(res => {
         if (res.status < 400) {

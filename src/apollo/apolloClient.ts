@@ -10,8 +10,6 @@ const authLink = setContext((_, { headers }) => {
   return {
     headers: {
       ...headers,
-      'X-API-KEY': '657a48b9-e000-4d9a-b51d-69a0b621c1b9',
-      'X-API-TOKEN': '57ac8392-1ecc-4e17-9350-c9c866ac832b',
       authorization: token ? `Bearer ${token}` : ''
     }
   };

@@ -8,7 +8,6 @@ import withClientStateLink from './withClientStateLink';
 const link = ApolloLink.from([
   onErrorLink,
   withClientStateLink,
-  // authLink,
   restLink,
   batchHttpLink
 ]);

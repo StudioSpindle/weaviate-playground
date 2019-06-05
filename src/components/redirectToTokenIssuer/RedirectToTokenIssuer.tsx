@@ -12,9 +12,8 @@ interface IRedirectToTokenIssuerState {
 
 interface IConfig {
   clientId: string;
-  issuerUrl: string;
+  openIdDiscoveryUrl: string;
   randomNano: string;
-  realm: string;
   responseType: string;
   scope: string;
 }
@@ -22,9 +21,10 @@ interface IConfig {
 // TODO: Replace clientId, issuerUrl and realm this with input options on homepage
 const CONFIG: IConfig = {
   clientId: 'demo',
-  issuerUrl: location.protocol + '//' + location.hostname + ':9090',
+  // for Metro: https://idam-pp.metrosystems.net/.well-known/openid-configuration
+  openIdDiscoveryUrl:
+    'http://localhost:9090/auth/realms/weaviate/.well-known/openid-configuration',
   randomNano: nanoid(),
-  realm: 'weaviate',
   responseType: 'token',
   scope: 'openid%20profile'
 };
@@ -48,9 +48,7 @@ class RedirectToTokenIssuer extends React.Component<
   }
 
   public fetchRegistrationEndPoint() {
-    const apiUrl = `${CONFIG.issuerUrl}/auth/realms/${
-      CONFIG.realm
-    }/.well-known/openid-configuration`;
+    const apiUrl = CONFIG.openIdDiscoveryUrl;
 
     fetch(apiUrl, {})
       .then(res => {

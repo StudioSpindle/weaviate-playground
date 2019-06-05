@@ -23,7 +23,7 @@ const CONFIG: IConfig = {
   clientId: 'demo',
   // for Metro: https://idam-pp.metrosystems.net/.well-known/openid-configuration
   openIdDiscoveryUrl:
-    'http://localhost:9090/auth/realms/weaviate/.well-known/openid-configuration',
+    'http://localhost:8080/auth/realms/weaviate/.well-known/openid-configuration',
   randomNano: nanoid(),
   responseType: 'token',
   scope: 'openid%20profile'

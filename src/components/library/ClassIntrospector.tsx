@@ -78,7 +78,7 @@ class ClassIntrospector extends React.Component<
     const urlObject = ClassIntrospector.getUrlHashParams(window.location.href);
     const tokenUnprocessed = urlObject.access_token;
 
-    if (window.localStorage.getItem('jwt-token')) {
+    if (window.localStorage.getItem('token')) {
       // tslint:disable-next-line:no-console
       console.log(
         'The jwt-token is present in local storage, use the requests with this in the header.'
@@ -95,7 +95,7 @@ class ClassIntrospector extends React.Component<
         tokenUnprocessed
       );
       /** store token */
-      window.localStorage.setItem('jwt-token', processToken);
+      window.localStorage.setItem('token', processToken);
 
       this.fetchClasses(urlGraphQl, createApiHeaders());
     } else {

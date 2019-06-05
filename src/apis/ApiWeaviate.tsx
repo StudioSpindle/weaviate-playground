@@ -5,7 +5,7 @@ export function createApiHeaders() {
   h.append('Accept', 'application/json');
 
   const session = {
-    token: localStorage.getItem('jwt-token')
+    token: localStorage.getItem('token')
   };
 
   if (session.token) {

@@ -27,6 +27,7 @@
     "graphql-tag": "^2.9.2",
     "jwt-decode": "^2.2.0",
     "lodash.debounce": "^4.0.8",
+    "nanoid": "^2.0.3",
     "prismjs": "^1.15.0",
     "rc-slider": "^8.6.3",
     "react": "^16.5.2",

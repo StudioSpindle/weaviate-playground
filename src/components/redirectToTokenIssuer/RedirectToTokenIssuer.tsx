@@ -18,7 +18,14 @@ interface IConfig {
   scope: string;
 }
 
-// TODO: Replace clientId, issuerUrl and realm this with input options on homepage
+// TODO: Replace this URL with the Weaviate end point:
+//  $ curl -L http://localhost:8080/weaviate/v1/.well-known/openid-configuration
+//  ...
+//  the -L means  "automatically follow 3xx redirects"
+//  - if OIDC is configured you'll get a 302 with a Location header of where to redirect (most clients can follow those redirects automatically, but you can always redirect manually, too, just read the header)
+//  - else 404 if no OIDC issuer is configured
+//  ...
+
 const CONFIG: IConfig = {
   clientId: 'demo',
   // for Metro: https://idam-pp.metrosystems.net/.well-known/openid-configuration

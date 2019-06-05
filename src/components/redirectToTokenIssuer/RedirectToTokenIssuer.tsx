@@ -19,6 +19,7 @@ interface IConfig {
 }
 
 // TODO: Replace this URL with the Weaviate end point:
+//  note: extract the first part of the url 'http://localhost:8080/' from the input field of the welcome form
 //  $ curl -L http://localhost:8080/weaviate/v1/.well-known/openid-configuration
 //  ...
 //  the -L means  "automatically follow 3xx redirects"

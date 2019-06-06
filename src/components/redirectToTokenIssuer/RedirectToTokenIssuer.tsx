@@ -37,22 +37,6 @@ class RedirectToTokenIssuer extends React.Component<
 
   public async componentDidMount() {
     await this.fetchRegistrationEndPoint();
-
-    // tslint:disable-next-line:no-console
-    console.log(
-      'this.state.endPoint in async component did mount',
-      this.state.endPoint
-    );
-
-    if (!this.state.isLoading && this.state.endPoint) {
-      // TODO if endpoint not found in state, use the await this function above to store the url and reuse in the next fetch
-
-      // tslint:disable-next-line:no-console
-      console.log(
-        'this fetch is done, that means that the endpoint is found in the component did mount...'
-      );
-      await this.fetchToken(this.state.endPoint);
-    }
   }
 
   public fetchRegistrationEndPoint() {
@@ -68,7 +52,6 @@ class RedirectToTokenIssuer extends React.Component<
           this.setState({
             issueTokenheaders: res.headers
           });
-
           return await res.json();
         }
         throw new Error(res.statusText);
@@ -76,6 +59,18 @@ class RedirectToTokenIssuer extends React.Component<
       .then(resJson => {
         // tslint:disable-next-line:no-console
         console.log('resJson: ', resJson);
+
+        if (this.state.issueTokenheaders) {
+          // tslint:disable-next-line:no-console
+          console.log(
+            'headers just before second fetch: ',
+            this.state.issueTokenheaders
+          );
+          this.fetchToken(
+            resJson.authorization_endpoint,
+            this.state.issueTokenheaders
+          );
+        }
 
         this.setState({
           endPoint: resJson.authorization_endpoint,
@@ -91,7 +86,7 @@ class RedirectToTokenIssuer extends React.Component<
       });
   }
 
-  public fetchToken(url: string) {
+  public fetchToken(url: string, headers: Headers) {
     fetch(url, { headers: this.state.issueTokenheaders })
       .then(async res => {
         if (res.ok) {

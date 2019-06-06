@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { BrowserRouter, Redirect, Route } from 'react-router-dom';
+// import { BrowserRouter, Redirect, Route } from 'react-router-dom';
 
 interface IRedirectToTokenIssuerState {
   isLoading: boolean;
@@ -7,6 +7,7 @@ interface IRedirectToTokenIssuerState {
     message?: string;
   };
   endPoint?: any;
+  issueTokenheaders?: Headers;
 }
 
 interface IConfig {
@@ -35,10 +36,23 @@ class RedirectToTokenIssuer extends React.Component<
   }
 
   public async componentDidMount() {
-    const data: any = await this.fetchRegistrationEndPoint();
+    await this.fetchRegistrationEndPoint();
 
     // tslint:disable-next-line:no-console
-    console.log('data', data);
+    console.log(
+      'this.state.endPoint in async component did mount',
+      this.state.endPoint
+    );
+
+    if (!this.state.isLoading && this.state.endPoint) {
+      // TODO if endpoint not found in state, use the await this function above to store the url and reuse in the next fetch
+
+      // tslint:disable-next-line:no-console
+      console.log(
+        'this fetch is done, that means that the endpoint is found in the component did mount...'
+      );
+      await this.fetchToken(this.state.endPoint);
+    }
   }
 
   public fetchRegistrationEndPoint() {
@@ -48,9 +62,13 @@ class RedirectToTokenIssuer extends React.Component<
 
     const apiUrl = currentUrl + '.well-known/openid-configuration';
 
-    fetch(apiUrl, { mode: 'cors' })
+    fetch(apiUrl)
       .then(async res => {
         if (res.ok) {
+          this.setState({
+            issueTokenheaders: res.headers
+          });
+
           return await res.json();
         }
         throw new Error(res.statusText);
@@ -63,6 +81,35 @@ class RedirectToTokenIssuer extends React.Component<
           endPoint: resJson.authorization_endpoint,
           isLoading: false
         });
+      })
+      .catch(err => {
+        this.setState({
+          error: err,
+          isLoading: false
+        });
+        throw new Error(err.message);
+      });
+  }
+
+  public fetchToken(url: string) {
+    fetch(url, { headers: this.state.issueTokenheaders })
+      .then(async res => {
+        if (res.ok) {
+          // tslint:disable-next-line:no-console
+          console.log('header spoofing worked!');
+
+          return await res.json();
+        }
+        throw new Error(res.statusText);
+      })
+      .then(resJson => {
+        // tslint:disable-next-line:no-console
+        console.log('does this contain the token? ', resJson);
+
+        // this.setState({
+        //   token: resJson.authorization_endpoint,
+        //   isLoading: false
+        // });
       })
       .catch(err => {
         this.setState({
@@ -97,7 +144,7 @@ class RedirectToTokenIssuer extends React.Component<
       const tokenIssuerUrl = this.createTokenRequestUrl();
 
       // tslint:disable-next-line:no-console
-      console.log(tokenIssuerUrl);
+      console.log('tokenIssuerUrl in render function: ', tokenIssuerUrl);
 
       // tslint:disable-next-line:no-debugger
       debugger;
@@ -105,16 +152,16 @@ class RedirectToTokenIssuer extends React.Component<
       return (
         <React.Fragment>
           <div>
-            <BrowserRouter>
-              <Route>
-                <Redirect
-                  to={{
-                    pathname: window.location.href = tokenIssuerUrl,
-                    state: { referrer: { tokenIssuerUrl } }
-                  }}
-                />
-              </Route>
-            </BrowserRouter>
+            <p>Thing is being fetched, see console</p>
+            {/*<BrowserRouter>*/}
+            {/*  <Route>*/}
+            {/*    <Redirect*/}
+            {/*      to={{*/}
+            {/*        pathname: window.location.href = tokenIssuerUrl,*/}
+            {/*      }}*/}
+            {/*    />*/}
+            {/*  </Route>*/}
+            {/*</BrowserRouter>*/}
           </div>
         </React.Fragment>
       );

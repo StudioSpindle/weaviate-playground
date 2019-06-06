@@ -89,24 +89,38 @@ class RedirectToTokenIssuer extends React.Component<
   public render() {
     const { isLoading, error, endPoint } = this.state;
 
-    return (
-      <React.Fragment>
-        {error ? <p>{error.message}</p> : null}
-        {!isLoading && endPoint ? (
+    if (error) {
+      return <p>{error.message}</p>;
+    }
+
+    if (!isLoading && endPoint) {
+      const tokenIssuerUrl = this.createTokenRequestUrl();
+
+      // tslint:disable-next-line:no-console
+      console.log(tokenIssuerUrl);
+
+      // tslint:disable-next-line:no-debugger
+      debugger;
+
+      return (
+        <React.Fragment>
           <div>
             <BrowserRouter>
               <Route>
                 <Redirect
-                  to={(window.location.href = this.createTokenRequestUrl())}
+                  to={{
+                    pathname: window.location.href = tokenIssuerUrl,
+                    state: { referrer: { tokenIssuerUrl } }
+                  }}
                 />
               </Route>
             </BrowserRouter>
           </div>
-        ) : (
-          <h3>Loading...</h3>
-        )}
-      </React.Fragment>
-    );
+        </React.Fragment>
+      );
+    }
+
+    return <h3>Loading...</h3>;
   }
 }
 

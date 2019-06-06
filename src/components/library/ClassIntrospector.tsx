@@ -4,6 +4,7 @@ import get from 'get-value';
 import React from 'react';
 import translations from 'src/translations/en';
 import { createApiHeaders } from '../../apis/ApiWeaviate';
+import getUrlHashParams from '../../utils/getUrlHashParams';
 import RedirectToTokenIssuer from '../redirectToTokenIssuer/RedirectToTokenIssuer';
 import FormAddWeaviateUrl from '../welcomeScreen/FormAddWeaviateUrl';
 import WelcomeMessage from '../welcomeScreen/WelcomeMessage';
@@ -29,18 +30,6 @@ class ClassIntrospector extends React.Component<
   IClassIntrospectorProps,
   IClassIntrospectorState
 > {
-  public static getUrlHashParams(search: string): { access_token: string } {
-    const hashes = search.slice(search.indexOf('#') + 1).split('&');
-    const params: any = {};
-
-    hashes.map(hash => {
-      const [key, val] = hash.split('=');
-      params[key] = decodeURIComponent(val);
-    });
-
-    return params;
-  }
-
   constructor(props: IClassIntrospectorProps) {
     super(props);
     this.state = {
@@ -56,7 +45,7 @@ class ClassIntrospector extends React.Component<
     const uri = urlSearchParams.get('weaviateUri') || '';
     const urlGraphQl = uri.replace('graphql', '');
 
-    const urlObject = ClassIntrospector.getUrlHashParams(window.location.href);
+    const urlObject = getUrlHashParams({ url: window.location.href });
     const tokenUnprocessed = urlObject.access_token;
 
     if (window.localStorage.getItem('token')) {

@@ -14,6 +14,7 @@ import {
   ScreenSizer
 } from 'src/components';
 import { IThemeSpec } from 'src/themes';
+import getUrlHashParams from '../../utils/getUrlHashParams';
 
 /**
  * Types
@@ -66,8 +67,8 @@ const styles = (theme: Theme) =>
  */
 class App extends React.Component<IAppProps> {
   public render() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const showGraphiQL = urlParams.get('graphiql');
+    const urlObject = getUrlHashParams({ url: window.location.href });
+    const showGraphiQL = urlObject.graphiql;
 
     if (showGraphiQL) {
       return <GraphiQLContainer />;

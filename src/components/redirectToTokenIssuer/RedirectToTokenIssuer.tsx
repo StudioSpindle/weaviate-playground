@@ -16,7 +16,7 @@ interface IConfig {
 
 // this can be made into a JSON file?
 const CONFIG: IConfig = {
-  clientId: 'demo', // required and client specific
+  clientId: 'SF_SEMI', // required and client specific
   responseType: 'token'
 };
 
@@ -48,7 +48,7 @@ class RedirectToTokenIssuer extends React.Component<
 
     const apiUrl = currentUrl + '.well-known/openid-configuration';
 
-    fetch(apiUrl, {})
+    fetch(apiUrl, { mode: 'cors' })
       .then(async res => {
         if (res.ok) {
           return await res.json();

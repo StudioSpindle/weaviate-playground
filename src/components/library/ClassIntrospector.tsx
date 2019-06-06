@@ -1,6 +1,6 @@
 import Grid from '@material-ui/core/Grid';
 import get from 'get-value';
-import jwtDecode from 'jwt-decode';
+// import jwtDecode from 'jwt-decode';
 import React from 'react';
 import translations from 'src/translations/en';
 import { createApiHeaders } from '../../apis/ApiWeaviate';
@@ -29,25 +29,6 @@ class ClassIntrospector extends React.Component<
   IClassIntrospectorProps,
   IClassIntrospectorState
 > {
-  /**
-   * Fetches and validates the token from the OAuth provider (note: does not verify)
-   * @returns {string} The token
-   */
-  public static fetchToken(token: string) {
-    const tokenDecoded: { nonce: string } = jwtDecode(token);
-    /** (Mitigate replay attacks when using the Implicit Flow) */
-    if (tokenDecoded.nonce === window.localStorage.getItem('nonce')) {
-      // tslint:disable-next-line:no-console
-      return token;
-    } else {
-      /** Nonce is not OK! Token replay attack might be underway */
-      // tslint:disable-next-line:no-console
-      throw new Error(
-        'The nonce of the token does not match with the application.'
-      );
-    }
-  }
-
   public static getUrlHashParams(search: string): { access_token: string } {
     const hashes = search.slice(search.indexOf('#') + 1).split('&');
     const params: any = {};
@@ -88,19 +69,18 @@ class ClassIntrospector extends React.Component<
     } else if (tokenUnprocessed) {
       // tslint:disable-next-line:no-console
       console.log(
-        'The jwt-token is not present in local storage, but it is available in the hashed URL. Set that in the local starge and use it in the first request to fetch classes.'
+        'The jwt-token has been added to the local storage, please login again.'
       );
 
-      const processToken: string = ClassIntrospector.fetchToken(
-        tokenUnprocessed
-      );
       /** store token */
-      window.localStorage.setItem('token', processToken);
+      window.localStorage.setItem('token', tokenUnprocessed);
 
       this.fetchClasses(urlGraphQl, createApiHeaders());
     } else {
       // tslint:disable-next-line:no-console
-      console.log('No authorization is required...');
+      console.log(
+        'No authorization is required... Initial state of the Classintrospector'
+      );
 
       fetch(`${urlGraphQl}meta`)
         .then(res => {

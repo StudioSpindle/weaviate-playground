@@ -1,12 +1,12 @@
 import * as React from 'react';
-// import { BrowserRouter, Redirect, Route } from 'react-router-dom';
+import { BrowserRouter, Redirect, Route } from 'react-router-dom';
 
 interface IRedirectToTokenIssuerState {
   isLoading: boolean;
   error?: {
     message?: string;
   };
-  endPoint?: any;
+  oAuthLoginUrl?: string;
 }
 
 interface IConfig {
@@ -83,38 +83,22 @@ class RedirectToTokenIssuer extends React.Component<
         }
       })
       .then(resJson => {
-        this.fetchToken(resJson.authorization_endpoint);
-      })
-      .catch(err => {
-        this.setState({
-          error: err,
-          isLoading: false
-        });
-        throw new Error(err.message);
-      });
-  }
+        const redirectUrlEncoded = encodeURIComponent(
+          window.location.protocol + '//' + window.location.host
+        );
 
-  public fetchToken(url: string) {
-    // tslint:disable-next-line:no-console
-    console.log('the token is being fetched.');
+        const oAuthUrlLoginUrl = `${resJson.authorization_endpoint}?client_id=${
+          CONFIG.clientId
+        }&response_type=${
+          CONFIG.responseType
+        }&redirect_uri=${redirectUrlEncoded}`;
 
-    const redirectUrlEncoded = encodeURIComponent(
-      window.location.protocol + '//' + window.location.host
-    );
-
-    const oAuthUrl = `${url}?client_id=${CONFIG.clientId}&response_type=${
-      CONFIG.responseType
-    }&redirect_uri=${redirectUrlEncoded}`;
-
-    fetch(oAuthUrl)
-      .then(async res => {
-        if (res.ok) {
-          return await res.json();
+        if (oAuthUrlLoginUrl) {
+          this.setState({
+            isLoading: false,
+            oAuthLoginUrl: oAuthUrlLoginUrl
+          });
         }
-      })
-      .then(resJson => {
-        // tslint:disable-next-line:no-console
-        console.log('output of token issuer: ', resJson);
       })
       .catch(err => {
         this.setState({
@@ -126,31 +110,25 @@ class RedirectToTokenIssuer extends React.Component<
   }
 
   public render() {
-    const { isLoading, error, endPoint } = this.state;
+    const { isLoading, error, oAuthLoginUrl } = this.state;
 
     if (error) {
       return <p>{error.message}</p>;
     }
 
-    if (!isLoading && endPoint) {
-      // const tokenIssuerUrl = this.createTokenRequestUrl();
-
-      // tslint:disable-next-line:no-console
-      // console.log('tokenIssuerUrl in render function: ', tokenIssuerUrl);
-
+    if (!isLoading && oAuthLoginUrl) {
       return (
         <React.Fragment>
           <div>
-            <p>Token is being fetched, see console</p>
-            {/*<BrowserRouter>*/}
-            {/*  <Route>*/}
-            {/*    <Redirect*/}
-            {/*      to={{*/}
-            {/*        pathname: window.location.href = tokenIssuerUrl,*/}
-            {/*      }}*/}
-            {/*    />*/}
-            {/*  </Route>*/}
-            {/*</BrowserRouter>*/}
+            <BrowserRouter>
+              <Route>
+                <Redirect
+                  to={{
+                    pathname: window.location.href = oAuthLoginUrl
+                  }}
+                />
+              </Route>
+            </BrowserRouter>
           </div>
         </React.Fragment>
       );

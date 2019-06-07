@@ -7,7 +7,6 @@ interface IRedirectToTokenIssuerState {
     message?: string;
   };
   endPoint?: any;
-  issueTokenheaders?: Headers;
 }
 
 interface IConfig {
@@ -36,46 +35,33 @@ class RedirectToTokenIssuer extends React.Component<
   }
 
   public async componentDidMount() {
-    await this.fetchRegistrationEndPoint();
-  }
-
-  public fetchRegistrationEndPoint() {
     const urlSearchParams = new URLSearchParams(window.location.search);
     const uri = urlSearchParams.get('weaviateUri') || '';
-    const currentUrl = uri.replace('graphql', '');
+    const weaviateUrl = uri.replace('graphql', '');
+    const weaviateDiscoveryUrl =
+      weaviateUrl + '.well-known/openid-configuration';
 
-    const apiUrl = currentUrl + '.well-known/openid-configuration';
+    // tslint:disable-next-line:no-console
+    console.log('url: ', weaviateDiscoveryUrl);
 
-    fetch(apiUrl)
+    await this.fetchRegistrationEndPoint(weaviateDiscoveryUrl);
+  }
+
+  public fetchRegistrationEndPoint(url: string) {
+    // tslint:disable-next-line:no-console
+    console.log('the registration endpoint is being fetched.');
+
+    fetch(url)
       .then(async res => {
         if (res.ok) {
-          this.setState({
-            issueTokenheaders: res.headers
-          });
           return await res.json();
         }
         throw new Error(res.statusText);
       })
       .then(resJson => {
-        // tslint:disable-next-line:no-console
-        console.log('resJson: ', resJson);
-
-        if (this.state.issueTokenheaders) {
-          // tslint:disable-next-line:no-console
-          console.log(
-            'headers just before second fetch: ',
-            this.state.issueTokenheaders
-          );
-          this.fetchToken(
-            resJson.authorization_endpoint,
-            this.state.issueTokenheaders
-          );
+        if (resJson.href) {
+          this.fetchAuthUrl(resJson.href);
         }
-
-        this.setState({
-          endPoint: resJson.authorization_endpoint,
-          isLoading: false
-        });
       })
       .catch(err => {
         this.setState({
@@ -86,46 +72,57 @@ class RedirectToTokenIssuer extends React.Component<
       });
   }
 
-  public fetchToken(url: string, headers: Headers) {
-    fetch(url, { headers: this.state.issueTokenheaders })
+  public fetchAuthUrl(url: string) {
+    // tslint:disable-next-line:no-console
+    console.log('the auth url is being fetched.');
+
+    fetch(url)
       .then(async res => {
         if (res.ok) {
-          // tslint:disable-next-line:no-console
-          console.log('header spoofing worked!');
-
           return await res.json();
         }
-        throw new Error(res.statusText);
       })
       .then(resJson => {
-        // tslint:disable-next-line:no-console
-        console.log('does this contain the token? ', resJson);
-
-        // this.setState({
-        //   token: resJson.authorization_endpoint,
-        //   isLoading: false
-        // });
+        this.fetchToken(resJson.authorization_endpoint);
       })
       .catch(err => {
         this.setState({
           error: err,
           isLoading: false
         });
-
         throw new Error(err.message);
       });
   }
 
-  public createTokenRequestUrl() {
+  public fetchToken(url: string) {
+    // tslint:disable-next-line:no-console
+    console.log('the token is being fetched.');
+
     const redirectUrlEncoded = encodeURIComponent(
       window.location.protocol + '//' + window.location.host
     );
 
-    const oAuthUrl = `${this.state.endPoint}?client_id=${
-      CONFIG.clientId
-    }&response_type=${CONFIG.responseType}&redirect_uri=${redirectUrlEncoded}`;
+    const oAuthUrl = `${url}?client_id=${CONFIG.clientId}&response_type=${
+      CONFIG.responseType
+    }&redirect_uri=${redirectUrlEncoded}`;
 
-    return oAuthUrl;
+    fetch(oAuthUrl)
+      .then(async res => {
+        if (res.ok) {
+          return await res.json();
+        }
+      })
+      .then(resJson => {
+        // tslint:disable-next-line:no-console
+        console.log('output of token issuer: ', resJson);
+      })
+      .catch(err => {
+        this.setState({
+          error: err,
+          isLoading: false
+        });
+        throw new Error(err.message);
+      });
   }
 
   public render() {
@@ -136,18 +133,15 @@ class RedirectToTokenIssuer extends React.Component<
     }
 
     if (!isLoading && endPoint) {
-      const tokenIssuerUrl = this.createTokenRequestUrl();
+      // const tokenIssuerUrl = this.createTokenRequestUrl();
 
       // tslint:disable-next-line:no-console
-      console.log('tokenIssuerUrl in render function: ', tokenIssuerUrl);
-
-      // tslint:disable-next-line:no-debugger
-      debugger;
+      // console.log('tokenIssuerUrl in render function: ', tokenIssuerUrl);
 
       return (
         <React.Fragment>
           <div>
-            <p>Thing is being fetched, see console</p>
+            <p>Token is being fetched, see console</p>
             {/*<BrowserRouter>*/}
             {/*  <Route>*/}
             {/*    <Redirect*/}

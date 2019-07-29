@@ -22,6 +22,7 @@ import * as React from 'react';
 import apolloClient from 'src/apollo/apolloClient';
 import { NodeEditor } from 'src/components';
 import { ClassType } from 'src/types';
+import { createApiHeaders } from '../../apis/ApiWeaviate';
 import AddIcon from '../icons/AddIcon';
 import { UPDATE_META_COUNT_MUTATION } from '../nodeEditor/queries';
 
@@ -106,7 +107,7 @@ class NodeOverview extends React.Component<
   public fetchNodes = () => {
     const { className, classType } = this.props;
     const classTypeLowerCase = (classType || '').toLowerCase();
-    fetch(`${url}${classTypeLowerCase}`)
+    fetch(`${url}${classTypeLowerCase}`, { headers: createApiHeaders() })
       .then(res => res.json())
       .then(res => {
         const nodes = res[classTypeLowerCase];
@@ -120,7 +121,10 @@ class NodeOverview extends React.Component<
   public deleteNode = (classId: string) => () => {
     const { className, classType } = this.props;
     const classTypeLowerCase = (classType || '').toLowerCase();
-    fetch(`${url}${classTypeLowerCase}/${classId}`, { method: 'DELETE' })
+    fetch(`${url}${classTypeLowerCase}/${classId}`, {
+      headers: createApiHeaders(),
+      method: 'DELETE'
+    })
       .then(res => {
         if (res.status < 400) {
           // Update the count until GraphQL subscriptions are added

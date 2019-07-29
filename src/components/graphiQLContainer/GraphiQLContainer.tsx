@@ -1,6 +1,7 @@
 import GraphiQL from 'graphiql';
 import 'graphiql/graphiql.css';
 import * as React from 'react';
+import { createApiHeaders } from '../../apis/ApiWeaviate';
 
 const urlParams = new URLSearchParams(window.location.search);
 const uri = urlParams.get('weaviateUri') || '';
@@ -10,7 +11,7 @@ const queryObject = query ? JSON.parse(query) : undefined;
 const graphQLFetcher = (graphQLParams: any) =>
   fetch(uri, {
     body: JSON.stringify(graphQLParams),
-    headers: { 'Content-Type': 'application/json' },
+    headers: createApiHeaders(),
     method: 'post'
   }).then(response => response.json());
 

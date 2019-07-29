@@ -26,6 +26,7 @@ import { Mutation, QueryResult } from 'react-apollo';
 import client from 'src/apollo/apolloClient';
 import { ClassType, IKeyword, Keywords } from 'src/types';
 import { camelize } from 'src/utils';
+import { createApiHeaders } from '../../apis/ApiWeaviate';
 import { ClassId } from '../canvas/Canvas';
 import { UPDATE_CLASS_MUTATION } from '../introspection/queries';
 import { CLASS_IDS_QUERY } from '../libraryClasses/queries';
@@ -276,10 +277,7 @@ class OntologyEditorClass extends React.Component<
           description,
           keywords
         }),
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json'
-        },
+        headers: createApiHeaders(),
         method: isNewClass ? 'POST' : 'PUT'
       }
     )

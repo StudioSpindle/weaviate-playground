@@ -21,6 +21,7 @@ import * as React from 'react';
 import { Query } from 'react-apollo';
 import apolloClient from 'src/apollo/apolloClient';
 import { ClassType } from 'src/types';
+import { createApiHeaders } from '../../apis/ApiWeaviate';
 import { CLASS_SCHEMA_QUERY } from '../library/queries';
 import { CLASS_IDS_QUERY, ClassIdsQuery } from '../libraryClasses/queries';
 import { UPDATE_META_COUNT_MUTATION } from './queries';
@@ -94,7 +95,9 @@ class NodeEditor extends React.Component<INodeEditorProps, INodeEditorState> {
   public componentDidMount() {
     const { classType, nodeId } = this.props;
     if (nodeId) {
-      fetch(`${url}${(classType || '').toLowerCase()}/${nodeId}`)
+      fetch(`${url}${(classType || '').toLowerCase()}/${nodeId}`, {
+        headers: createApiHeaders()
+      })
         .then(res => res.json())
         .then(res => {
           this.setState({ form: res.schema });
@@ -437,10 +440,7 @@ class NodeEditor extends React.Component<INodeEditorProps, INodeEditorState> {
       `${url}${(classType || '').toLowerCase()}${nodeId ? `/${nodeId}` : ''}`,
       {
         body: JSON.stringify(body),
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json'
-        },
+        headers: createApiHeaders(),
         method: nodeId ? 'PUT' : 'POST'
       }
     )

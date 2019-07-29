@@ -10,13 +10,11 @@ interface IRedirectToTokenIssuerState {
 }
 
 interface IConfig {
-  clientId: string;
   responseType: string;
 }
 
 // this can be made into a JSON file?
 const CONFIG: IConfig = {
-  clientId: 'SF_SEMI', // required and client specific
   responseType: 'token'
 };
 
@@ -59,9 +57,15 @@ class RedirectToTokenIssuer extends React.Component<
         throw new Error(res.statusText);
       })
       .then(resJson => {
-        if (resJson.href) {
-          this.fetchAuthUrl(resJson.href);
+        if (resJson.href && resJson.clientId) {
+          this.fetchAuthUrl(resJson.href, resJson.clientId);
+          return;
         }
+
+        throw new Error(
+          'expected to get .href and .clientId from backend, but got: ' +
+            JSON.stringify(resJson)
+        );
       })
       .catch(err => {
         this.setState({
@@ -72,7 +76,7 @@ class RedirectToTokenIssuer extends React.Component<
       });
   }
 
-  public fetchAuthUrl(url: string) {
+  public fetchAuthUrl(url: string, clientId: string) {
     // tslint:disable-next-line:no-console
     console.log('the auth url is being fetched.');
 
@@ -87,9 +91,9 @@ class RedirectToTokenIssuer extends React.Component<
           window.location.protocol + '//' + window.location.host
         );
 
-        const oAuthUrlLoginUrl = `${resJson.authorization_endpoint}?client_id=${
-          CONFIG.clientId
-        }&response_type=${
+        const oAuthUrlLoginUrl = `${
+          resJson.authorization_endpoint
+        }?client_id=${clientId}&response_type=${
           CONFIG.responseType
         }&redirect_uri=${redirectUrlEncoded}`;
 

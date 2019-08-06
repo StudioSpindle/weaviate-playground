@@ -104,7 +104,7 @@ class ClassIntrospector extends React.Component<
   }
 
   public fetchClasses(url: string, headers: {}) {
-    fetch(`${url}meta`, {
+    fetch(`${url}schema`, {
       headers: createApiHeaders()
     })
       .then(res => {
@@ -115,8 +115,8 @@ class ClassIntrospector extends React.Component<
         }
       })
       .then(classSchemasQuery => {
-        const actionClasses = get(classSchemasQuery, 'actionSchema.classes');
-        const thingsClasses = get(classSchemasQuery, 'thingsSchema.classes');
+        const actionClasses = get(classSchemasQuery, 'actions.classes');
+        const thingsClasses = get(classSchemasQuery, 'things.classes');
         const empty =
           !Boolean(actionClasses && actionClasses.length) &&
           !Boolean(thingsClasses && thingsClasses.length);

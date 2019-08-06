@@ -11,6 +11,8 @@ export default (fragments: { [key: string]: IFragment }) => {
     );
   };
 
+  console.log(fragmentKeys);
+
   const localKeys = fragmentKeys.filter(
     fragmentKey =>
       fragmentKey.startsWith('local') &&
@@ -18,16 +20,7 @@ export default (fragments: { [key: string]: IFragment }) => {
   );
   const localKeysWithoutActiveParent = localKeys.filter(withoutActiveParent);
 
-  const networkKeys = fragmentKeys.filter(
-    fragmentKey =>
-      !fragmentKey.startsWith('local') &&
-      fragments[fragmentKey].queryString !== ''
-  );
-  const networkKeysWithoutActiveParent = networkKeys.filter(
-    withoutActiveParent
-  );
-
-  const allKeys = [...localKeys, ...networkKeys];
+  const allKeys = [...localKeys];
 
   // Only refer to fragments that have no active parent.
   // Other fragments have already been referred to in their active parents.
@@ -36,16 +29,7 @@ export default (fragments: { [key: string]: IFragment }) => {
     query SelectedClassesWithFilters {
       ${
         localKeysWithoutActiveParent.length
-          ? `Local {
-              ${localKeysWithoutActiveParent.map(referFragment)}
-            }`
-          : ''
-      }
-      ${
-        networkKeysWithoutActiveParent.length
-          ? `Network {
-              ${networkKeysWithoutActiveParent.map(referFragment)}
-            }`
+          ? localKeysWithoutActiveParent.map(referFragment)
           : ''
       }
     }
@@ -73,9 +57,8 @@ export default (fragments: { [key: string]: IFragment }) => {
 
   // Return empty string if queryString is invalid
   if (
-    (!localKeys.length && !networkKeys.length) ||
-    (!localKeysWithoutActiveParent.length &&
-      !networkKeysWithoutActiveParent.length) ||
+    !localKeys.length ||
+    !localKeysWithoutActiveParent.length ||
     (!includesFragments || !includesReferences)
   ) {
     return '';

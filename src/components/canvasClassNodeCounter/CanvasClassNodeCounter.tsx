@@ -61,9 +61,11 @@ class CanvasClassNodeCounter extends React.PureComponent<
         </Typography>
       </div>
     );
+
     return (
       <ClassQuery query={CLASS_QUERY} variables={{ id: classId }}>
         {classQuery => {
+          console.log(classQuery.data);
           if (classQuery.loading) {
             return <Circle count="..." />;
           }
@@ -78,15 +80,8 @@ class CanvasClassNodeCounter extends React.PureComponent<
             return null;
           }
 
-          const {
-            classLocation,
-            classType,
-            filters,
-            instance,
-            name
-          } = classQuery.data.class;
+          const { classType, filters, instance, name } = classQuery.data.class;
 
-          const isNetwork = classLocation !== instance;
           const where = createGqlFilters(JSON.parse(filters));
 
           const queryString = createGqlGet({
@@ -95,7 +90,7 @@ class CanvasClassNodeCounter extends React.PureComponent<
             instance,
             properties: 'meta { count }',
             reference: 'CanvasClassNodeCounterQuery',
-            type: 'GetMeta',
+            type: 'Meta',
             where
           });
 
@@ -116,15 +111,10 @@ class CanvasClassNodeCounter extends React.PureComponent<
                   return null;
                 }
 
-                const count = isNetwork
-                  ? get(
-                      canvasClassNodeCounterQuery,
-                      `data.${classLocation}.GetMeta.${instance}.${classType}.${name}.meta.count`
-                    )
-                  : get(
-                      canvasClassNodeCounterQuery,
-                      `data.${classLocation}.GetMeta.${classType}.${name}.meta.count`
-                    );
+                const count = get(
+                  canvasClassNodeCounterQuery,
+                  `data.Meta.${classType}.${name}.meta.count`
+                );
 
                 return <Circle count={count} />;
               }}

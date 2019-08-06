@@ -6,7 +6,7 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import * as React from 'react';
 
-interface IFooterProps extends WithStyles<typeof styles> {}
+interface IFooterProps extends WithStyles<typeof styles> { }
 
 const styles = (theme: Theme) => ({
   appBar: {
@@ -22,10 +22,6 @@ const styles = (theme: Theme) => ({
   }
 });
 
-const openGraphiQL = (e: any) => {
-  e.preventDefault();
-  window.open(window.location.href + '&graphiql=true', '_blank');
-};
 
 /**
  * Footer component
@@ -43,9 +39,7 @@ class Footer extends React.Component<IFooterProps> {
         <Divider />
         <Toolbar variant="dense">
           <Typography color="inherit">
-            <a href="#" onClick={openGraphiQL}>
-              open GraphiQL for this Weaviate
-            </a>
+            Weaviate Playground BETA // <a href="https://stackoverflow.com/questions/tagged/weaviate" target="_blank">request help</a> // <a href="https://github.com/semi-technologies/weaviate-playground/issues" target="_blank">report an issue</a> // Copyright © 2019 SeMI Technologies B.V. All Rights Reserved.
           </Typography>
           <div className={classes.grow} />
         </Toolbar>

@@ -69,11 +69,19 @@ class App extends React.Component<IAppProps> {
   public render() {
     const urlObject = getUrlHashParams({ url: window.location.href });
     const showGraphiQL = urlObject.graphiql;
+    const { classes, logo } = this.props;
 
     if (showGraphiQL) {
-      return <GraphiQLContainer />;
+      return (
+        <React.Fragment>
+          <ScreenSizer />
+          <Header logo={logo} />
+          <GraphiQLContainer />
+          <Footer />
+        </React.Fragment>
+      );
     }
-    const { classes, logo } = this.props;
+
     return (
       <React.Fragment>
         <ScreenSizer />

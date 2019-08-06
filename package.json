@@ -1,6 +1,6 @@
 {
   "name": "weaviate-playground",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": true,
   "dependencies": {
     "@material-ui/core": "^3.3.2",
@@ -44,7 +44,6 @@
     "standard-version": "^4.4.0"
   },
   "scripts": {
-    "precommit": "lint-staged",
     "start": "react-scripts-ts start",
     "build": "react-scripts-ts build",
     "analyze": "source-map-explorer build/static/js/main.*",

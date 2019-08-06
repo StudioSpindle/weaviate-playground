@@ -23,6 +23,7 @@ Documentation on setting up and running a Weaviate for the Weaviate Playground c
 To view the Weaviate Playground make sure you have a Weaviate instance running and then follow the next few steps.  
 
 ### Dependencies
+
 - [Docker](https://docs.docker.com/v17.12/docker-for-mac/install/)
 
 ### Running Weaviate Playground in Docker

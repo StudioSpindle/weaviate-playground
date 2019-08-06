@@ -22,9 +22,14 @@ const styles = (theme: Theme) =>
     }
   });
 
+const subStyle = {
+  fontSize: '1.5rem',
+  fontStyle: 'italic'
+};
+
 const messageHTML = (
   <Fragment>
-    This is the GUI on top of the decentralised knowledge graph{' '}
+    {/* This is the GUI on top of the decentralised knowledge graph{' '}
     <a href="https://github.com/semi-technologies/weaviate" target="_blank">
       Weaviate
     </a>
@@ -35,7 +40,10 @@ const messageHTML = (
     >
       Weaviate Playground documentation
     </a>{' '}
-    on Github.
+    on Github. */}
+    Provide a Weaviate endpoint including the port.
+    <br />
+    e.g., https://foobar.semi.network or 1.1.1.1:8080
   </Fragment>
 );
 
@@ -51,8 +59,7 @@ const WelcomeMessage: React.SFC<IWelcomeMessageProps> = ({ classes }) => {
         align="center"
         className={classes.title}
       >
-        Welcome to the <br />
-        Weaviate Playground!
+        Weaviate Playground<sub style={subStyle}>beta</sub>
       </Typography>
       <Typography align="center" className={classes.paragraph}>
         {messageHTML}

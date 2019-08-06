@@ -16,6 +16,20 @@ export interface IFormAddWeaviateUrlProps extends WithStyles<typeof styles> {}
 const styles = (theme: Theme) => createStyles({});
 
 /**
+ * This function should validate the input fields
+ * @param e
+ */
+const enrichUrl = (e: any) => {
+  // e.preventDefault();
+  // // const inputUrl: HTMLElement = document.getElementById('weaviateUri');
+  // const inputUrl: HTMLElement | null = document.getElementById('weaviateUri');
+  // if (inputUrl) {
+  //   console.log('CLICKED', inputUrl.innerHTML())
+  // }
+  // // window.open(window.location.href + '&graphiql=true', '_blank');
+};
+
+/**
  * Component
  */
 const FormAddWeaviateUrl: React.SFC<IFormAddWeaviateUrlProps> = ({}) => {
@@ -31,6 +45,7 @@ const FormAddWeaviateUrl: React.SFC<IFormAddWeaviateUrlProps> = ({}) => {
         />
       </FormControl>
       <Button
+        onClick={enrichUrl}
         id="connectButton"
         type="submit"
         fullWidth={true}

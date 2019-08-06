@@ -37,7 +37,7 @@ class ClassFetcher extends React.Component<IClassFetcherProps> {
           return (
             <LocalClassesQuery
               query={LOCAL_CLASSES_QUERY}
-              variables={{ typename: 'WeaviateLocalGetObj' }}
+              variables={{ typename: 'GetObj' }}
             >
               {localClassesQuery => {
                 if (localClassesQuery.loading) {
@@ -144,6 +144,8 @@ class ClassFetcher extends React.Component<IClassFetcherProps> {
                           }
                         );
                       }
+
+                      console.log(localClassesQuery);
 
                       if (
                         (!localClassesQuery.data ||

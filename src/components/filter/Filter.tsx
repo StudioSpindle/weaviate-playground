@@ -167,7 +167,7 @@ class Filter extends React.Component<IFilterProps> {
                       instance,
                       properties: `${name} { ${properties} }`,
                       reference: 'MetaDataForFilter',
-                      type: 'GetMeta'
+                      type: 'Meta'
                     });
 
                     const FILTER_META_QUERY = gql(queryString);
@@ -204,7 +204,7 @@ class Filter extends React.Component<IFilterProps> {
 
                           const metaData = get(
                             filterMetaQuery,
-                            `data.${classLocation}.GetMeta.${
+                            `data.${classLocation}.Meta.${
                               instance === 'Local' ? '' : `${instance}.`
                             }${classType}.${className}.${name}`
                           );

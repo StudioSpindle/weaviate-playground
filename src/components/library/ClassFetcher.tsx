@@ -145,8 +145,6 @@ class ClassFetcher extends React.Component<IClassFetcherProps> {
                         );
                       }
 
-                      console.log(localClassesQuery);
-
                       if (
                         (!localClassesQuery.data ||
                           !localClassesQuery.data.__type) &&

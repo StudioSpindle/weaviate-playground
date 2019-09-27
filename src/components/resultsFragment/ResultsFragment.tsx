@@ -83,9 +83,11 @@ class ResultsFragment extends React.Component<IResultsFragmentProps> {
     const typename = instance === 'Local' ? name : `${instance}${name}`;
     const metaQuery = await this.fetchMetaType(typename);
 
-    if (!metaQuery.data.__type) {
+    if (!metaQuery.data[0].__type) {
       // tslint:disable-next-line:no-console
-      console.log(`Missing meta data for ${name}`);
+      console.log(
+        `Missing meta data for ${name} at metaQuery.data.__type check`
+      );
       return null;
     }
 

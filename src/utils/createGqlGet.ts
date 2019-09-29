@@ -4,7 +4,7 @@ export interface ICreateGqlGetProps {
   classType: string;
   properties: string;
   reference?: string;
-  type: 'Get' | 'Meta';
+  type: 'Get' | 'Aggregate';
   where?: string;
 }
 

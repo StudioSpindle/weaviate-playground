@@ -2,7 +2,6 @@ import { Theme } from '@material-ui/core/styles/createMuiTheme';
 import createStyles from '@material-ui/core/styles/createStyles';
 import withStyles, { WithStyles } from '@material-ui/core/styles/withStyles';
 import Typography from '@material-ui/core/Typography';
-import get from 'get-value';
 import gql from 'graphql-tag';
 import * as React from 'react';
 import { Query } from 'react-apollo';
@@ -65,7 +64,6 @@ class CanvasClassNodeCounter extends React.PureComponent<
     return (
       <ClassQuery query={CLASS_QUERY} variables={{ id: classId }}>
         {classQuery => {
-          console.log(classQuery.data);
           if (classQuery.loading) {
             return <Circle count="..." />;
           }
@@ -90,7 +88,7 @@ class CanvasClassNodeCounter extends React.PureComponent<
             instance,
             properties: 'meta { count }',
             reference: 'CanvasClassNodeCounterQuery',
-            type: 'Meta',
+            type: 'Aggregate',
             where
           });
 
@@ -111,10 +109,17 @@ class CanvasClassNodeCounter extends React.PureComponent<
                   return null;
                 }
 
-                const count = get(
-                  canvasClassNodeCounterQuery,
-                  `data.Meta.${classType}.${name}.meta.count`
-                );
+                let count;
+                try {
+                  count =
+                    canvasClassNodeCounterQuery.data.Aggregate[classType][
+                      name
+                    ][0].meta.count;
+                } catch (e) {
+                  count = '';
+                  // tslint:disable-next-line:no-console
+                  console.log('could not extract count: ' + e);
+                }
 
                 return <Circle count={count} />;
               }}

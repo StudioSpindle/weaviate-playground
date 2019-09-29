@@ -167,7 +167,7 @@ class Filter extends React.Component<IFilterProps> {
                       instance,
                       properties: `${name} { ${properties} }`,
                       reference: 'MetaDataForFilter',
-                      type: 'Meta'
+                      type: 'Aggregate'
                     });
 
                     const FILTER_META_QUERY = gql(queryString);

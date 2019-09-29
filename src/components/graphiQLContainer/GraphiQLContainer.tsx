@@ -3,10 +3,10 @@ import 'graphiql/graphiql.css';
 import * as React from 'react';
 import { createApiHeaders } from '../../apis/ApiWeaviate';
 
-let gqlText = "# Weaviate GraphQL interface\n"
-gqlText += "# More information: www.semi.technology\n"
-gqlText += "#\n"
-gqlText += "# Powered by GraphiQL\n"
+let gqlText = '# Weaviate GraphQL interface\n';
+gqlText += '# More information: www.semi.technology\n';
+gqlText += '#\n';
+gqlText += '# Powered by GraphiQL\n';
 
 const urlParams = new URLSearchParams(window.location.search);
 const uri = urlParams.get('weaviateUri') || '';

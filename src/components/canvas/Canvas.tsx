@@ -97,10 +97,11 @@ class Canvas extends React.PureComponent<ICanvasProps, ICanvasState> {
   }
 
   public async getMetaType(typename: string) {
-    const { data }: any = await client.query({
+    const query = {
       query: META_TYPE_QUERY,
       variables: { typename }
-    });
+    };
+    const { data }: any = await client.query(query);
     return data;
   }
 
@@ -120,15 +121,17 @@ class Canvas extends React.PureComponent<ICanvasProps, ICanvasState> {
         const className = classIdParts[classIdParts.length - 1];
         const typename =
           instance === 'local'
-            ? `Meta${className}`
-            : `${instance}Meta${className}`;
+            ? `Aggregate${className}`
+            : `${instance}Aggregate${className}`;
 
         // Get metaData for class
         const metaTypeClass: any = await this.getMetaType(typename);
 
         if (!metaTypeClass.__type) {
           // tslint:disable-next-line:no-console
-          console.log(`Missing meta data for ${typename}`);
+          console.log(
+            `Missing meta data for ${typename} at metaTypeClass.__type check`
+          );
           return [];
         }
 

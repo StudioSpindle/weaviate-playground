@@ -29,7 +29,7 @@ interface IGetLocalClassesData {
 }
 
 interface IGetLocalClassesVariables {
-  typename: 'WeaviateLocalGetObj';
+  typename: 'GetObj';
 }
 
 /**

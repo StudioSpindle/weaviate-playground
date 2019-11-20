@@ -2,7 +2,6 @@ import { Theme } from '@material-ui/core/styles/createMuiTheme';
 import createStyles from '@material-ui/core/styles/createStyles';
 import withStyles, { WithStyles } from '@material-ui/core/styles/withStyles';
 import Typography from '@material-ui/core/Typography';
-import get from 'get-value';
 import gql from 'graphql-tag';
 import * as React from 'react';
 import { Query } from 'react-apollo';
@@ -61,6 +60,7 @@ class CanvasClassNodeCounter extends React.PureComponent<
         </Typography>
       </div>
     );
+
     return (
       <ClassQuery query={CLASS_QUERY} variables={{ id: classId }}>
         {classQuery => {
@@ -78,15 +78,8 @@ class CanvasClassNodeCounter extends React.PureComponent<
             return null;
           }
 
-          const {
-            classLocation,
-            classType,
-            filters,
-            instance,
-            name
-          } = classQuery.data.class;
+          const { classType, filters, instance, name } = classQuery.data.class;
 
-          const isNetwork = classLocation !== instance;
           const where = createGqlFilters(JSON.parse(filters));
 
           const queryString = createGqlGet({
@@ -95,7 +88,7 @@ class CanvasClassNodeCounter extends React.PureComponent<
             instance,
             properties: 'meta { count }',
             reference: 'CanvasClassNodeCounterQuery',
-            type: 'GetMeta',
+            type: 'Aggregate',
             where
           });
 
@@ -116,15 +109,17 @@ class CanvasClassNodeCounter extends React.PureComponent<
                   return null;
                 }
 
-                const count = isNetwork
-                  ? get(
-                      canvasClassNodeCounterQuery,
-                      `data.${classLocation}.GetMeta.${instance}.${classType}.${name}.meta.count`
-                    )
-                  : get(
-                      canvasClassNodeCounterQuery,
-                      `data.${classLocation}.GetMeta.${classType}.${name}.meta.count`
-                    );
+                let count;
+                try {
+                  count =
+                    canvasClassNodeCounterQuery.data.Aggregate[classType][
+                      name
+                    ][0].meta.count;
+                } catch (e) {
+                  count = '';
+                  // tslint:disable-next-line:no-console
+                  console.log('could not extract count: ' + e);
+                }
 
                 return <Circle count={count} />;
               }}

@@ -8,7 +8,7 @@ export interface ICreateGqlGetProps {
   links: IGraphLinks;
   properties: string;
   reference?: string;
-  type: 'Get' | 'GetMeta';
+  type: 'Get' | 'Aggregate';
   where?: string;
   cleanString(textString: string): string;
 }

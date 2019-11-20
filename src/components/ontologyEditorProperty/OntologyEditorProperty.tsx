@@ -27,6 +27,7 @@ import { QueryResult } from 'react-apollo';
 import client from 'src/apollo/apolloClient';
 import { Keywords } from 'src/types';
 import { camelize } from 'src/utils';
+import { createApiHeaders } from '../../apis/ApiWeaviate';
 import { VALIDATE_WORDS_CONTEXTIONARY_QUERY } from '../ontologyEditorClass/queries/ValidateClassName';
 
 /**
@@ -351,10 +352,7 @@ class OntologyEditorProperty extends React.Component<
           keywords,
           name
         }),
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json'
-        },
+        headers: createApiHeaders(),
         method: isNewProperty ? 'POST' : 'PUT'
       }
     )

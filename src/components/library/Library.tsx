@@ -1,4 +1,3 @@
-import Divider from '@material-ui/core/Divider';
 import { Theme } from '@material-ui/core/styles/createMuiTheme';
 import createStyles from '@material-ui/core/styles/createStyles';
 import withStyles, { WithStyles } from '@material-ui/core/styles/withStyles';
@@ -33,10 +32,7 @@ interface ILibraryState {
  */
 const styles = (theme: Theme) =>
   createStyles({
-    classContainer: {
-      maxHeight: '25vh',
-      overflow: 'scroll'
-    }
+    classContainer: {}
   });
 
 /**
@@ -46,7 +42,7 @@ class Library extends React.Component<ILibraryProps, ILibraryState> {
   public render() {
     const { classes } = this.props;
     return (
-      <Section title="Library" shortTitle="Lib" maxHeight="40vh">
+      <Section title="Schema Item Library" shortTitle="Lib">
         <ClassesFiltersQuery query={CLASSES_FILTERS_QUERY}>
           {classesFiltersQuery => {
             if (classesFiltersQuery.loading) {
@@ -69,11 +65,12 @@ class Library extends React.Component<ILibraryProps, ILibraryState> {
 
             return (
               <React.Fragment>
-                <LibraryTextSearch />
                 <LibraryFilters
                   selectedClassLocation={selectedClassLocation}
                   selectedClassType={selectedClassType}
                 />
+
+                <LibraryTextSearch />
 
                 <SelectedClassesQuery query={SELECTED_CLASSES_QUERY}>
                   {selectedClassesQuery => {
@@ -98,12 +95,8 @@ class Library extends React.Component<ILibraryProps, ILibraryState> {
                             selectedClasses={selectedClasses}
                           />
                           <LibraryClasses />
-                          <Divider />
                         </div>
-                        <Divider />
-                        <div>
-                          <OntologyEditor />
-                        </div>
+                        <OntologyEditor />
                       </React.Fragment>
                     );
                   }}

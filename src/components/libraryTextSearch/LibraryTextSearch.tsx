@@ -20,6 +20,7 @@ const styles = (theme: Theme) =>
     container: {
       border: 'none',
       borderBottom: `solid 2px ${theme.palette.primary.main}`,
+      marginBottom: '1em',
       padding: '18px 24px'
     }
   });
@@ -38,7 +39,7 @@ const LibraryTextSearch: React.SFC<ILibraryTextSearchProps> = ({ classes }) => (
       <input
         className={classes.container}
         onChange={updateQueryString.bind(null, updateClassesFilters)}
-        placeholder="Type to search for classes..."
+        placeholder="Type to filter schema items..."
       />
     )}
   </UpdateClassesFiltersMutation>

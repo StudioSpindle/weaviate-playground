@@ -5,15 +5,16 @@ import * as React from 'react';
 import {
   CanvasContainer,
   ClassIntrospector,
-  Filters,
+  // Filters,
   Footer,
   GraphiQLContainer,
   Header,
   Library,
-  ResultsContainer,
+  // ResultsContainer,
   ScreenSizer
 } from 'src/components';
 import { IThemeSpec } from 'src/themes';
+import getUrlHashParams from '../../utils/getUrlHashParams';
 
 /**
  * Types
@@ -51,7 +52,8 @@ const styles = (theme: Theme) =>
       }
     },
     aside: {
-      marginTop: '50px',
+      marginLeft: '25px',
+      marginTop: '25px',
       position: 'absolute'
     },
     main: {
@@ -65,29 +67,37 @@ const styles = (theme: Theme) =>
  */
 class App extends React.Component<IAppProps> {
   public render() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const showGraphiQL = urlParams.get('graphiql');
+    const urlObject = getUrlHashParams({ url: window.location.href });
+    const showGraphiQL = urlObject.graphiql;
+    const { classes, logo } = this.props;
 
     if (showGraphiQL) {
-      return <GraphiQLContainer />;
+      return (
+        <React.Fragment>
+          <ScreenSizer />
+          <Header logo={logo} />
+          <GraphiQLContainer />
+          <Footer />
+        </React.Fragment>
+      );
     }
-    const { classes, logo } = this.props;
+
     return (
       <React.Fragment>
         <ScreenSizer />
         <Header logo={logo} />
         <main className={classes.main}>
           <ClassIntrospector>
-            <aside className={classes.aside} style={{ left: '50px' }}>
+            <aside className={classes.aside}>
               <Library />
-              <Filters />
+              {/*<Filters />*/}
             </aside>
 
             <CanvasContainer />
 
-            <aside className={classes.aside} style={{ right: '50px' }}>
-              <ResultsContainer />
-            </aside>
+            {/*<aside className={classes.aside} style={{ right: '50px' }}>*/}
+            {/*  <ResultsContainer />*/}
+            {/*</aside>*/}
           </ClassIntrospector>
         </main>
         <Footer />

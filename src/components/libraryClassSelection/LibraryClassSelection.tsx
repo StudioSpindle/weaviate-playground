@@ -18,24 +18,25 @@ export interface ILibraryClassSelection extends WithStyles<typeof styles> {
  */
 const styles = (theme: Theme) =>
   createStyles({
-    container: {
-      padding: '4px'
-    },
     noClassesContainer: {
       padding: '0.5em 1em'
     },
     noClassesText: {
-      color: theme.palette.grey[400]
+      color: theme.palette.primary.main,
+      textAlign: 'center'
     },
+    // TODO: make generic component together with 'unselectedClassesContainer' in
+    //  LibraryClasses.tsx (exception of components, optional border style)
     selectedClasses: {
       border: `2px dashed ${theme.palette.grey[200]}`,
       listStyle: 'none',
+      marginBottom: '1rem',
+      maxHeight: '22vh', // caps it around 5 items
+      overflowY: 'auto',
       padding: '0.25em'
     },
     typography: {
-      fontSize: '1rem',
-      fontWeight: 'bold',
-      marginLeft: '20px'
+      marginBottom: '.5rem'
     }
   });
 
@@ -46,10 +47,11 @@ const LibraryClassSelection: React.SFC<ILibraryClassSelection> = ({
   classes,
   selectedClasses
 }) => (
-  <div className={classes.container}>
-    <Typography classes={{ root: classes.typography }}>
-      In playground
+  <React.Fragment>
+    <Typography variant={'subtitle1'} classes={{ root: classes.typography }}>
+      Schema items in playground
     </Typography>
+
     <div className={classes.selectedClasses}>
       {!selectedClasses.length && (
         <div className={classes.noClassesContainer}>
@@ -80,7 +82,7 @@ const LibraryClassSelection: React.SFC<ILibraryClassSelection> = ({
         </ClassQuery>
       ))}
     </div>
-  </div>
+  </React.Fragment>
 );
 
 export default withStyles(styles)(LibraryClassSelection);

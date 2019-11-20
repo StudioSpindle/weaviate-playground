@@ -23,6 +23,7 @@ Documentation on setting up and running a Weaviate for the Weaviate Playground c
 To view the Weaviate Playground make sure you have a Weaviate instance running and then follow the next few steps.  
 
 ### Dependencies
+
 - [Docker](https://docs.docker.com/v17.12/docker-for-mac/install/)
 
 ### Running Weaviate Playground in Docker
@@ -91,7 +92,9 @@ This will run a source map explorer to inspect the composition of the app by fil
 #### Releasing
 
 ```bash
-yarn release
+$ yarn release
+$ docker build -f "Dockerfile" -t "semitechnologies/weaviate-playground:latest" -t "semitechnologies/weaviate-playground:$(cat package.json | jq -r .version)" .
+$ docker push "semitechnologies/weaviate-playground:latest" && docker push "semitechnologies/weaviate-playground:$(cat package.json | jq -r .version)"
 ```
 
 This will create a release by bumping the semver version number and optimizing code for production. You can also create a build without bumping the version number by running `yarn build`.
@@ -99,14 +102,6 @@ This will create a release by bumping the semver version number and optimizing c
 #### Code quality
 
 We try to maintain code quality with testing and formatting. A precommit and prepush hook will run all tests. The hooks don't format code because this will interfere with commits that have change selections. It is the responsibility of the developer to run Prettier. Many code editors can run Prettier automatically when saving code.
-
-## Docker
-
-The Weaviate playground is available as Docker container here: https://hub.docker.com/r/creativesoftwarefdn/weaviate-playground
-
-You can run the stable (master branch) and unstable (develop branch) as follows:
-- STABLE: `docker run -d -p 8080:80 creativesoftwarefdn/weaviate-playground:stable`
-- UNSTABLE: `docker run -d -p 8080:80 creativesoftwarefdn/weaviate-playground:unstable`
 
 ## Build Status
 

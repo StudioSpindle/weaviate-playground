@@ -6,7 +6,7 @@ import Typography from '@material-ui/core/Typography';
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
 import React from 'react';
-import { compose } from 'react-apollo';
+import { compose } from 'recompose';
 import translations from 'src/translations/en';
 
 const createSliderWithTooltip = Slider.createSliderWithTooltip;

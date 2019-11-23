@@ -1,6 +1,6 @@
 import { Theme, withTheme } from '@material-ui/core/styles';
 import React from 'react';
-import { compose } from 'react-apollo';
+import { compose } from 'recompose';
 
 /**
  * Types

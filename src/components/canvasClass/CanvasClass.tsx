@@ -7,7 +7,7 @@ import {
 import { Theme } from '@material-ui/core/styles/createMuiTheme';
 import Typography from '@material-ui/core/Typography';
 import * as React from 'react';
-import { compose } from 'react-apollo';
+import { compose } from 'recompose';
 import { CanvasClassNodeCounter } from 'src/components';
 import {
   CLASS_SELECTION_CANVAS_MUTATION,

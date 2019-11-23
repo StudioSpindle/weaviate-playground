@@ -5,7 +5,7 @@ import Typography from '@material-ui/core/Typography';
 import get from 'get-value';
 import gql from 'graphql-tag';
 import * as React from 'react';
-import { compose } from 'react-apollo';
+import { compose } from 'recompose';
 import client from 'src/apollo/apolloClient';
 import apolloClient from 'src/apollo/apolloClient';
 import { CanvasClass, Graph } from 'src/components';
